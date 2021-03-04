@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { CostumerSession } from './costumer-session.model';
 import { CostumerService } from './costumer.service';
 
@@ -16,5 +16,10 @@ export class CostumerController {
         @Body('session') session?: CostumerSession
     ) {
         return await this.costumerService.costumerLogin(login, session);
+    }
+
+    @Get('test')
+    async testCall() {
+        return "Hello World";
     }
 }
