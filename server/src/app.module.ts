@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
-import { UserController } from './user/user.controller';
-import { UserService } from './user/user.service';
-import { UserModule } from './user/user.module';
+import { CostumerController } from './costumer/costumer.controller';
+import { CostumerService } from './costumer/costumer.service';
+import { CostumerModule } from './costumer/costumer.module';
 import { TestEndpointModule } from './test-endpoint/test-endpoint.module';
 
 @Module({
-  imports: [UserModule, TestEndpointModule],
-  controllers: [UserController],
-  providers: [UserService],
+  imports: [CostumerModule, TestEndpointModule],
+  controllers: [CostumerController],
+  providers: [CostumerService],
 })
 export class AppModule {}
