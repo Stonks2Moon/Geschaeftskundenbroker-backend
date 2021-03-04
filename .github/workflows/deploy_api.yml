@@ -23,4 +23,4 @@ jobs:
           url: 'https://stonks.multiflexxx.de/BackendGithub'
           method: 'GET'
           customHeaders: '{"ACTION_TOKEN":"${{ secrets.ACTION_TOKEN }}"}'
-          timeout: 300 
+          timeout: 30000 
