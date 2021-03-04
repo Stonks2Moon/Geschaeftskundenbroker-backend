@@ -1,0 +1,1 @@
+// Diese Datei beinhaltet alle verwendeten Konstanten
