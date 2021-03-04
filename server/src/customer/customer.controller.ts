@@ -1,10 +1,10 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
-import { CostumerSession } from './costumer-session.model';
-import { CostumerService } from './costumer.service';
+import { CustomerSession } from './customer-session.model';
+import { CustomerService } from './customer.service';
 
-@Controller('costumer')
+@Controller('customer')
 export class CostumerController {
-    constructor(private readonly costumerService: CostumerService) { }
+    constructor(private readonly customerService: CustomerService) { }
     
     
     @Post('login')
@@ -13,9 +13,9 @@ export class CostumerController {
             email: string,
             password: string
         },
-        @Body('session') session?: CostumerSession
+        @Body('session') session?: CustomerSession
     ) {
-        return await this.costumerService.costumerLogin(login, session);
+        return await this.customerService.costumerLogin(login, session);
     }
 
     @Get('test')
