@@ -1,14 +1,14 @@
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Connector } from 'src/util/database/connector';
 import { QueryBuilder } from 'src/util/database/query-builder';
-import { CostumerSession } from './costumer-session.model';
-import { Costumer } from './costumer.model';
+import { CustomerSession } from './customer-session.model';
+import { Customer } from './customer.model';
 import * as StaticConsts from 'src/util/static-consts';
 
 const bcrypt = require('bcrypt');
 
 @Injectable()
-export class CostumerService {
+export class CustomerService {
 
     /**
      * Return the complete Information for a Costumer
@@ -23,13 +23,13 @@ export class CostumerService {
             email: string,
             password: string
         },
-        session?: CostumerSession
+        session?: CustomerSession
     ): Promise<{
-        costumer: Costumer,
-        session: CostumerSession
+        costumer: Customer,
+        session: CustomerSession
     }> {
 
-        let costumer: Costumer;
+        let costumer: Customer;
         
 
         // Check parameters

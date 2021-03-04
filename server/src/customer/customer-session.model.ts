@@ -1,4 +1,4 @@
-export interface CostumerSession {
+export interface CustomerSession {
     costumerId: string,
     sessionId: string
 }

@@ -1,5 +1,5 @@
 // Modell eines Nutzers
-export interface Costumer {
+export interface Customer {
     costumerId: string,
     
 }
