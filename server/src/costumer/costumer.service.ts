@@ -4,8 +4,10 @@ import { QueryBuilder } from 'src/util/database/query-builder';
 import { CostumerSession } from './costumer-session.model';
 import { Costumer } from './costumer.model';
 import * as StaticConsts from 'src/util/static-consts';
+import { userInfo } from 'os';
 
 const bcrypt = require('bcrypt');
+const cryptoRandomString = require('crypto-random-string');
 
 @Injectable()
 export class CostumerService {
@@ -30,6 +32,7 @@ export class CostumerService {
     }> {
 
         let costumer: Costumer;
+        let sessionId: string
         
 
         // Check parameters
@@ -40,8 +43,13 @@ export class CostumerService {
                 throw new UnauthorizedException("Not authorized");
             }
 
+            // new session id
+            sessionId = cryptoRandomString({length: 64, type: 'alphanumeric'});
+
             // Delete old Costumer Sessions
-            await Connector.executeQuery(QueryBuilder.deleteOldCostumerSessions(result.costumer_id))
+            await Connector.executeQuery(QueryBuilder.deleteOldCostumerSessions(result.costumer_id));
+
+            // Create new user session
 
 
         } else if(session && session.costumerId && session.sessionId) {
@@ -49,6 +57,9 @@ export class CostumerService {
         } else {
             throw new BadRequestException("Insufficient authorization arguments");
         }
-        return null;
+        return {
+            costumer: Costumer,
+            session: c
+        };
     }
 }
