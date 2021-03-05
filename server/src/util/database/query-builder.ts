@@ -2,7 +2,7 @@ import { Query } from './query.model';
 
 export class QueryBuilder {
     
-    public static getCostumerByLoginCredentials(email: string): Query {
+    public static getCustomerByLoginCredentials(email: string): Query {
         return {
             query: "SELECT * FROM customer WHERE email = ?;",
             args: [
@@ -11,30 +11,30 @@ export class QueryBuilder {
         }
     }
 
-    public static deleteOldCostumerSessions(costumerId: string): Query {
+    public static deleteOldCustomerSessions(customerId: string): Query {
         return {
-            query: "DELETE FROM customer_session WHERE costumer_id = ? OR CURRENT_DATE() > expiration_date",
+            query: "DELETE FROM customer_session WHERE customer_id = ? OR CURRENT_DATE() > expiration_date",
             args: [
-                costumerId
+                customerId
             ]
         }
     }
 
-    public static createCostumerSession(costumerId: string, sessionId: string): Query {
+    public static createCustomerSession(customerId: string, sessionId: string): Query {
         return {
-            query: "INSERT INTO costumer_session (session_id, costumer_id, expiration_date) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 1 HOUR));",
+            query: "INSERT INTO customer_session (session_id, customer_id, expiration_date) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 1 HOUR));",
             args: [
-                costumerId,
+                customerId,
                 sessionId
             ]
         }
     }
 
-    public static refreshCostumerSession(costumerId: string, sessionId: string): Query {
+    public static refreshCustomerSession(customerId: string, sessionId: string): Query {
         return {
-            query: "UPDATE costumer_session SET expiration_date = DATE_ADD(NOW(), INTERVAL 1 HOUR) WHERE costumer_id = ? AND session_id = ?;",
+            query: "UPDATE customer_session SET expiration_date = DATE_ADD(NOW(), INTERVAL 1 HOUR) WHERE customer_id = ? AND session_id = ?;",
             args: [
-                costumerId,
+                customerId,
                 sessionId
             ]
         }

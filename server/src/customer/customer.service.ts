@@ -1,8 +1,8 @@
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Connector } from 'src/util/database/connector';
 import { QueryBuilder } from 'src/util/database/query-builder';
-import { CostumerSession } from './costumer-session.model';
-import { Costumer } from './costumer.model';
+import { CustomerSession } from './customer-session.model';
+import { Customer } from './customer.model';
 import * as StaticConsts from 'src/util/static-consts';
 import { userInfo } from 'os';
 
@@ -10,34 +10,34 @@ const bcrypt = require('bcrypt');
 const cryptoRandomString = require('crypto-random-string');
 
 @Injectable()
-export class CostumerService {
+export class CustomerService {
 
     /**
-     * Return the complete Information for a Costumer
-     * @param costumerId Id of the Costumer
+     * Return the complete Information for a Customer
+     * @param customerId Id of the Customer
      */
-    public async getCostumer(costumerId: string) {
+    public async getCustomer(customerId: string) {
 
     }
 
-    public async costumerLogin(
+    public async customerLogin(
         login?: {
             email: string,
             password: string
         },
-        session?: CostumerSession
+        session?: CustomerSession
     ): Promise<{
-        costumer: Costumer,
-        session: CostumerSession
+        customer: Customer,
+        session: CustomerSession
     }> {
 
-        let costumer: Costumer;
+        let customer: Customer;
         let sessionId: string
         
 
         // Check parameters
         if(login && login.email && login.password) {
-            let result = (await Connector.executeQuery(QueryBuilder.getCostumerByLoginCredentials(login.email)))[0];
+            let result = (await Connector.executeQuery(QueryBuilder.getCustomerByLoginCredentials(login.email)))[0];
 
             if(!result || !bcrypt.compareSync(login.password, result.password_hash)) {
                 throw new UnauthorizedException("Not authorized");
@@ -46,20 +46,23 @@ export class CostumerService {
             // new session id
             sessionId = cryptoRandomString({length: 64, type: 'alphanumeric'});
 
-            // Delete old Costumer Sessions
-            await Connector.executeQuery(QueryBuilder.deleteOldCostumerSessions(result.costumer_id));
+            // Delete old Customer Sessions
+            await Connector.executeQuery(QueryBuilder.deleteOldCustomerSessions(result.customer_id));
 
             // Create new user session
 
 
-        } else if(session && session.costumerId && session.sessionId) {
+        } else if(session && session.customerId && session.sessionId) {
 
         } else {
             throw new BadRequestException("Insufficient authorization arguments");
         }
         return {
-            costumer: Costumer,
-            session: c
+            customer: customer,
+            session: {
+                customerId: customer.customerId,
+                sessionId: sessionId
+            }
         };
     }
 }
