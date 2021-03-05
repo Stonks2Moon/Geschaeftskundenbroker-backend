@@ -1,10 +1,12 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Inject, Param } from '@nestjs/common';
 import { CompanyService } from './company.service';
 
 @Controller('company')
 export class CompanyController {
 
-    constructor(private readonly companyService: CompanyService) {}
+    constructor(
+        private readonly companyService: CompanyService
+    ) {}
     
     @Get('code')
     generateCompanyCode(
