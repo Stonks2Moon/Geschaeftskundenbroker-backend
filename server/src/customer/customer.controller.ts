@@ -19,15 +19,9 @@ export class CustomerController {
         return await this.customerService.customerLogin(login, session);
     }
 
-    @Put('register')
+    @Put()
     async register(
-        @Body('customer') customer: {
-            firstName: string,
-            lastName: string,
-            email: string,
-            password: string,
-            companyCode: string
-        }
+        @Body('customer') customer: Customer
     ): Promise<{
         customer: Customer, 
         session: CustomerSession

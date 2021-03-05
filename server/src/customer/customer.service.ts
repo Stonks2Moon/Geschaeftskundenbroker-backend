@@ -109,13 +109,7 @@ export class CustomerService {
         }
     }
 
-    public async registerCustomer(customer: {
-        firstName: string,
-        lastName: string,
-        email: string,
-        password: string,
-        companyCode: string
-    }): Promise<{
+    public async registerCustomer(customer: Customer): Promise<{
         customer: Customer, 
         session: CustomerSession
     }> {
@@ -150,13 +144,7 @@ export class CustomerService {
         return registeredCustomer;
     }
 
-    private async validateRegistrationInput(customer: {
-        firstName: string,
-        lastName: string,
-        email: string,
-        password: string,
-        companyCode: string
-    }): Promise<void> {
+    private async validateRegistrationInput(customer: Customer): Promise<void> {
             
         // check if email address is already registered
         let result = (await Connector.executeQuery(QueryBuilder.getCustomerByLoginCredentials(customer.email)))[0];

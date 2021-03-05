@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Inject, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Param, Post, Put } from '@nestjs/common';
 import { Company } from './company.model';
 import { CompanyService } from './company.service';
 
@@ -9,7 +9,7 @@ export class CompanyController {
         private readonly companyService: CompanyService
     ) {}
 
-    @Post('create')
+    @Put()
     async createCompany(
         @Body('company') company: {
         companyName: string,
