@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, forwardRef, Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { Connector } from 'src/util/database/connector';
 import { QueryBuilder } from 'src/util/database/query-builder';
 import { CustomerSession } from './customer-session.model';
@@ -14,7 +14,10 @@ const cryptoRandomString = require('crypto-random-string');
 
 @Injectable()
 export class CustomerService {
-    constructor(private readonly companyService: CompanyService) {}
+    constructor(
+        @Inject(forwardRef(() => CompanyService))
+        private readonly companyService: CompanyService
+    ) {}
 
 
     /**
