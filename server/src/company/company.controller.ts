@@ -1,4 +1,5 @@
-import { Controller, Get, Inject, Param } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Param, Post } from '@nestjs/common';
+import { Company } from './company.model';
 import { CompanyService } from './company.service';
 
 @Controller('company')
@@ -7,11 +8,16 @@ export class CompanyController {
     constructor(
         private readonly companyService: CompanyService
     ) {}
-    
-    @Get('code')
-    generateCompanyCode(
-        @Param('name') name: string
-    ) {
-        return this.generateCompanyCode(name)
+
+    @Post('create')
+    async createCompany(
+        @Body('company') company: {
+        companyName: string,
+        postCode: string,
+        city: string,
+        street: string,
+        houseNumber: string
+    }): Promise<Company> {
+        return await this.companyService.createCompany(company);
     }
 }
