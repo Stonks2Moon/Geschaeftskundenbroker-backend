@@ -1,4 +1,4 @@
 // Diese Datei beinhaltet alle verwendeten Konstanten
 
-/*------------- COSTUMER -------------*/
+/*------------- Customer -------------*/
 export const HASH_SALT_ROUNDS = 10;

@@ -1,4 +1,4 @@
 export interface CustomerSession {
-    costumerId: string,
+    customerId: string,
     sessionId: string
 }
