@@ -5,4 +5,5 @@ export interface Company {
     companyCode: string,
     companyName: string,
     address: Address,
+    addressId?: number
 }

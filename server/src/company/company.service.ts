@@ -63,20 +63,32 @@ export class CompanyService {
         const companyId: string = uuid();
 
         // Generate company code
+        const companyCode: string = this.generateCompanyCodeFromName(company.companyName);
 
+        // Write Address to DB
+        let {insertId} = await Connector.executeQuery(QueryBuilder.createAddress(newAddress));
 
-        return null;
+        // Write company info to DB
+        await Connector.executeQuery(QueryBuilder.createCompany({
+            companyId: companyId,
+            companyCode: companyCode,
+            companyName: company.companyName,
+            address: null
+        }, insertId))
+
+        // Return created company
+        return await this.getCompanyById(companyId);
     }
 
 
-    public generateCompanyIdFromName(companyName: string): string {
+    private generateCompanyCodeFromName(companyName: string): string {
         const words: string[] = companyName.split(" ");
         const targetLength = 3;
         let code: string = "";
 
         if(words.length < targetLength) {
             let temp: number = Math.ceil(targetLength / words.length);
-            for(let word in words) {
+            for(let word of words) {
                 code += word.slice(0, temp);
             }
             code = code.slice(0, targetLength);
@@ -85,7 +97,11 @@ export class CompanyService {
                 code += words[i].charAt(0);
             }
         }
-        return `${code}#${cryptoRandomString({length: 6, type: 'alphanumeric'}).toUpperCase()}`
+        if(code.length < targetLength) {
+            code = code.padEnd(targetLength, cryptoRandomString({length: targetLength, type: 'alphanumeric'}).slice(0, targetLength))
+        }
+
+        return `${code.toUpperCase()}#${cryptoRandomString({length: 6, type: 'alphanumeric'}).toUpperCase()}`
     }
 
 

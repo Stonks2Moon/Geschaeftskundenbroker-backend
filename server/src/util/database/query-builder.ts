@@ -1,3 +1,5 @@
+import { Address } from 'src/company/address.model';
+import { Company } from 'src/company/company.model';
 import { Query } from './query.model';
 
 export class QueryBuilder {
@@ -22,6 +24,18 @@ export class QueryBuilder {
             ]
         }
     }
+
+    public static createCompany(company: Company, addressId: number): Query {
+        return {
+            query: "INSERT INTO company (company_id, company_code, company_name, address_id) VALUES (?, ?, ?, ?)",
+            args: [
+                company.companyId,
+                company.companyCode,
+                company.companyName,
+                addressId
+            ]
+        }
+    }
     
     public static getCustomerByLoginCredentials(email: string): Query {
         return {
@@ -43,7 +57,7 @@ export class QueryBuilder {
 
     public static createCustomerSession(customerId: string, sessionId: string): Query {
         return {
-            query: "INSERT INTO customer_session (session_id, customer_id, expiration_date) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 1 HOUR));",
+            query: "INSERT INTO customer_session (customer_id, session_id, expiration_date) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 1 HOUR));",
             args: [
                 customerId,
                 sessionId
@@ -94,6 +108,18 @@ export class QueryBuilder {
             query: "SELECT * FROM company WHERE company_code = ?;",
             args: [
                 companyCode
+            ]
+        }
+    }
+
+    public static createAddress(address: Address): Query {
+        return {
+            query: "INSERT INTO address (post_code, city, street, house_number) VALUES (?, ?, ?, ?);",
+            args: [
+                address.postCode,
+                address.city,
+                address.street,
+                address.houseNumber
             ]
         }
     }
