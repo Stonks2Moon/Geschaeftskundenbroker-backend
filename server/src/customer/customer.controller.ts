@@ -1,12 +1,13 @@
-import { Body, Controller, Post, Put } from '@nestjs/common';
+import { Body, Controller, Post, Put, Type } from '@nestjs/common';
+import { ApiBody, ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CustomerSession } from './customer-session.model';
 import { Customer } from './customer.model';
 import { CustomerService } from './customer.service';
 
+@ApiTags('customer')
 @Controller('customer')
 export class CustomerController {
     constructor(private readonly customerService: CustomerService) { }
-    
     
     @Post('login')
     async login(

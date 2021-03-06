@@ -1,6 +1,8 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
+import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { ShareService } from './share.service';
 
+@ApiTags('share')
 @Controller('share')
 export class ShareController {
 
