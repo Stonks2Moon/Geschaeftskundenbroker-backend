@@ -1,6 +1,5 @@
-import { Body, Controller, Post, Put, Type } from '@nestjs/common';
-import { ApiBody, ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Company } from 'src/company/company.model';
+import { Body, Controller, Post, Put } from '@nestjs/common';
+import { ApiBody, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { CustomerSession } from './customer-session.model';
 import { Customer } from './customer.model';
 import { CustomerService } from './customer.service';
@@ -12,6 +11,35 @@ export class CustomerController {
 
     @ApiOkResponse({
         description: "Returns a Customer and CustomerSession object"
+    })
+    @ApiBody({
+        schema: {
+            type: 'object',
+            properties: {
+                "login?": {
+                    type: "object",
+                    properties: {
+                        "email": {
+                            type: "string"
+                        },
+                        "password": {
+                            type: "string"
+                        }
+                    }
+                },
+                "session?": {
+                    type: "object",
+                    properties: {
+                        "customerId": {
+                            type: "string"
+                        },
+                        "sessionId": {
+                            type: "string"
+                        }
+                    }
+                }
+            }
+        },
     })
     @Post('login')
     async login(
