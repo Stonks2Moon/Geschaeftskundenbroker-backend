@@ -11,4 +11,4 @@ import { DepotModule } from './depot/depot.module';
   controllers: [ShareController],
   providers: [ShareService],
 })
-export class AppModule {}
+export class AppModule { }

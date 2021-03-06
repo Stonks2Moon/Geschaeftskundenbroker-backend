@@ -5,17 +5,16 @@ import { Company } from './company.model';
 import { Address } from './address.model';
 import { uuid } from 'uuidv4';
 
-
 const cryptoRandomString = require('crypto-random-string');
 
 @Injectable()
 export class CompanyService {
 
     public async getCompanyById(companyId: string): Promise<Company> {
-        
+
         let result = (await Connector.executeQuery(QueryBuilder.getCompanyById(companyId)))[0];
-        
-        if(!result) {
+
+        if (!result) {
             throw new NotFoundException("Company not found");
         }
 
@@ -24,7 +23,7 @@ export class CompanyService {
 
         const company: Company = {
             companyId: result.company_id,
-            companyCode: result.company_code, 
+            companyCode: result.company_code,
             companyName: result.company_name,
             address: address
         }
@@ -35,7 +34,7 @@ export class CompanyService {
 
     public async getCompanyByCompanyCode(companyCode: string): Promise<Company> {
         let result = (await Connector.executeQuery(QueryBuilder.getCompanyByCompanyCode(companyCode)))[0];
-        if(!result) {
+        if (!result) {
             throw new NotFoundException("Company not found");
         }
 
@@ -50,7 +49,7 @@ export class CompanyService {
         street: string,
         houseNumber: string
     }): Promise<Company> {
-        
+
         // Create Address object
         const newAddress: Address = {
             postCode: company.postCode,
@@ -66,7 +65,7 @@ export class CompanyService {
         const companyCode: string = this.generateCompanyCodeFromName(company.companyName);
 
         // Write Address to DB
-        let {insertId} = await Connector.executeQuery(QueryBuilder.createAddress(newAddress));
+        let { insertId } = await Connector.executeQuery(QueryBuilder.createAddress(newAddress));
 
         // Write company info to DB
         await Connector.executeQuery(QueryBuilder.createCompany({
@@ -86,32 +85,32 @@ export class CompanyService {
         const targetLength = 3;
         let code: string = "";
 
-        if(words.length < targetLength) {
+        if (words.length < targetLength) {
             let temp: number = Math.ceil(targetLength / words.length);
-            for(let word of words) {
+            for (let word of words) {
                 code += word.slice(0, temp);
             }
             code = code.slice(0, targetLength);
         } else {
-            for(let i = 0; i < targetLength; i++) {
+            for (let i = 0; i < targetLength; i++) {
                 code += words[i].charAt(0);
             }
         }
-        if(code.length < targetLength) {
-            code = code.padEnd(targetLength, cryptoRandomString({length: targetLength, type: 'alphanumeric'}).slice(0, targetLength))
+        if (code.length < targetLength) {
+            code = code.padEnd(targetLength, cryptoRandomString({ length: targetLength, type: 'alphanumeric' }).slice(0, targetLength))
         }
 
-        return `${code.toUpperCase()}#${cryptoRandomString({length: 6, type: 'alphanumeric'}).toUpperCase()}`
+        return `${code.toUpperCase()}#${cryptoRandomString({ length: 6, type: 'alphanumeric' }).toUpperCase()}`
     }
 
 
     public async getAddressById(addressId: string): Promise<Address> {
         let result = (await Connector.executeQuery(QueryBuilder.getAddressById(addressId)))[0];
 
-        if(!result) {
+        if (!result) {
             throw new NotFoundException("Address not found");
         }
-        
+
         const address: Address = {
             postCode: result.post_code,
             city: result.city,

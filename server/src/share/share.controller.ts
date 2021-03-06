@@ -10,6 +10,9 @@ export class ShareController {
         private readonly shareService: ShareService
     ) { }
 
+    @ApiOkResponse({
+        description: "TODO"
+    })
     @Get('all')
     async getAllShares(
         @Query('wkn') wkn?: string,
@@ -19,6 +22,9 @@ export class ShareController {
         return this.shareService.getAllShares(wkn, isin, shareName);
     }
 
+    @ApiOkResponse({
+        description: "TODO"
+    })
     @Get('historical-data')
     async getHistoricalData(
         @Query('shareId') shareId: number,
@@ -28,11 +34,13 @@ export class ShareController {
         return this.shareService.getHistoricalData(shareId, fromDate, toDate);
     }
 
+    @ApiOkResponse({
+        description: "TODO"
+    })
     @Get(':shareId')
     async getShareData(
         @Param('shareId') shareId: number
     ): Promise<any> {
         return this.shareService.getShareData(shareId);
     }
-
 }

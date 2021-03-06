@@ -1,6 +1,6 @@
 import { InternalServerErrorException } from '@nestjs/common';
 import { Query } from './query.model';
- 
+
 export class Connector {
 	private static mariadb = require('mariadb');
 	private static credentials = require('../../../database.json');
@@ -23,15 +23,15 @@ export class Connector {
 		try {
 			connection = await Connector.pool.getConnection();
 			result = await connection.query(q.query, q.args);
-	  	} catch(err) {
+		} catch (err) {
 			console.log(err);
 			throw new InternalServerErrorException("Something went wrong");
-	  	} finally {
+		} finally {
 			// Close connection
 			connection.release();
 		}
 
-	  	return result;
+		return result;
 	}
 
 }

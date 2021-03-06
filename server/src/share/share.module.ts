@@ -7,4 +7,4 @@ import { ShareService } from './share.service';
     providers: [ShareService],
     exports: [ShareService]
 })
-export class ShareModule {}
+export class ShareModule { }

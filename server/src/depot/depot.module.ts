@@ -7,4 +7,4 @@ import { DepotService } from './depot.service';
   providers: [DepotService],
   exports: [DepotService]
 })
-export class DepotModule {}
+export class DepotModule { }

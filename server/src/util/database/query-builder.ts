@@ -36,7 +36,7 @@ export class QueryBuilder {
             ]
         }
     }
-    
+
     public static getCustomerByLoginCredentials(email: string): Query {
         return {
             query: "SELECT * FROM customer WHERE email = ?;",
