@@ -1,24 +1,29 @@
-import { Body, Controller, Put } from '@nestjs/common';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Put, Type } from '@nestjs/common';
+import { ApiBody, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Company } from './company.model';
 import { CompanyService } from './company.service';
+
+
 
 @ApiTags('company')
 @Controller('company')
 export class CompanyController {
-
     constructor(
         private readonly companyService: CompanyService
     ) { }
 
     @ApiOkResponse({
-        description: "Returns a Company object"
+        description: "Returns a Company object",
+        type: Company
+    })
+    @ApiBody({
+        description: ""
     })
     @Put()
     async createCompany(
         @Body('company') company: {
-            companyName: string,
-            postCode: string,
+            companyName: string;
+            postCode: string
             city: string,
             street: string,
             houseNumber: string

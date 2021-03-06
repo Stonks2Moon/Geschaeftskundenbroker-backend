@@ -10,7 +10,7 @@ export class CustomerController {
     constructor(private readonly customerService: CustomerService) { }
 
     @ApiOkResponse({
-        description: "Returns a Customer and CustomerSession object"
+        description: "Returns a Customer and CustomerSession object",
     })
     @Post('login')
     async login(
