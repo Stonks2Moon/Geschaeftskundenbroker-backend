@@ -7,4 +7,4 @@ import { CompanyService } from './company.service';
     providers: [CompanyService],
     exports: [CompanyService]
 })
-export class CompanyModule {}
+export class CompanyModule { }

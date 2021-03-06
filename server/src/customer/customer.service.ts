@@ -17,7 +17,7 @@ export class CustomerService {
     constructor(
         @Inject(forwardRef(() => CompanyService))
         private readonly companyService: CompanyService
-    ) {}
+    ) { }
 
 
     /**
@@ -26,8 +26,8 @@ export class CustomerService {
      */
     public async getCustomer(customerId: string): Promise<Customer> {
         let result = (await Connector.executeQuery(QueryBuilder.getCustomerById(customerId)))[0];
-        
-        if(!result) {
+
+        if (!result) {
             throw new NotFoundException("Customer not found");
         }
 
@@ -58,19 +58,19 @@ export class CustomerService {
         let customer: Customer;
         let customerId: string;
         let sessionId: string;
-        
+
 
         // Check parameters
-        if(login && login.email && login.password) {
+        if (login && login.email && login.password) {
             let result = (await Connector.executeQuery(QueryBuilder.getCustomerByLoginCredentials(login.email)))[0];
 
-            if(!result || !bcrypt.compareSync(login.password, result.password_hash)) {
+            if (!result || !bcrypt.compareSync(login.password, result.password_hash)) {
                 throw new UnauthorizedException("Not authorized");
             }
 
             // new session id
-            sessionId = cryptoRandomString({length: 64, type: 'alphanumeric'});
-           
+            sessionId = cryptoRandomString({ length: 64, type: 'alphanumeric' });
+
 
             // Delete old Customer Sessions
             await Connector.executeQuery(QueryBuilder.deleteOldCustomerSessions(result.customer_id));
@@ -81,10 +81,10 @@ export class CustomerService {
             customerId = result.customer_id;
             customer = await this.getCustomer(customerId);
 
-        } else if(session && session.customerId && session.sessionId) {
+        } else if (session && session.customerId && session.sessionId) {
             let result = (await Connector.executeQuery(QueryBuilder.getCustomerSessionByIds(session.customerId, session.sessionId)))[0];
 
-            if(!result) {
+            if (!result) {
                 throw new UnauthorizedException("Not authorized");
             }
 
@@ -110,13 +110,13 @@ export class CustomerService {
     }
 
     public async registerCustomer(customer: Customer): Promise<{
-        customer: Customer, 
+        customer: Customer,
         session: CustomerSession
     }> {
 
         // Validate registration input, throws error if invalid
         await this.validateRegistrationInput(customer);
-        
+
         // Get company to work with ID
         const company: Company = await this.companyService.getCompanyByCompanyCode(customer.companyCode);
 
@@ -136,44 +136,44 @@ export class CustomerService {
             companyId: company.companyId
         }));
 
-        const registeredCustomer: {customer: Customer, session: CustomerSession} = await this.customerLogin({
+        const registeredCustomer: { customer: Customer, session: CustomerSession } = await this.customerLogin({
             email: customer.email,
             password: customer.password
         });
-        
+
         return registeredCustomer;
     }
 
     private async validateRegistrationInput(customer: Customer): Promise<void> {
-            
+
         // check if email address is already registered
         let result = (await Connector.executeQuery(QueryBuilder.getCustomerByLoginCredentials(customer.email)))[0];
 
-        if(result != undefined || result != null) {
+        if (result != undefined || result != null) {
             throw new BadRequestException("Email Address already registered");
         }
 
         // check if email has valid format
-        if(!EmailValidator.validate(customer.email)) {
+        if (!EmailValidator.validate(customer.email)) {
             throw new BadRequestException("Invalid Email Address");
         }
 
         // Check if First
         const fullName: string = `${customer.firstName} ${customer.lastName}`
-        if(fullName.match("[\\-a-zA-Z\\s\'\"]+")[0] != fullName) {
+        if (fullName.match("[\\-a-zA-Z\\s\'\"]+")[0] != fullName) {
             throw new BadRequestException("Invalid first or last name");
         }
 
         // Check if company code exists
         try {
             const company: Company = await this.companyService.getCompanyByCompanyCode(customer.companyCode);
-            if(!company) {
+            if (!company) {
                 throw new NotFoundException("No company");
             }
         } catch (e) {
             throw new BadRequestException("Invalid Company Code");
         }
-        
+
 
     }
 }
