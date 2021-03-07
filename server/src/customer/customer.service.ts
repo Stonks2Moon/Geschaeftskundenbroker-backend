@@ -8,6 +8,7 @@ import { Company } from 'src/company/company.model';
 import { CompanyService } from 'src/company/company.service';
 import * as EmailValidator from 'email-validator';
 import { uuid } from 'uuidv4';
+import { CustomerDto } from './dto/customer.dto';
 
 const bcrypt = require('bcrypt');
 const cryptoRandomString = require('crypto-random-string');
@@ -109,7 +110,7 @@ export class CustomerService {
         }
     }
 
-    public async registerCustomer(customer: Customer): Promise<{
+    public async registerCustomer(customer: CustomerDto): Promise<{
         customer: Customer,
         session: CustomerSession
     }> {

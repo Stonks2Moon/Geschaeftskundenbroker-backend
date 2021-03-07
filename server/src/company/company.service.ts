@@ -4,6 +4,7 @@ import { QueryBuilder } from 'src/util/database/query-builder';
 import { Company } from './company.model';
 import { Address } from './address.model';
 import { uuid } from 'uuidv4';
+import { CreateCompanyDto } from './dto/create-company.dto';
 
 const cryptoRandomString = require('crypto-random-string');
 
@@ -42,13 +43,7 @@ export class CompanyService {
         return company;
     }
 
-    public async createCompany(company: {
-        companyName: string,
-        postCode: string,
-        city: string,
-        street: string,
-        houseNumber: string
-    }): Promise<Company> {
+    public async createCompany(company: CreateCompanyDto): Promise<Company> {
 
         // Create Address object
         const newAddress: Address = {
