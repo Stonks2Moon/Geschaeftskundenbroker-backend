@@ -11,6 +11,11 @@ const cryptoRandomString = require('crypto-random-string');
 @Injectable()
 export class CompanyService {
 
+    /**
+     * Returns a company object for a given company ID
+     * @param companyId Company ID
+     * @returns a company object
+     */
     public async getCompanyById(companyId: string): Promise<Company> {
 
         let result = (await Connector.executeQuery(QueryBuilder.getCompanyById(companyId)))[0];
@@ -33,6 +38,11 @@ export class CompanyService {
     }
 
 
+    /**
+     * Returns a company by it's company code
+     * @param companyCode code of company
+     * @returns a company object
+     */
     public async getCompanyByCompanyCode(companyCode: string): Promise<Company> {
         let result = (await Connector.executeQuery(QueryBuilder.getCompanyByCompanyCode(companyCode)))[0];
         if (!result) {
@@ -43,6 +53,11 @@ export class CompanyService {
         return company;
     }
 
+    /**
+     * Creates a company from given data and returns a company object
+     * @param company information for company creation
+     * @returns a company object
+     */
     public async createCompany(company: CreateCompanyDto): Promise<Company> {
 
         // Create Address object
@@ -74,7 +89,33 @@ export class CompanyService {
         return await this.getCompanyById(companyId);
     }
 
+    /**
+     * Returns an adress by it's address ID
+     * @param addressId ID of the address
+     * @returns an address object
+     */
+    public async getAddressById(addressId: string): Promise<Address> {
+        let result = (await Connector.executeQuery(QueryBuilder.getAddressById(addressId)))[0];
 
+        if (!result) {
+            throw new NotFoundException("Address not found");
+        }
+
+        const address: Address = {
+            postCode: result.post_code,
+            city: result.city,
+            street: result.street,
+            houseNumber: result.house_number
+        }
+
+        return address;
+    }
+
+    /**
+     * Generates a company code from the comapny name
+     * @param companyName name of the company
+     * @returns a string which is used as company code
+     */
     private generateCompanyCodeFromName(companyName: string): string {
         const words: string[] = companyName.split(" ");
         const targetLength = 3;
@@ -96,23 +137,5 @@ export class CompanyService {
         }
 
         return `${code.toUpperCase()}#${cryptoRandomString({ length: 6, type: 'alphanumeric' }).toUpperCase()}`
-    }
-
-
-    public async getAddressById(addressId: string): Promise<Address> {
-        let result = (await Connector.executeQuery(QueryBuilder.getAddressById(addressId)))[0];
-
-        if (!result) {
-            throw new NotFoundException("Address not found");
-        }
-
-        const address: Address = {
-            postCode: result.post_code,
-            city: result.city,
-            street: result.street,
-            houseNumber: result.house_number
-        }
-
-        return address;
     }
 }
