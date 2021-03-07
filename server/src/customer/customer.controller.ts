@@ -23,7 +23,7 @@ export class CustomerController {
         customer: Customer,
         session: CustomerSession
     }> {
-        return await this.customerService.customerLogin(wrapper.login, wrapper.session);
+        return await this.customerService.customerLogin({login: wrapper.login, session: wrapper.session});
     }
 
     @ApiBody({description: "Blabla", type: CustomerDto})

@@ -5,6 +5,7 @@ import { Company } from './company.model';
 import { Address } from './address.model';
 import { uuid } from 'uuidv4';
 import { CreateCompanyDto } from './dto/create-company.dto';
+import { Query } from 'src/util/database/query.model';
 
 const cryptoRandomString = require('crypto-random-string');
 
@@ -87,6 +88,29 @@ export class CompanyService {
 
         // Return created company
         return await this.getCompanyById(companyId);
+    }
+
+
+    public async getAllCompanies(): Promise<Company[]> {
+        let result = await Connector.executeQuery(QueryBuilder.getAllCompanies());
+
+        let companies: Company[] = []
+        result.forEach(c => {
+            companies.push({
+                companyId: c.company_id,
+                companyCode: c.company_code,
+                companyName: c.company_name,
+                address: {
+                    addressId: c.address_id,
+                    postCode: c.post_code,
+                    city: c.city,
+                    street: c.street,
+                    houseNumber: c.house_number
+                }
+            })
+        })
+
+        return companies;
     }
 
     /**

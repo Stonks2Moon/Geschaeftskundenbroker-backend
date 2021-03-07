@@ -1,14 +1,17 @@
 import { ApiProperty, ApiTags } from "@nestjs/swagger";
 
 export class CustomerDto {
-    @ApiProperty()
-    firstName: string;
-    @ApiProperty()
-    lastName: string;
-    @ApiProperty()
-    email: string;
-    @ApiProperty()
-    password: string;
-    @ApiProperty()
-    companyCode: string;
+    
+
+    firstName
+
+    lastName
+
+    email
+
+    password
+
+    companyCode
+
+    constructor(firstName, lastName, email, password, companyCode) {}
 }

@@ -29,12 +29,13 @@ export class CompanyController {
         description: "Returns a Company object",
         type: Company
     })
-    @Get(':companyCode')
-    async getCompany(
+    @Get('code/:companyCode')
+    async getCompanyByCode(
         @Param('companyCode') companyCode: string
     ): Promise<Company> {
         return await this.companyService.getCompanyByCompanyCode(companyCode);
     }
+
 
     @ApiOkResponse({
         description: "Returns a Company object",
@@ -45,5 +46,16 @@ export class CompanyController {
         @Param('companyId') companyId: string
     ): Promise<Company> {
         return await this.companyService.getCompanyById(companyId);
+    }
+
+    @ApiOkResponse({
+        description: "Returns an array of all companies, sorted alphabetically by name.",
+        isArray: true,
+        type: Company
+    })
+    @Get('all')
+    async getAllCompanies(): Promise<Company[]>{
+        return await this.companyService.getAllCompanies();
+
     }
 }

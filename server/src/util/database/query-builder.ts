@@ -103,6 +103,13 @@ export class QueryBuilder {
         }
     }
 
+    public static getAllCompanies(): Query {
+        return {
+            query: "SELECT c.*, a.post_code, a.city, a.street, a.house_number FROM company AS c JOIN address AS a ON c.address_id = a.address_id ORDER BY c.company_name ASC;",
+            args: []
+        }
+    }
+
     public static getCompanyByCompanyCode(companyCode: string): Query {
         return {
             query: "SELECT * FROM company WHERE company_code = ?;",
@@ -129,6 +136,18 @@ export class QueryBuilder {
             query: "SELECT * FROM address WHERE address_id = ?;",
             args: [
                 addressId
+            ]
+        }
+    }
+
+    public static createDepot(depotId: string, companyId: string, name: string, description: string): Query {
+        return {
+            query: "INSERT INTO depot (depotId, company_id, name, description) VALUES (?, ?, ?, ?);",
+            args: [
+                depotId,
+                companyId,
+                name,
+                !description ? "" : description
             ]
         }
     }
