@@ -3,7 +3,7 @@ import { Company } from "src/company/company.model";
 
 // Modell eines Nutzers
 export class Customer {
-    @ApiProperty()
+    @ApiProperty({required: false})
     customerId?: string;
     @ApiProperty()
     firstName: string;
@@ -11,10 +11,10 @@ export class Customer {
     lastName: string;
     @ApiProperty()
     email: string;
-    @ApiProperty()
+    @ApiProperty({required: false})
     company?: Company;
-    @ApiProperty()
+    @ApiProperty({required: true})
     password?: string;
-    @ApiProperty()
+    @ApiProperty({required: false})
     companyCode?: string;
 }

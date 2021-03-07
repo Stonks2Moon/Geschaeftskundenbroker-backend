@@ -8,6 +8,7 @@ import { Company } from 'src/company/company.model';
 import { CompanyService } from 'src/company/company.service';
 import * as EmailValidator from 'email-validator';
 import { uuid } from 'uuidv4';
+import { CustomerDto } from './dto/customer.dto';
 
 const bcrypt = require('bcrypt');
 const cryptoRandomString = require('crypto-random-string');
@@ -19,10 +20,10 @@ export class CustomerService {
         private readonly companyService: CompanyService
     ) { }
 
-
     /**
      * Returns the complete Information for a Customer
      * @param customerId Id of the Customer
+     * @returns a customer object
      */
     public async getCustomer(customerId: string): Promise<Customer> {
         let result = (await Connector.executeQuery(QueryBuilder.getCustomerById(customerId)))[0];
@@ -44,6 +45,12 @@ export class CustomerService {
         return customer;
     }
 
+    /**
+     * Used to login a customer via email + password OR session
+     * @param login email + password of customer
+     * @param session customer session
+     * @returns a customer + customer session
+     */
     public async customerLogin(
         login?: {
             email: string,
@@ -109,7 +116,12 @@ export class CustomerService {
         }
     }
 
-    public async registerCustomer(customer: Customer): Promise<{
+    /**
+     * Used to register a new customer with given data
+     * @param customer data for registration
+     * @returns a customer and session to login
+     */
+    public async registerCustomer(customer: CustomerDto): Promise<{
         customer: Customer,
         session: CustomerSession
     }> {
@@ -144,6 +156,10 @@ export class CustomerService {
         return registeredCustomer;
     }
 
+    /**
+     * Validates the input for a user registration
+     * @param customer customer object to be validated
+     */
     private async validateRegistrationInput(customer: Customer): Promise<void> {
 
         // check if email address is already registered

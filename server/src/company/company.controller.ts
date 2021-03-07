@@ -1,9 +1,8 @@
-import { Body, Controller, Put, Type } from '@nestjs/common';
-import { ApiBody, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, Param, Put, Type } from '@nestjs/common';
+import { ApiBody, ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Company } from './company.model';
 import { CompanyService } from './company.service';
-
-
+import { CreateCompanyDto } from './dto/create-company.dto';
 
 @ApiTags('company')
 @Controller('company')
@@ -12,22 +11,39 @@ export class CompanyController {
         private readonly companyService: CompanyService
     ) { }
 
-    @ApiOkResponse({
+    @ApiCreatedResponse({
         description: "Returns a Company object",
         type: Company
     })
     @ApiBody({
-        description: ""
+        description: "Create a company", type: CreateCompanyDto
     })
     @Put()
     async createCompany(
-        @Body('company') company: {
-            companyName: string;
-            postCode: string
-            city: string,
-            street: string,
-            houseNumber: string
-        }): Promise<Company> {
+        @Body() company: CreateCompanyDto 
+        ): Promise<Company> {
         return await this.companyService.createCompany(company);
+    }
+
+    @ApiOkResponse({
+        description: "Returns a Company object",
+        type: Company
+    })
+    @Get(':companyCode')
+    async getCompany(
+        @Param('companyCode') companyCode: string
+    ): Promise<Company> {
+        return await this.companyService.getCompanyByCompanyCode(companyCode);
+    }
+
+    @ApiOkResponse({
+        description: "Returns a Company object",
+        type: Company
+    })
+    @Get('id/:companyId')
+    async getCompanyById(
+        @Param('companyId') companyId: string
+    ): Promise<Company> {
+        return await this.companyService.getCompanyById(companyId);
     }
 }
