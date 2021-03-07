@@ -35,4 +35,15 @@ export class CompanyController {
     ): Promise<Company> {
         return await this.companyService.getCompanyByCompanyCode(companyCode);
     }
+
+    @ApiOkResponse({
+        description: "Returns a Company object",
+        type: Company
+    })
+    @Get('id/:companyId')
+    async getCompanyById(
+        @Param('companyId') companyId: string
+    ): Promise<Company> {
+        return await this.companyService.getCompanyById(companyId);
+    }
 }

@@ -1,18 +1,19 @@
 import { Body, Controller, HttpCode, Param, Post, Put } from '@nestjs/common';
-import { ApiBody, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { CustomerSession } from 'src/customer/customer-session.model';
 import { Depot } from './depot.model';
 import { DepotService } from './depot.service';
 import { CreateDepotDto } from './dto/create-depot.dto';
 import { PlaceOrderDto } from './dto/place-order.dto';
-import { Order } from './order.model';
+import { ReturnShareOrder } from './dto/share-order.dto';
 
 @ApiTags('depot')
 @Controller('depot')
 export class DepotController {
     constructor(private readonly depotService: DepotService) { }
 
-    @ApiCreatedResponse({
+
+    @ApiOkResponse({
         description: "Returns an array of Depot objects",
         type: Depot,
         isArray: true
@@ -29,7 +30,9 @@ export class DepotController {
         return this.depotService.showAllDepots(customerSession);
     }
 
-    @ApiCreatedResponse({
+    
+
+    @ApiOkResponse({
         description: "Returns a Depot object",
         type: Depot
     })
@@ -46,20 +49,24 @@ export class DepotController {
         return this.depotService.showDepotById(depotId, customerSession);
     }
 
+
+
     @ApiCreatedResponse({
         description: "Returns an order object",
-        type: Order
+        type: ReturnShareOrder
     })
     @ApiBody({
         description: "Place an order",
         type: PlaceOrderDto
     })
-    @Put('place-order')
+    @Put('order')
     async placeOrder(
         @Body() placeOrder: PlaceOrderDto
-    ): Promise<Order> {
+    ): Promise<ReturnShareOrder> {
         return this.depotService.placeOrder(placeOrder);
     }
+
+
 
     @ApiCreatedResponse({
         description: "Returns a Depot object",
@@ -72,7 +79,7 @@ export class DepotController {
     @Put()
     async createDepot(
         @Body() createDepot: CreateDepotDto
-    ) {
-        return this.depotService.createDepot(createDepot);
+    ): Promise<Depot> {
+        return await this.depotService.createDepot(createDepot);
     }
 }
