@@ -4,8 +4,6 @@ import { Company } from './company.model';
 import { CompanyService } from './company.service';
 import { CreateCompanyDto } from './dto/create-company.dto';
 
-
-
 @ApiTags('company')
 @Controller('company')
 export class CompanyController {
