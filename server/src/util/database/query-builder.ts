@@ -152,10 +152,50 @@ export class QueryBuilder {
         }
     }
 
-    public static testQuery(): Query {
+    public static getAllShares(resultLimit: number): Query {
         return {
-            query: "SELECT * FROM TABELLE",
-            args: []
+            query: "SELECT share_id, isin, wkn, last_recorded_value, name, currency_code, currency_name FROM share JOIN currency ON share.currency_code = currency.iso_code LIMIT ?;",
+            args: [
+                resultLimit
+            ]
+        }
+    }
+
+    public static getShareById(shareId: number): Query {
+        return {
+            query: "SELECT share_id, isin, wkn, last_recorded_value, name, currency_code, currency_name FROM share JOIN currency ON share.currency_code = currency.iso_code WHERE share_id = ?;",
+            args: [
+                shareId
+            ]
+        }
+    }
+
+    public static getSharesByIsin(isin: string, resultLimit: number): Query {
+        return {
+            query: "SELECT share_id, isin, wkn, last_recorded_value, name, currency_code, currency_name FROM share JOIN currency ON share.currency_code = currency.iso_code WHERE isin = ? LIMIT ?;",
+            args: [
+                isin,
+                resultLimit
+            ]
+        }
+    }
+
+    public static getSharesByWkn(wkn: string, resultLimit: number): Query {
+        return {
+            query: "SELECT share_id, isin, wkn, last_recorded_value, name, currency_code, currency_name FROM share JOIN currency ON share.currency_code = currency.iso_code WHERE wkn = ? LIMIT ?;",
+            args: [
+                wkn,
+                resultLimit
+            ]
+        }
+    }
+
+    public static getSharesByName(shareName: string, resultLimit: number): Query {
+        return {
+            query: `SELECT share_id, isin, wkn, last_recorded_value, name, currency_code, currency_name FROM share JOIN currency ON share.currency_code = currency.iso_code WHERE name LIKE '%${shareName}%' LIMIT ?;`,
+            args: [
+                resultLimit
+            ]
         }
     }
 }
