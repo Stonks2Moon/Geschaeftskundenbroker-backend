@@ -24,7 +24,7 @@ export class DepotService {
         private readonly shareService: ShareService
     ) {}
 
-    private stockApi: BörsenAPI = new BörsenAPI('moonstonks token', 'onMatch', 'onComplete', 'onDelete');
+    // private stockApi: BörsenAPI = new BörsenAPI('moonstonks token', 'onMatch', 'onComplete', 'onDelete');
 
     /**
      * Creates a depot with the provided depot info
