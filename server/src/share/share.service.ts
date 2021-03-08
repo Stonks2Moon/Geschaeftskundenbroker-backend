@@ -3,7 +3,6 @@ import { Share } from './share.model';
 import * as StaticConsts from 'src/util/static-consts';
 import { Connector } from 'src/util/database/connector';
 import { QueryBuilder } from 'src/util/database/query-builder';
-import { isEmpty } from 'class-validator';
 
 @Injectable()
 export class ShareService {
@@ -16,7 +15,7 @@ export class ShareService {
     ): Promise<Array<Share>> {
 
         let resultLimit = StaticConsts.DEFAULT_SEARCH_LIMIT;
-        if (limit && !isNaN(limit)) {
+        if (limit && isNaN(limit)) {
             resultLimit = limit;
         }
 
@@ -56,13 +55,13 @@ export class ShareService {
         shareId: number
     ): Promise<Share> {
 
-        if (!shareId || !isNaN(shareId)) {
+        if (!shareId || isNaN(shareId)) {
             throw new BadRequestException("Invalid share ID");
         }
 
         let result = (await Connector.executeQuery(QueryBuilder.getShareById(shareId)))[0];
 
-        if (!result || result.length === 0) {
+        if (!result) {
             throw new NotFoundException("Share not found");
         }
 
