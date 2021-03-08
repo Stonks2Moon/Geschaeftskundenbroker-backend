@@ -28,15 +28,15 @@ export class DepotService {
 
     public async createDepot(createDepot: CreateDepotDto): Promise<Depot> {
         // Validate Session
-        const customer: {customer: Customer, session: CustomerSession} = await this.customerService.customerLogin({ session: createDepot.session })
+        const customer: { customer: Customer, session: CustomerSession } = await this.customerService.customerLogin({ session: createDepot.session });
 
         // Check input
-        if(!createDepot.name || createDepot.name === "") {
-            throw new BadRequestException("Invalid name")
+        if (!createDepot.name || createDepot.name === "") {
+            throw new BadRequestException("Invalid name");
         }
 
         // Get company from customer
-        const companyId: string = customer.customer.company.companyId 
+        const companyId: string = customer.customer.company.companyId
 
         // Generate DepotId
         const depotId: string = uuid()
@@ -187,6 +187,6 @@ export class DepotService {
         let depot: Depot = await this.getDepotById(depotId)
         depot.positions = await this.getDepotPositions(depotId)
 
-        throw new NotImplementedException()
+        return depot
     }
 }
