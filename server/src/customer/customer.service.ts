@@ -151,6 +151,7 @@ export class CustomerService {
             companyId: company.companyId
         }));
 
+        // Login in customer with provided login credentials
         const registeredCustomer: { customer: Customer, session: CustomerSession } = await this.customerLogin({
             login: {
                 email: customer.email,
