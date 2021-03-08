@@ -3,10 +3,10 @@ import { Share } from "../share.model";
 
 export class ChartValue {
     @ApiProperty()
-    timestamp: Date;
+    recordedAt: Date;
 
     @ApiProperty()
-    value: number
+    recordedValue: number
 }
 
 export class HistoricalDataDto {
