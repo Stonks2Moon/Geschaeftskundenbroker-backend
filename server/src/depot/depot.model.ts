@@ -15,6 +15,6 @@ export class Depot {
     @ApiProperty()
     description: string;
 
-    @ApiProperty({required: false})
+    @ApiProperty({ required: false })
     summary?: DepotEntrySummary;
 }

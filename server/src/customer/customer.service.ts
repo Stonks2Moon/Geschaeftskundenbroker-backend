@@ -9,7 +9,9 @@ import { CompanyService } from 'src/company/company.service';
 import * as EmailValidator from 'email-validator';
 import { uuid } from 'uuidv4';
 import { CustomerDto } from './dto/customer.dto';
-
+import { LoginInputDto } from './dto/login-input.dto';
+import { LoginDto } from './dto/login.dto';
+// import { isSameType } from '../util/typeguard.js';
 const bcrypt = require('bcrypt');
 const cryptoRandomString = require('crypto-random-string');
 
@@ -51,13 +53,7 @@ export class CustomerService {
      * @param session customer session
      * @returns a customer + customer session
      */
-    public async customerLogin(
-        login?: {
-            email: string,
-            password: string
-        },
-        session?: CustomerSession
-    ): Promise<{
+    public async customerLogin(_l: LoginDto): Promise<{
         customer: Customer,
         session: CustomerSession
     }> {
@@ -65,6 +61,9 @@ export class CustomerService {
         let customer: Customer;
         let customerId: string;
         let sessionId: string;
+
+        const login = _l.login;
+        const session = _l.session;
 
 
         // Check parameters
@@ -126,6 +125,10 @@ export class CustomerService {
         session: CustomerSession
     }> {
 
+        // if(!isSameType(customer, CustomerDto)) {
+        //     throw new BadRequestException("Invalid requets parameters");
+        // }
+
         // Validate registration input, throws error if invalid
         await this.validateRegistrationInput(customer);
 
@@ -149,8 +152,10 @@ export class CustomerService {
         }));
 
         const registeredCustomer: { customer: Customer, session: CustomerSession } = await this.customerLogin({
-            email: customer.email,
-            password: customer.password
+            login: {
+                email: customer.email,
+                password: customer.password
+            }
         });
 
         return registeredCustomer;
@@ -174,7 +179,7 @@ export class CustomerService {
             throw new BadRequestException("Invalid Email Address");
         }
 
-        // Check if First
+        // Check if name only contains characters, spaces and -
         const fullName: string = `${customer.firstName} ${customer.lastName}`
         if (fullName.match("[\\-a-zA-Z\\s\'\"]+")[0] != fullName) {
             throw new BadRequestException("Invalid first or last name");

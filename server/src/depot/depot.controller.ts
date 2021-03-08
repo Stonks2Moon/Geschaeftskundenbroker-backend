@@ -30,7 +30,7 @@ export class DepotController {
         return this.depotService.showAllDepots(customerSession);
     }
 
-    
+
 
     @ApiOkResponse({
         description: "Returns a Depot object",

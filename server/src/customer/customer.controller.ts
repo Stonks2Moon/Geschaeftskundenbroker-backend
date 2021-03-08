@@ -1,5 +1,6 @@
 import { Body, Controller, HttpCode, Post, Put, Res } from '@nestjs/common';
 import { ApiBody, ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ValidateNested } from 'class-validator';
 import { CustomerSession } from './customer-session.model';
 import { Customer } from './customer.model';
 import { CustomerService } from './customer.service';
@@ -11,7 +12,7 @@ import { LoginDto } from './dto/login.dto';
 export class CustomerController {
     constructor(private readonly customerService: CustomerService) { }
 
-    @ApiBody({description:"Input for customer login, only one parameters is required", type: LoginDto})
+    @ApiBody({ description: "Input for customer login, only one parameters is required", type: LoginDto })
     @ApiOkResponse({
         description: "Returns a Customer and CustomerSession object"
     })
@@ -23,10 +24,10 @@ export class CustomerController {
         customer: Customer,
         session: CustomerSession
     }> {
-        return await this.customerService.customerLogin(wrapper.login, wrapper.session);
+        return await this.customerService.customerLogin(wrapper);
     }
 
-    @ApiBody({description: "Blabla", type: CustomerDto})
+    @ApiBody({ description: "Blabla", type: CustomerDto })
     @ApiOkResponse({
         description: "Returns a Customer and CustomerSession object"
     })
