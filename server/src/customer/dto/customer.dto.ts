@@ -1,17 +1,29 @@
 import { ApiProperty, ApiTags } from "@nestjs/swagger";
+import { IsEmail, IsNotEmpty, IsString } from "class-validator";
 
 export class CustomerDto {
     
 
-    firstName
+    @ApiProperty()
+    @IsNotEmpty()
+    @IsString()
+    firstName: string
 
-    lastName
+    @ApiProperty()
+    @IsNotEmpty()
+    @IsString()
+    lastName: string
 
-    email
+    @ApiProperty()
+    @IsEmail()
+    email: string
 
-    password
+    @ApiProperty()
+    @IsNotEmpty()
+    password: string
 
-    companyCode
+    @ApiProperty()
+    @IsNotEmpty()
+    companyCode: string
 
-    constructor(firstName, lastName, email, password, companyCode) {}
 }
