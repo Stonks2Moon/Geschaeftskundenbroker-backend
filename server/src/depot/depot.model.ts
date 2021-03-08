@@ -18,6 +18,6 @@ export class Depot {
     @ApiProperty({required: false})
     summary?: DepotSummary;
 
-    @ApiProperty({required: false})
+    @ApiProperty({required: false, type: DepotPosition, isArray: true})
     positions?: DepotPosition[]
 }

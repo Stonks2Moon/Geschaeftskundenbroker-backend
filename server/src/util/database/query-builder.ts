@@ -163,7 +163,7 @@ export class QueryBuilder {
 
     public static getDepotEntriesByDepotId(depotId: string): Query {
         return {
-            query: "SELECT * FROM depot_entry AS d JOIN share AS s ON d.share_id = s.share_id WHERE d.depot_id = ?;",
+            query: "SELECT entry_id, depot_id, d.share_id, amount, cost_value, created_at, isin, wkn, last_recorded_value, name, currency_code FROM depot_entry AS d JOIN share AS s ON d.share_id = s.share_id WHERE d.depot_id = ?;",
             args: [
                 depotId
             ]

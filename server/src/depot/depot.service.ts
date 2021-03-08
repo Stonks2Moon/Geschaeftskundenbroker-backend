@@ -28,11 +28,11 @@ export class DepotService {
 
     public async createDepot(createDepot: CreateDepotDto): Promise<Depot> {
         // Validate Session
-        const customer: { customer: Customer, session: CustomerSession } = await this.customerService.customerLogin({ session: createDepot.session });
+        const customer: { customer: Customer, session: CustomerSession } = await this.customerService.customerLogin({ session: createDepot.session })
 
         // Check input
         if (!createDepot.name || createDepot.name === "") {
-            throw new BadRequestException("Invalid name");
+            throw new BadRequestException("Invalid name")
         }
 
         // Get company from customer
@@ -63,9 +63,17 @@ export class DepotService {
         // get depots for company
         let depots: Depot[] = await this.getDepotsByCompanyId(customer.customer.company)
         
-        depots.forEach(d => {
-            d.summary = this.depotSummaryFromPositions(d.positions)
-        })
+        for(let d of depots) {
+            const pos: DepotPosition[] = await this.getDepotPositions(d.depotId)
+            d.summary = this.depotSummaryFromPositions(pos)
+        }
+
+        // await depots.forEach(async (d, i, a) => {
+        //     a[i].positions = await this.getDepotPositions(d.depotId)
+        //     console.log(a[i].positions)
+        //     console.log(d.positions)
+        //     a[i].summary = this.depotSummaryFromPositions(d.positions)
+        // })
 
         return depots
     }
@@ -107,14 +115,13 @@ export class DepotService {
         return depotSummay
     }
 
-    private async getDepotPositions(depotId: string) {
+    private async getDepotPositions(depotId: string): Promise<DepotPosition[]> {
         const results = await Connector.executeQuery(QueryBuilder.getDepotEntriesByDepotId(depotId))
 
         let depotEntries: DepotEntry[] = []
         let shares: Share[] = []
 
-        results.forEach(async e => {
-            
+        for(const e of results) {
             if(!this.shareService.shareIdInShareArray(e.share_id, shares)) {
                 shares.push(await this.shareService.getShareData(e.share_id))
             }
@@ -125,20 +132,21 @@ export class DepotService {
                 costValue: e.cost_value,
                 share: (shares.filter(s => { return e.share_id === s.shareId}))[0]
             })
-        })
+        }
 
         // Summarize to DepotPosition
         let depotPositions: DepotPosition[] = []
-        shares.forEach(s => {
+
+        for(const s of shares) {
             let totalAmount: number = 0
             let totalCostValue: number = 0
             let totalCurrentValue: number = 0
             let percentageChange: number = 0
 
-            depotEntries.filter(e => { return e.share.shareId === s.shareId }).forEach(e => {
+            for(const e of depotEntries.filter(e => { return e.share.shareId === s.shareId })) {
                 totalAmount += e.amount
                 totalCostValue += e.costValue
-            })
+            }
 
             totalCurrentValue = totalAmount * s.lastRecordedValue
             percentageChange = 100 * ((totalCurrentValue - totalCostValue) / totalCostValue)
@@ -151,7 +159,7 @@ export class DepotService {
                 depotId: depotId,
                 share: s
             })
-        })
+        }
 
         return depotPositions
 

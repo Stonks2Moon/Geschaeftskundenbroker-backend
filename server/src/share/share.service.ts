@@ -127,11 +127,11 @@ export class ShareService {
 
 
     public shareIdInShareArray(shareId: number, shareArray: Share[]): boolean {
-        shareArray.forEach(s => {
+        for(const s of shareArray) {
             if(s.shareId === shareId) {
                 return true
             }
-        })
+        }
         return false
     }
 }
