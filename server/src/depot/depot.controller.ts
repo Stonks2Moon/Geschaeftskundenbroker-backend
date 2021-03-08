@@ -13,13 +13,17 @@ export class DepotController {
     constructor(private readonly depotService: DepotService) { }
 
 
+    /**
+     * Shows all depots associated with a customer's company
+     * @param customerSession Valid Customer Session
+     */
     @ApiOkResponse({
-        description: "Returns an array of Depot objects",
+        description: "Returns an array of Depot objects with a DepotSummary",
         type: Depot,
         isArray: true
     })
     @ApiBody({
-        description: "Authentication",
+        description: "Valid CustomerSession as Authentication object",
         type: CustomerSession
     })
     @Post('all')
@@ -30,14 +34,18 @@ export class DepotController {
         return this.depotService.showAllDepots(customerSession);
     }
 
-
-
+    
+    /**
+     * Returns a detailed Depot Object with a summary and a position
+     * @param depotId Id of the depot
+     * @param customerSession Valid Customer Session
+     */
     @ApiOkResponse({
-        description: "Returns a Depot object",
+        description: "Returns a detailed Depot Object with a summary and a position",
         type: Depot
     })
     @ApiBody({
-        description: "Authentication",
+        description: "Valid CustomerSession as Authentication object",
         type: CustomerSession
     })
     @Post('show/:depotId')
@@ -50,7 +58,11 @@ export class DepotController {
     }
 
 
-
+    /**
+     * 
+     * @param placeOrder 
+     * @returns 
+     */
     @ApiCreatedResponse({
         description: "Returns an order object",
         type: ReturnShareOrder
@@ -67,13 +79,16 @@ export class DepotController {
     }
 
 
-
+    /**
+     * Creates a depot from the given information
+     * @param createDepot Object containing a valid CustomerSession and the Depot Information
+     */
     @ApiCreatedResponse({
-        description: "Returns a Depot object",
+        description: "Returns a Depot object of the created depot.",
         type: Depot
     })
     @ApiBody({
-        description: "Create a depot",
+        description: "CreateDepotDto containing a valid CustomerSession, a name and an optional description.",
         type: CreateDepotDto
     })
     @Put()
