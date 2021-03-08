@@ -12,6 +12,15 @@ const moment = extendMoment(Moment);
 @Injectable()
 export class ShareService {
 
+    /**
+     * Returns an array of shares for given search parameters OR all shares if nothing is set
+     * @param wkn wkn of share
+     * @param isin isin of share
+     * @param shareName name of share
+     * @param search search string (searches in wkn, isin and name)
+     * @param limit limit for results
+     * @returns an array of shares which match with given data
+     */
     public async getAllShares(
         wkn?: string,
         isin?: string,
@@ -59,6 +68,11 @@ export class ShareService {
         return response;
     }
 
+    /**
+     * Returns a share for a given share id
+     * @param shareId ID of share
+     * @returns a share object
+     */
     public async getShareData(
         shareId: number
     ): Promise<Share> {
@@ -86,6 +100,13 @@ export class ShareService {
         return share;
     }
 
+    /**
+     * Returns an object to show historical data for shares
+     * @param shareId ID of share
+     * @param fromDate start date of timeframe
+     * @param toDate end date of timeframe
+     * @returns an object containing a share and the price + date infos
+     */
     public async getHistoricalData(
         shareId: number,
         fromDate: Date,
@@ -126,9 +147,15 @@ export class ShareService {
     }
 
 
+    /**
+     * Checks if a share id is in a given array of shares
+     * @param shareId ID of share to be checked
+     * @param shareArray array in which is searched
+     * @returns a boolean
+     */
     public shareIdInShareArray(shareId: number, shareArray: Share[]): boolean {
-        for(const s of shareArray) {
-            if(s.shareId === shareId) {
+        for (const s of shareArray) {
+            if (s.shareId === shareId) {
                 return true
             }
         }
