@@ -1,5 +1,5 @@
 import { Body, Controller, HttpCode, Param, Post, Put } from '@nestjs/common';
-import { ApiBody, ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiCreatedResponse, ApiOkResponse, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { CustomerSession } from 'src/customer/customer-session.model';
 import { Depot } from './depot.model';
 import { DepotService } from './depot.service';
@@ -40,10 +40,10 @@ export class DepotController {
         description: "Authentication",
         type: CustomerSession
     })
-    @Post(':depotId')
+    @Post('show/:depotId')
     @HttpCode(200)
     async showDepotById(
-        @Param() depotId: string,
+        @Param('depotId') depotId: string,
         @Body() customerSession: CustomerSession
     ): Promise<Depot> {
         return this.depotService.showDepotById(depotId, customerSession);

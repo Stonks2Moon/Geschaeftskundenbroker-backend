@@ -124,4 +124,14 @@ export class ShareService {
 
         return response
     }
+
+
+    public shareIdInShareArray(shareId: number, shareArray: Share[]): boolean {
+        for(const s of shareArray) {
+            if(s.shareId === shareId) {
+                return true
+            }
+        }
+        return false
+    }
 }
