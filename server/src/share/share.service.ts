@@ -3,6 +3,7 @@ import { Share } from './share.model';
 import * as StaticConsts from 'src/util/static-consts';
 import { Connector } from 'src/util/database/connector';
 import { QueryBuilder } from 'src/util/database/query-builder';
+import { HistoricalDataDto } from './dto/historical-data.dto';
 
 @Injectable()
 export class ShareService {
@@ -82,7 +83,9 @@ export class ShareService {
         shareId: number,
         fromDate: Date,
         toDate: Date
-    ): Promise<any> {
+    ): Promise<HistoricalDataDto> {
+
+        //TODO
         throw new NotImplementedException('Not implemented yet!');
     }
 }
