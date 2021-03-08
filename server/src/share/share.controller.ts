@@ -34,6 +34,11 @@ export class ShareController {
         type: String
     })
     @ApiQuery({
+        name: "search",
+        required: false,
+        type: String
+    })
+    @ApiQuery({
         name: "limit",
         required: false,
         type: Number
@@ -43,9 +48,10 @@ export class ShareController {
         @Query('wkn') wkn?: string,
         @Query('isin') isin?: string,
         @Query('shareName') shareName?: string,
+        @Query('search') search?: string,
         @Query('limit') limit?: number
     ): Promise<Array<Share>> {
-        return this.shareService.getAllShares(wkn, isin, shareName, limit);
+        return this.shareService.getAllShares(wkn, isin, shareName, search, limit);
     }
 
     @ApiOkResponse({

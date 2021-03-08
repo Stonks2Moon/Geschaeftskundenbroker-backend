@@ -198,4 +198,15 @@ export class QueryBuilder {
             ]
         }
     }
+
+    public static getSharesBySearch(search: string, resultLimit: number): Query {
+        return {
+            query: `SELECT share_id, isin, wkn, last_recorded_value, name, currency_code, currency_name FROM share JOIN currency ON share.currency_code = currency.iso_code WHERE name LIKE '%${search}%' OR wkn = ? OR isin = ? LIMIT ?;`,
+            args: [
+                search,
+                search,
+                resultLimit
+            ]
+        }
+    }
 }
