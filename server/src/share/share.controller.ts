@@ -1,5 +1,6 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiNotFoundResponse, ApiOkResponse, ApiProperty, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { HistoricalDataDto } from './dto/historical-data.dto';
 import { Share } from './share.model';
 import { ShareService } from './share.service';
 
@@ -33,6 +34,11 @@ export class ShareController {
         type: String
     })
     @ApiQuery({
+        name: "search",
+        required: false,
+        type: String
+    })
+    @ApiQuery({
         name: "limit",
         required: false,
         type: Number
@@ -42,13 +48,15 @@ export class ShareController {
         @Query('wkn') wkn?: string,
         @Query('isin') isin?: string,
         @Query('shareName') shareName?: string,
+        @Query('search') search?: string,
         @Query('limit') limit?: number
     ): Promise<Array<Share>> {
-        return this.shareService.getAllShares(wkn, isin, shareName, limit);
+        return this.shareService.getAllShares(wkn, isin, shareName, search, limit);
     }
 
     @ApiOkResponse({
-        description: "Returns historical data for a given share in given time range"
+        description: "Returns historical data for a given share in given time range",
+        type: HistoricalDataDto
     })
     @ApiNotFoundResponse({
         description: "Share not found"
@@ -58,7 +66,7 @@ export class ShareController {
         @Query('shareId') shareId: number,
         @Query('fromDate') fromDate: Date,
         @Query('toDate') toDate: Date,
-    ): Promise<any> {
+    ): Promise<HistoricalDataDto> {
         return this.shareService.getHistoricalData(shareId, fromDate, toDate);
     }
 

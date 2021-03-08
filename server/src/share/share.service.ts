@@ -3,6 +3,11 @@ import { Share } from './share.model';
 import * as StaticConsts from 'src/util/static-consts';
 import { Connector } from 'src/util/database/connector';
 import { QueryBuilder } from 'src/util/database/query-builder';
+import { HistoricalDataDto } from './dto/historical-data.dto';
+import { isDate, isEmpty } from 'class-validator';
+import * as Moment from 'moment';
+import { extendMoment } from 'moment-range';
+const moment = extendMoment(Moment);
 
 @Injectable()
 export class ShareService {
@@ -11,6 +16,7 @@ export class ShareService {
         wkn?: string,
         isin?: string,
         shareName?: string,
+        search?: string,
         limit?: number
     ): Promise<Array<Share>> {
 
@@ -27,6 +33,8 @@ export class ShareService {
             result = await Connector.executeQuery(QueryBuilder.getSharesByIsin(isin, resultLimit));
         } else if (shareName) {
             result = await Connector.executeQuery(QueryBuilder.getSharesByName(shareName, resultLimit));
+        } else if (search) {
+            result = await Connector.executeQuery(QueryBuilder.getSharesBySearch(search, resultLimit));
         } else {
             result = await Connector.executeQuery(QueryBuilder.getAllShares(resultLimit));
         }
@@ -82,7 +90,21 @@ export class ShareService {
         shareId: number,
         fromDate: Date,
         toDate: Date
-    ): Promise<any> {
+    ): Promise<HistoricalDataDto> {
+
+        const responseShare = await this.getShareData(shareId);
+
+        if (isEmpty(fromDate)
+            || isEmpty(toDate)
+            || !isDate(fromDate)
+            || !isDate(toDate)
+            || moment(toDate.toString()).diff(fromDate.toString())) {
+            throw new BadRequestException("No valid date information");
+        }
+
+        // let response: 
+
+
         throw new NotImplementedException('Not implemented yet!');
     }
 }
