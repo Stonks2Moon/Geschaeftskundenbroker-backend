@@ -1,5 +1,5 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
-import { ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiNotFoundResponse, ApiOkResponse, ApiProperty, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Share } from './share.model';
 import { ShareService } from './share.service';
 
@@ -17,13 +17,34 @@ export class ShareController {
     @ApiNotFoundResponse({
         description: "Share not found"
     })
+    @ApiQuery({
+        name: "wkn",
+        required: false,
+        type: String
+    })
+    @ApiQuery({
+        name: "isin",
+        required: false,
+        type: String
+    })
+    @ApiQuery({
+        name: "shareName",
+        required: false,
+        type: String
+    })
+    @ApiQuery({
+        name: "limit",
+        required: false,
+        type: Number
+    })
     @Get('all')
     async getAllShares(
         @Query('wkn') wkn?: string,
         @Query('isin') isin?: string,
-        @Query('shareName') shareName?: string
+        @Query('shareName') shareName?: string,
+        @Query('limit') limit?: number
     ): Promise<Array<Share>> {
-        return this.shareService.getAllShares(wkn, isin, shareName);
+        return this.shareService.getAllShares(wkn, isin, shareName, limit);
     }
 
     @ApiOkResponse({
