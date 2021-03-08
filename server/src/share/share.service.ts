@@ -3,8 +3,8 @@ import { Share } from './share.model';
 import * as StaticConsts from 'src/util/static-consts';
 import { Connector } from 'src/util/database/connector';
 import { QueryBuilder } from 'src/util/database/query-builder';
-import { HistoricalDataDto } from './dto/historical-data.dto';
-import { isDate, isEmpty } from 'class-validator';
+import { ChartValue, HistoricalDataDto } from './dto/historical-data.dto';
+import { isDate, isDateString, isEmpty } from 'class-validator';
 import * as Moment from 'moment';
 import { extendMoment } from 'moment-range';
 const moment = extendMoment(Moment);
@@ -96,15 +96,32 @@ export class ShareService {
 
         if (isEmpty(fromDate)
             || isEmpty(toDate)
-            || !isDate(fromDate)
-            || !isDate(toDate)
-            || moment(toDate.toString()).diff(fromDate.toString())) {
+            || !isDateString(fromDate)
+            || !isDateString(toDate)
+            || moment(toDate.toString()).diff(fromDate.toString()) < 0) {
             throw new BadRequestException("No valid date information");
         }
 
-        // let response: 
+        const result = await Connector.executeQuery(QueryBuilder.getHistoricalData(shareId, fromDate, toDate))
 
+        if (!result || result.length === 0) {
+            throw new NotFoundException("No data found");
+        }
 
-        throw new NotImplementedException('Not implemented yet!');
+        let chartValues: Array<ChartValue> = []
+        result.forEach(elem => {
+            const value: ChartValue = {
+                recordedAt: elem.recorded_at,
+                recordedValue: elem.recorded_value
+            }
+            chartValues.push(value);
+        });
+
+        const response: HistoricalDataDto = {
+            share: responseShare,
+            chartValues: chartValues
+        }
+
+        return response
     }
 }

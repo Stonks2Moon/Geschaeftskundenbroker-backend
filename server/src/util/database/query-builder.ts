@@ -209,4 +209,15 @@ export class QueryBuilder {
             ]
         }
     }
+
+    public static getHistoricalData(shareId: number, fromDate: Date, toDate: Date): Query {
+        return {
+            query: "SELECT * FROM share_price WHERE share_id = ? AND recorded_at >= ? AND recorded_at <= ?;",
+            args: [
+                shareId,
+                fromDate,
+                toDate
+            ]
+        }
+    }
 }
