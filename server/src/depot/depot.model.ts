@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Company } from "src/company/company.model";
-import { DepotEntrySummary } from "./dto/depot-entry-summary.dto";
+import { DepotPosition, DepotSummary } from "./dto/depot-entry.dto";
 
 export class Depot {
     @ApiProperty()
@@ -16,5 +16,8 @@ export class Depot {
     description: string;
 
     @ApiProperty({required: false})
-    summary?: DepotEntrySummary;
+    summary?: DepotSummary;
+
+    @ApiProperty({required: false})
+    positions?: DepotPosition[]
 }

@@ -1,32 +1,41 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Share } from "src/share/share.model";
 
-abstract class DepotEntry {
+export class DepotEntry {
     @ApiProperty()
-    depotId: string;
+    depotId: string
 
     @ApiProperty()
-    share: Share;
+    share: Share
 
     @ApiProperty()
-    amount: number;
+    amount: number
 
     @ApiProperty()
-    costValue: number;
+    costValue: number
 }
 
-export class DepotEntrySummaryPosition extends DepotEntry {
+export class DepotPosition extends DepotEntry {
     @ApiProperty()
-    currentValue: number;
+    currentValue: number
 
     @ApiProperty()
-    percentageChange: number;
+    percentageChange: number
+
+}
+
+export class DepotSummary {
+    @ApiProperty()
+    totalValue: number
+
+    @ApiProperty()
+    percentageChange: number
 }
 
 export class ReturnDepotEntry extends DepotEntry {
     @ApiProperty()
-    entryId: string;
+    entryId: string
 
     @ApiProperty()
-    createdAt: Date;
+    createdAt: Date
 }

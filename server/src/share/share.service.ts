@@ -15,6 +15,7 @@ export class ShareService {
     public async getShareData(
         shareId: number
     ): Promise<Share> {
+
         throw new NotImplementedException('Not implemented yet!');
     }
 
@@ -24,5 +25,15 @@ export class ShareService {
         toDate: Date
     ): Promise<any> {
         throw new NotImplementedException('Not implemented yet!');
+    }
+
+
+    public shareIdInShareArray(shareId: number, shareArray: Share[]): boolean {
+        shareArray.forEach(s => {
+            if(s.shareId === shareId) {
+                return true
+            }
+        })
+        return false
     }
 }

@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotImplementedException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, NotImplementedException } from '@nestjs/common';
 import { CustomerSession } from 'src/customer/customer-session.model';
 import { Depot } from './depot.model';
 import { CreateDepotDto } from './dto/create-depot.dto';
@@ -9,40 +9,43 @@ import { CustomerService } from 'src/customer/customer.service';
 import { Customer } from 'src/customer/customer.model';
 import { CompanyService } from 'src/company/company.service';
 import { uuid } from 'uuidv4';
-import { ConnectableObservable } from 'rxjs';
 import { Connector } from 'src/util/database/connector';
-import { Query } from 'src/util/database/query.model';
 import { QueryBuilder } from 'src/util/database/query-builder';
+import { Company } from 'src/company/company.model';
+import { Share } from 'src/share/share.model';
+import { DepotSummary, DepotEntry, DepotPosition } from './dto/depot-entry.dto';
+import { ShareService } from 'src/share/share.service';
 
 @Injectable()
 export class DepotService {
     constructor(
         private readonly customerService: CustomerService,
-        private readonly companyService: CompanyService
+        private readonly companyService: CompanyService,
+        private readonly shareService: ShareService
     ) {}
 
     private stockApi: BörsenAPI = new BörsenAPI('moonstonks token', 'onMatch', 'onComplete', 'onDelete');
 
     public async createDepot(createDepot: CreateDepotDto): Promise<Depot> {
         // Validate Session
-        const customer: {customer: Customer, session: CustomerSession} = await this.customerService.customerLogin({ session: createDepot.session });
+        const customer: {customer: Customer, session: CustomerSession} = await this.customerService.customerLogin({ session: createDepot.session })
 
         // Check input
         if(!createDepot.name || createDepot.name === "") {
-            throw new BadRequestException("Invalid name");
+            throw new BadRequestException("Invalid name")
         }
 
         // Get company from customer
         const companyId: string = customer.customer.company.companyId 
 
         // Generate DepotId
-        const depotId: string = uuid();
+        const depotId: string = uuid()
 
         // Create Depot
-        await Connector.executeQuery(QueryBuilder.createDepot(depotId, companyId, createDepot.name, createDepot.description));
+        await Connector.executeQuery(QueryBuilder.createDepot(depotId, companyId, createDepot.name, createDepot.description))
 
         // Get and return created depot
-        return await this.showDepotById(depotId, customer.session);
+        return await this.showDepotById(depotId, customer.session)
     }
 
     public async placeOrder(placeOrder: PlaceOrderDto): Promise<ReturnShareOrder> {
@@ -50,17 +53,140 @@ export class DepotService {
 
         // switch(placeOrder.)
         
-        throw new NotImplementedException();
+        throw new NotImplementedException()
     }
 
     public async showAllDepots(customerSession: CustomerSession): Promise<Array<Depot>> {
-        throw new NotImplementedException();
+        // Validate Session
+        const customer: {customer: Customer, session: CustomerSession} = await this.customerService.customerLogin({ session: customerSession })
+
+        // get depots for company
+        let depots: Depot[] = await this.getDepotsByCompanyId(customer.customer.company)
+        
+        depots.forEach(d => {
+            d.summary = this.depotSummaryFromPositions(d.positions)
+        })
+
+        return depots
+    }
+
+    private async getDepotsByCompanyId(company: Company): Promise<Depot[]> {
+        // Get depot by company id from DB
+        const results = await Connector.executeQuery(QueryBuilder.getDepotByCompanyId(company.companyId))
+
+        // Generate
+        let depots: Depot[] = []
+        results.forEach(d => {
+            depots.push({
+                company: company,
+                depotId: d.depot_id,
+                name: d.name,
+                description: d.description
+            })
+        })
+
+        return depots;
+    }
+
+    private depotSummaryFromPositions(positions: DepotPosition[]): DepotSummary {
+        let totalCostValue: number = 0
+        let totalCurrentValue: number = 0
+        let percentageChange: number = 0
+        
+        positions.forEach(p => {
+            totalCostValue += p.costValue
+            totalCurrentValue += p.currentValue
+        })
+        
+        percentageChange = 100 * ((totalCurrentValue - totalCostValue) / totalCostValue)
+
+        const depotSummay: DepotSummary = {
+            totalValue: totalCurrentValue,
+            percentageChange: percentageChange
+        }
+        return depotSummay
+    }
+
+    private async getDepotPositions(depotId: string) {
+        const results = await Connector.executeQuery(QueryBuilder.getDepotEntriesByDepotId(depotId))
+
+        let depotEntries: DepotEntry[] = []
+        let shares: Share[] = []
+
+        results.forEach(async e => {
+            
+            if(!this.shareService.shareIdInShareArray(e.share_id, shares)) {
+                shares.push(await this.shareService.getShareData(e.share_id))
+            }
+
+            depotEntries.push({
+                depotId: depotId,
+                amount: e.amount,
+                costValue: e.cost_value,
+                share: (shares.filter(s => { return e.share_id === s.shareId}))[0]
+            })
+        })
+
+        // Summarize to DepotPosition
+        let depotPositions: DepotPosition[] = []
+        shares.forEach(s => {
+            let totalAmount: number = 0
+            let totalCostValue: number = 0
+            let totalCurrentValue: number = 0
+            let percentageChange: number = 0
+
+            depotEntries.filter(e => { return e.share.shareId === s.shareId }).forEach(e => {
+                totalAmount += e.amount
+                totalCostValue += e.costValue
+            })
+
+            totalCurrentValue = totalAmount * s.lastRecordedValue
+            percentageChange = 100 * ((totalCurrentValue - totalCostValue) / totalCostValue)
+
+            depotPositions.push({
+                amount: totalAmount,
+                costValue: totalCostValue,
+                currentValue: totalCurrentValue,
+                percentageChange: percentageChange,
+                depotId: depotId,
+                share: s
+            })
+        })
+
+        return depotPositions
+
+    }
+
+    private async getDepotById(depotId: string, company?: Company): Promise<Depot> {
+        const result = (await Connector.executeQuery(QueryBuilder.getDepotById(depotId)))[0]
+
+        if(!result) {
+            throw new NotFoundException("Depot now found")
+        }
+
+        const depot: Depot = {
+            depotId: depotId,
+            name: result.name,
+            description: result.description,
+            company: null
+        }
+
+        if(!company) {
+            depot.company = await this.companyService.getCompanyById(result.company_id)
+        } else {
+            depot.company = company
+        }
+
+        return depot
     }
 
     public async showDepotById(depotId: string, customerSession: CustomerSession): Promise<Depot> {
         // Validate Session
-        const customer: {customer: Customer, session: CustomerSession} = await this.customerService.customerLogin({ session: customerSession });
+        const customer: {customer: Customer, session: CustomerSession} = await this.customerService.customerLogin({ session: customerSession })
 
-        throw new NotImplementedException();
+        let depot: Depot = await this.getDepotById(depotId)
+        depot.positions = await this.getDepotPositions(depotId)
+
+        throw new NotImplementedException()
     }
 }

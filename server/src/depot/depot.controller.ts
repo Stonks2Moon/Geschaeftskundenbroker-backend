@@ -40,7 +40,7 @@ export class DepotController {
         description: "Authentication",
         type: CustomerSession
     })
-    @Post(':depotId')
+    @Post('show/:depotId')
     @HttpCode(200)
     async showDepotById(
         @Param() depotId: string,

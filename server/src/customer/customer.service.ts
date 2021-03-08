@@ -11,7 +11,7 @@ import { uuid } from 'uuidv4';
 import { CustomerDto } from './dto/customer.dto';
 import { LoginInputDto } from './dto/login-input.dto';
 import { LoginDto } from './dto/login.dto';
-// import { isSameType } from '../util/typeguard.js';
+
 const bcrypt = require('bcrypt');
 const cryptoRandomString = require('crypto-random-string');
 
