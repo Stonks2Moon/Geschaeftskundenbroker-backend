@@ -13,7 +13,7 @@ export class Company {
 
     @ApiProperty()
     address: Address;
-    
+
     @ApiProperty()
     addressId?: number;
 }

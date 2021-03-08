@@ -20,8 +20,8 @@ export class CompanyController {
     })
     @Put()
     async createCompany(
-        @Body() company: CreateCompanyDto 
-        ): Promise<Company> {
+        @Body() company: CreateCompanyDto
+    ): Promise<Company> {
         return await this.companyService.createCompany(company);
     }
 
@@ -54,7 +54,7 @@ export class CompanyController {
         type: Company
     })
     @Get('all')
-    async getAllCompanies(): Promise<Company[]>{
+    async getAllCompanies(): Promise<Company[]> {
         return await this.companyService.getAllCompanies();
 
     }

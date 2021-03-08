@@ -12,7 +12,7 @@ import { LoginDto } from './dto/login.dto';
 export class CustomerController {
     constructor(private readonly customerService: CustomerService) { }
 
-    @ApiBody({description:"Input for customer login, only one parameters is required", type: LoginDto})
+    @ApiBody({ description: "Input for customer login, only one parameters is required", type: LoginDto })
     @ApiOkResponse({
         description: "Returns a Customer and CustomerSession object"
     })
@@ -27,7 +27,7 @@ export class CustomerController {
         return await this.customerService.customerLogin(wrapper);
     }
 
-    @ApiBody({description: "Blabla", type: CustomerDto})
+    @ApiBody({ description: "Blabla", type: CustomerDto })
     @ApiOkResponse({
         description: "Returns a Customer and CustomerSession object"
     })

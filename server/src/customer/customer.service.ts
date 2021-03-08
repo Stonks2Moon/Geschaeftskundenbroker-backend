@@ -151,10 +151,12 @@ export class CustomerService {
             companyId: company.companyId
         }));
 
-        const registeredCustomer: { customer: Customer, session: CustomerSession } = await this.customerLogin({login:{
-            email: customer.email,
-            password: customer.password
-        }});
+        const registeredCustomer: { customer: Customer, session: CustomerSession } = await this.customerLogin({
+            login: {
+                email: customer.email,
+                password: customer.password
+            }
+        });
 
         return registeredCustomer;
     }

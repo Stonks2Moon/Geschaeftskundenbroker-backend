@@ -9,9 +9,7 @@ import { CustomerService } from 'src/customer/customer.service';
 import { Customer } from 'src/customer/customer.model';
 import { CompanyService } from 'src/company/company.service';
 import { uuid } from 'uuidv4';
-import { ConnectableObservable } from 'rxjs';
 import { Connector } from 'src/util/database/connector';
-import { Query } from 'src/util/database/query.model';
 import { QueryBuilder } from 'src/util/database/query-builder';
 
 @Injectable()
@@ -19,21 +17,21 @@ export class DepotService {
     constructor(
         private readonly customerService: CustomerService,
         private readonly companyService: CompanyService
-    ) {}
+    ) { }
 
     private stockApi: BörsenAPI = new BörsenAPI('moonstonks token', 'onMatch', 'onComplete', 'onDelete');
 
     public async createDepot(createDepot: CreateDepotDto): Promise<Depot> {
         // Validate Session
-        const customer: {customer: Customer, session: CustomerSession} = await this.customerService.customerLogin({ session: createDepot.session });
+        const customer: { customer: Customer, session: CustomerSession } = await this.customerService.customerLogin({ session: createDepot.session });
 
         // Check input
-        if(!createDepot.name || createDepot.name === "") {
+        if (!createDepot.name || createDepot.name === "") {
             throw new BadRequestException("Invalid name");
         }
 
         // Get company from customer
-        const companyId: string = customer.customer.company.companyId 
+        const companyId: string = customer.customer.company.companyId
 
         // Generate DepotId
         const depotId: string = uuid();
@@ -49,7 +47,7 @@ export class DepotService {
         // Validate parameters
 
         // switch(placeOrder.)
-        
+
         throw new NotImplementedException();
     }
 
@@ -59,7 +57,7 @@ export class DepotService {
 
     public async showDepotById(depotId: string, customerSession: CustomerSession): Promise<Depot> {
         // Validate Session
-        const customer: {customer: Customer, session: CustomerSession} = await this.customerService.customerLogin({ session: customerSession });
+        const customer: { customer: Customer, session: CustomerSession } = await this.customerService.customerLogin({ session: customerSession });
 
         throw new NotImplementedException();
     }
