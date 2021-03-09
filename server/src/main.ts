@@ -5,6 +5,7 @@ import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  // Enable CORS for all hosts (regex is used instead of wildcard, because only wildcard does not work properly)
   app.enableCors({
     origin: [
       /^(.*)/,
@@ -16,8 +17,12 @@ async function bootstrap() {
     allowedHeaders:
       'Origin,X-Requested-With,Content-Type,Accept,Authorization,authorization,X-Forwarded-for',
   })
+
+  // Enable validation via nestJS's validator decorators
+  // (used to validate data which is an input of the API)
   app.useGlobalPipes(new ValidationPipe());
 
+  // Enable swagger docs for NestJS (documentation is available under /docs [on server under /api/docs])
   const config = new DocumentBuilder()
     .setTitle('Geschäftskundenbroker API')
     .setDescription('Die offizielle API für den Geschäftskundenbroker')
@@ -27,6 +32,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
 
+  // Start NestJS server on port 3000
   await app.listen(3000);
 }
 bootstrap();

@@ -29,6 +29,7 @@ export class ShareService {
         limit?: number
     ): Promise<Array<Share>> {
 
+        // Check if limit is given, else use default result limit
         let resultLimit = StaticConsts.DEFAULT_SEARCH_LIMIT;
         if (limit && isNaN(limit)) {
             resultLimit = limit;
@@ -36,6 +37,7 @@ export class ShareService {
 
         let response: Array<Share> = [];
         let result;
+        // Check what is given for search and call database to get all shares, which match with the case
         if (wkn) {
             result = await Connector.executeQuery(QueryBuilder.getSharesByWkn(wkn, resultLimit));
         } else if (isin) {
@@ -48,10 +50,12 @@ export class ShareService {
             result = await Connector.executeQuery(QueryBuilder.getAllShares(resultLimit));
         }
 
+        // If no shares are found throw 404 error
         if (!result || result.length === 0) {
             throw new NotFoundException("No shares found");
         }
 
+        // Add data to response array
         result.forEach((elem) => {
             const share: Share = {
                 shareName: elem.name,
@@ -77,16 +81,20 @@ export class ShareService {
         shareId: number
     ): Promise<Share> {
 
+        // Check if share ID is given and a number
         if (!shareId || isNaN(shareId)) {
             throw new BadRequestException("Invalid share ID");
         }
 
+        // Get share from database
         let result = (await Connector.executeQuery(QueryBuilder.getShareById(shareId)))[0];
 
+        // If no share is found throw 404 error
         if (!result) {
             throw new NotFoundException("Share not found");
         }
 
+        // Create return object
         let share: Share = {
             shareId: result.share_id,
             shareName: result.name,
@@ -113,8 +121,12 @@ export class ShareService {
         toDate: Date
     ): Promise<HistoricalDataDto> {
 
+        // Get data about share (for response)
+        // If the share is invalid, the code below is not executed,
+        // because the getShare method throws an error directly
         const responseShare = await this.getShareData(shareId);
 
+        // Check if given date data is correct (using moment.js to check if from date is before to date)
         if (isEmpty(fromDate)
             || isEmpty(toDate)
             || !isDateString(fromDate)
@@ -123,12 +135,15 @@ export class ShareService {
             throw new BadRequestException("No valid date information");
         }
 
+        // Get data from database
         const result = await Connector.executeQuery(QueryBuilder.getHistoricalData(shareId, fromDate, toDate))
 
+        // If no historical data is on our database, a 404 error is thrown
         if (!result || result.length === 0) {
             throw new NotFoundException("No data found");
         }
 
+        // Create response data (values + timestamps for chart)
         let chartValues: Array<ChartValue> = []
         result.forEach(elem => {
             const value: ChartValue = {
@@ -138,6 +153,7 @@ export class ShareService {
             chartValues.push(value);
         });
 
+        // Create response object
         const response: HistoricalDataDto = {
             share: responseShare,
             chartValues: chartValues
