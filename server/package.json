@@ -34,7 +34,7 @@
     "mariadb": "^2.5.3",
     "moment": "^2.29.1",
     "moment-range": "^4.0.2",
-    "moonstonks-boersenapi": "^1.1.0",
+    "moonstonks-boersenapi": "^1.2.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^6.6.6",
