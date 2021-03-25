@@ -1,5 +1,5 @@
 import { Body, Controller, HttpCode, Param, Post, Put } from '@nestjs/common';
-import { ApiBody, ApiCreatedResponse, ApiOkResponse, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiCreatedResponse, ApiNotAcceptableResponse, ApiOkResponse, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { CustomerSession } from 'src/customer/customer-session.model';
 import { Depot } from './depot.model';
 import { DepotService } from './depot.service';
@@ -66,6 +66,9 @@ export class DepotController {
     @ApiCreatedResponse({
         description: "Returns an order object",
         type: ReturnShareOrder
+    })
+    @ApiNotAcceptableResponse({
+        description: "Market is currently closed",
     })
     @ApiBody({
         description: "Place an order",

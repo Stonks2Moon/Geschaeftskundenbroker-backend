@@ -4,7 +4,7 @@ import * as StaticConsts from 'src/util/static-consts';
 import { Connector } from 'src/util/database/connector';
 import { QueryBuilder } from 'src/util/database/query-builder';
 import { ChartValue, HistoricalDataDto } from './dto/historical-data.dto';
-import { isDate, isDateString, isEmpty } from 'class-validator';
+import { isDateString, isEmpty } from 'class-validator';
 import * as Moment from 'moment';
 import { extendMoment } from 'moment-range';
 const moment = extendMoment(Moment);
