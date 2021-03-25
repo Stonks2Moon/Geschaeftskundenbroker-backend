@@ -3,8 +3,6 @@ import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-valida
 import { Share } from "src/share/share.model";
 
 abstract class ShareOrder {
-    @IsNotEmpty()
-    @IsString()
     orderId: string;
 
     @ApiProperty()
@@ -19,12 +17,12 @@ abstract class ShareOrder {
 
     @ApiProperty({ enum: ['buy', 'sell'] })
     @IsNotEmpty()
-    @IsEnum({ enum: ['buy', 'sell'] })
+    //@IsEnum({ enum: ['buy', 'sell'] })
     type: 'buy' | 'sell';
 
     @ApiProperty({ enum: ['market', 'limit', 'stop', 'stopLimit'] })
     @IsNotEmpty()
-    @IsEnum({ enum: ['market', 'limit', 'stop', 'stopLimit'] })
+    //@IsEnum({ enum: ['market', 'limit', 'stop', 'stopLimit'] })
     detail: 'market' | 'limit' | 'stop' | 'stopLimit'
 
     @ApiProperty({ required: false })
