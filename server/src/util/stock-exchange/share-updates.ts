@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import * as WebSocket from "ws";
 import * as StaticConsts from 'src/util/static-consts';
+import { UpdatePrice } from "./update-price.model";
 
 @Injectable()
 export class UpdateShares {
@@ -22,7 +23,7 @@ export class UpdateShares {
         // });
 
         // Check if new prices are available
-        this.stockExchangeServerSocket.on("price", (updatePrice) => {
+        this.stockExchangeServerSocket.on("price", (updatePrice: UpdatePrice) => {
             console.log(updatePrice);
             this.updateSharePrice(updatePrice);
             // UpdateShares.updateSharePrice(message);
