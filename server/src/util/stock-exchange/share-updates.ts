@@ -14,24 +14,25 @@ export class UpdateShares {
             this.stockExchangeServerSocket = new WebSocket(StaticConsts.STOCK_EXCHANGE_API_URL);
             // this.stockExchangeServerSocket = new WebSocket("wss://echo.websocket.org");
         } catch (e) {
-            console.log("ab")
             console.error(e);
         }
-        // // // Socket open
-        // this.stockExchangeServerSocket.on("open", () => {
-        //     this.stockExchangeServerSocket.send(Math.random())
-        // });
+
+        // Handle socket errors
+        this.stockExchangeServerSocket.on("error", error => console.error(error));
 
         // Check if new prices are available
         this.stockExchangeServerSocket.on("price", (updatePrice: UpdatePrice) => {
             console.log(updatePrice);
             this.updateSharePrice(updatePrice);
-            // UpdateShares.updateSharePrice(message);
         });
     }
 
-    private updateSharePrice(share) {
-        console.log(share + "Hallo")
+    /**
+     * Updates our prices on the database
+     * @param updatePrice new data from socket
+     */
+    private updateSharePrice(updatePrice: UpdatePrice) {
+        console.log(updatePrice.price + "Hallo")
 
     }
 }
