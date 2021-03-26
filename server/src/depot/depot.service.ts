@@ -5,7 +5,6 @@ import { CreateDepotDto } from './dto/create-depot.dto';
 import { PlaceOrderDto } from './dto/place-order.dto';
 import { ReturnShareOrder } from './dto/share-order.dto';
 import { BörsenAPI, Job, OrderManager } from "moonstonks-boersenapi";
-import { MarketManager } from "moonstonks-boersenapi"
 import { CustomerService } from 'src/customer/customer.service';
 import { Customer } from 'src/customer/customer.model';
 import { CompanyService } from 'src/company/company.service';
