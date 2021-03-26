@@ -4,7 +4,7 @@ import * as StaticConsts from 'src/util/static-consts';
 import { Connector } from 'src/util/database/connector';
 import { QueryBuilder } from 'src/util/database/query-builder';
 import { ChartValue, HistoricalDataDto } from './dto/historical-data.dto';
-import { isDate, isDateString, isEmpty } from 'class-validator';
+import { isDateString, isEmpty } from 'class-validator';
 import * as Moment from 'moment';
 import { extendMoment } from 'moment-range';
 const moment = extendMoment(Moment);
@@ -78,11 +78,11 @@ export class ShareService {
      * @returns a share object
      */
     public async getShareData(
-        shareId: number
+        shareId: string
     ): Promise<Share> {
 
         // Check if share ID is given and a number
-        if (!shareId || isNaN(shareId)) {
+        if (!shareId) {
             throw new BadRequestException("Invalid share ID");
         }
 
@@ -116,7 +116,7 @@ export class ShareService {
      * @returns an object containing a share and the price + date infos
      */
     public async getHistoricalData(
-        shareId: number,
+        shareId: string,
         fromDate: Date,
         toDate: Date
     ): Promise<HistoricalDataDto> {
@@ -169,7 +169,7 @@ export class ShareService {
      * @param shareArray array in which is searched
      * @returns a boolean
      */
-    public shareIdInShareArray(shareId: number, shareArray: Share[]): boolean {
+    public shareIdInShareArray(shareId: string, shareArray: Share[]): boolean {
         for (const s of shareArray) {
             if (s.shareId === shareId) {
                 return true
