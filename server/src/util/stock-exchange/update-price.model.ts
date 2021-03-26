@@ -1,7 +1,5 @@
-export class UpdatePrice {
+import {Price} from 'moonstonks-boersenapi';
+
+export class UpdatePrice extends Price {
     shareId: string;
-
-    price: number;
-
-    timestamp: Date;
 }

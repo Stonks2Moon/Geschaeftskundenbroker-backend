@@ -63,7 +63,7 @@ export class ShareController {
     })
     @Get('historical-data')
     async getHistoricalData(
-        @Query('shareId') shareId: number,
+        @Query('shareId') shareId: string,
         @Query('fromDate') fromDate: Date,
         @Query('toDate') toDate: Date,
     ): Promise<HistoricalDataDto> {
@@ -79,7 +79,7 @@ export class ShareController {
     })
     @Get(':shareId')
     async getShareData(
-        @Param('shareId') shareId: number
+        @Param('shareId') shareId: string
     ): Promise<Share> {
         return this.shareService.getShareData(shareId);
     }
