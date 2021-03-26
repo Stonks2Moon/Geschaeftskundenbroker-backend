@@ -1,8 +1,8 @@
 import { Injectable } from "@nestjs/common";
-//import * as WebSocket from "ws";
 import * as io from 'socket.io-client'
 import * as StaticConsts from 'src/util/static-consts';
 import { UpdatePrice } from "./update-price.model";
+const crc = require('node-crc');
 
 @Injectable()
 export class UpdateShares {
@@ -20,7 +20,7 @@ export class UpdateShares {
 
         // Check if socket connected
         this.stockExchangeServerSocket.on("connect", () => {
-            console.log(this.stockExchangeServerSocket.id); 
+            console.log(this.stockExchangeServerSocket.id);
         });
 
         // Check if socket disconnected
@@ -42,6 +42,14 @@ export class UpdateShares {
      * @param updatePrice new data from socket
      */
     private updateSharePrice(updatePrice: UpdatePrice) {
-        console.log(updatePrice.price + "Hallo")
+        console.log(updatePrice.price + "Hallo Welt")
+    }
+
+    private generateISIN(shareId: string): string {
+        return `DE${shareId}${crc.crc32(Buffer.from(shareId, 'utf8')).toString('hex')}`.toUpperCase();
+    }
+
+    private generateWKN(name: string, shareId: string): string {
+        return `${name.slice(0,3)}${shareId.slice(2,shareId.length-3)}`.toUpperCase();
     }
 }
