@@ -26,12 +26,12 @@ export class UpdateShares {
 
         // Check if socket connected
         this.stockExchangeServerSocket.on("connect", () => {
-            console.log(this.stockExchangeServerSocket.id);
+            //console.log(this.stockExchangeServerSocket.id);
         });
 
         // Check if socket disconnected
         this.stockExchangeServerSocket.on("disconnect", () => {
-            console.log(this.stockExchangeServerSocket.id);
+            //console.log(this.stockExchangeServerSocket.id);
         });
 
         // Handle socket errors
