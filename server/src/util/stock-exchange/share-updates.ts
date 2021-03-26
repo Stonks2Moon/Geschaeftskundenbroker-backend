@@ -13,7 +13,6 @@ export class UpdateShares {
         // Create socket
         try {
             this.stockExchangeServerSocket = io(StaticConsts.STOCK_EXCHANGE_API_URL);
-            // this.stockExchangeServerSocket = new WebSocket("wss://echo.websocket.org");
         } catch (e) {
             console.error(e);
         }
