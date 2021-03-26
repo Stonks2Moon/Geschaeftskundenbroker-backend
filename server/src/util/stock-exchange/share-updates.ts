@@ -25,7 +25,7 @@ export class UpdateShares {
 
         // Check if socket disconnected
         this.stockExchangeServerSocket.on("disconnect", () => {
-            console.log(this.stockExchangeServerSocket.id); 
+            console.log(this.stockExchangeServerSocket.id);
         });
 
         // Handle socket errors
@@ -45,11 +45,22 @@ export class UpdateShares {
         console.log(updatePrice.price + "Hallo Welt")
     }
 
+    /**
+     * Generates a ISIN for our database
+     * @param shareId ID of the share from stock exchange
+     * @returns a ISIN string
+     */
     private generateISIN(shareId: string): string {
         return `DE${shareId}${crc.crc32(Buffer.from(shareId, 'utf8')).toString('hex')}`.toUpperCase();
     }
 
+    /**
+     * Generates a WKN for our database
+     * @param name name of the share
+     * @param shareId id of the share from stock exchange
+     * @returns a WKN string
+     */
     private generateWKN(name: string, shareId: string): string {
-        return `${name.slice(0,3)}${shareId.slice(2,shareId.length-3)}`.toUpperCase();
+        return `${name.slice(0, 3)}${shareId.slice(2, shareId.length - 3)}`.toUpperCase();
     }
 }
