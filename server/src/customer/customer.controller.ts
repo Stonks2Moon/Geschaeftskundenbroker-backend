@@ -1,6 +1,6 @@
 import { Body, Controller, HttpCode, Post, Put, Res } from '@nestjs/common';
 import { ApiBody, ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { ValidateNested } from 'class-validator';
+
 import { CustomerSession } from './customer-session.model';
 import { Customer } from './customer.model';
 import { CustomerService } from './customer.service';
@@ -12,23 +12,39 @@ import { LoginDto } from './dto/login.dto';
 export class CustomerController {
     constructor(private readonly customerService: CustomerService) { }
 
-    @ApiBody({ description: "Input for customer login, only one parameters is required", type: LoginDto })
+    /**
+     * Receives Login Information and returns a logged in user
+     * @param login LoginDto containing either a session or a Email/Password
+     * @returns 
+     */
+    @ApiBody({ 
+        description: "Input for customer login, only one parameters is required. Either a CustomerSession or a Email/Password.", 
+        type: LoginDto 
+    })
     @ApiOkResponse({
         description: "Returns a Customer and CustomerSession object"
     })
     @Post('login')
     @HttpCode(200)
     async login(
-        @Body() wrapper: LoginDto
+        @Body() login: LoginDto
     ): Promise<{
         customer: Customer,
         session: CustomerSession
     }> {
-        return await this.customerService.customerLogin(wrapper);
+        return await this.customerService.customerLogin(login);
     }
 
-    @ApiBody({ description: "Blabla", type: CustomerDto })
-    @ApiOkResponse({
+
+    /**
+     * Create a customer provided the given information
+     * @param customer CustomerDto object 
+     */
+    @ApiBody({ 
+        description: "CustomerDto object containing necessary information to create a new user/customer", 
+        type: CustomerDto 
+    })
+    @ApiCreatedResponse({
         description: "Returns a Customer and CustomerSession object"
     })
     @Put()
