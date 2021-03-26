@@ -1,10 +1,8 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
+import { IsEnum, IsNotEmpty, IsNumber, IsOptional, isString, IsString } from "class-validator";
 import { Share } from "src/share/share.model";
 
 abstract class ShareOrder {
-    @IsNotEmpty()
-    @IsString()
     orderId: string;
 
     @ApiProperty()
@@ -19,12 +17,12 @@ abstract class ShareOrder {
 
     @ApiProperty({ enum: ['buy', 'sell'] })
     @IsNotEmpty()
-    @IsEnum({ enum: ['buy', 'sell'] })
+    //@IsEnum({ enum: ['buy', 'sell'] })
     type: 'buy' | 'sell';
 
     @ApiProperty({ enum: ['market', 'limit', 'stop', 'stopLimit'] })
     @IsNotEmpty()
-    @IsEnum({ enum: ['market', 'limit', 'stop', 'stopLimit'] })
+    //@IsEnum({ enum: ['market', 'limit', 'stop', 'stopLimit'] })
     detail: 'market' | 'limit' | 'stop' | 'stopLimit'
 
     @ApiProperty({ required: false })
@@ -51,8 +49,8 @@ abstract class ShareOrder {
 export class PlaceShareOrder extends ShareOrder {
     @ApiProperty({ required: false })
     @IsOptional()
-    @IsNumber()
-    shareId: number;
+    @IsString()
+    shareId: string;
 }
 
 export class ReturnShareOrder extends ShareOrder {

@@ -2,7 +2,7 @@ import { ApiProperty } from "@nestjs/swagger";
 
 export class Share {
     @ApiProperty()
-    shareId?: number;
+    shareId?: string;
 
     @ApiProperty()
     shareName: string;

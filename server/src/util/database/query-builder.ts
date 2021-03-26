@@ -1,5 +1,6 @@
 import { Address } from 'src/company/address.model';
 import { Company } from 'src/company/company.model';
+import { Share } from 'src/share/share.model';
 import { Query } from './query.model';
 
 export class QueryBuilder {
@@ -306,7 +307,7 @@ export class QueryBuilder {
      * @param shareId ID of the share
      * @returns a Query object
      */
-    public static getShareById(shareId: number): Query {
+    public static getShareById(shareId: string): Query {
         return {
             query: "SELECT share_id, isin, wkn, last_recorded_value, name, currency_code, currency_name FROM share JOIN currency ON share.currency_code = currency.iso_code WHERE share_id = ?;",
             args: [
@@ -386,13 +387,66 @@ export class QueryBuilder {
      * @param toDate end date of timeframe
      * @returns a Query object
      */
-    public static getHistoricalData(shareId: number, fromDate: Date, toDate: Date): Query {
+    public static getHistoricalData(shareId: string, fromDate: Date, toDate: Date): Query {
         return {
             query: "SELECT * FROM share_price WHERE share_id = ? AND recorded_at >= ? AND recorded_at <= ?;",
             args: [
                 shareId,
                 fromDate,
                 toDate
+            ]
+        }
+    }
+
+    /**
+     * Used to update the price of a share
+     * @param price new price
+     * @param shareId id of share
+     * @returns a query to update the last recorded price of a share
+     */
+    public static updateSharePrice(price: number, shareId: string): Query {
+        return {
+            // INSERT INTO customer (customer_id, first_name, last_name, email, password_hash, company_id) VALUES (?, ?, ?, ?, ?, ?);
+            query: "UPDATE share SET last_recorded_value = ? WHERE share_id = ?;",
+            args: [
+                price,
+                shareId
+            ]
+        }
+    }
+
+    /**
+     * Used to add a new entrie for historical data
+     * @param price price of the share
+     * @param shareId id of the share
+     * @returns a query to insert new data to historical 
+     */
+    public static addNewPriceRecordToHistoricalData(price: number, recordedAt: Date, shareId: string): Query {
+        return {
+            query: "INSERT INTO share (share_id, recorded_at, recorded_value) VALUES (?, ?, ?);",
+            args: [
+                shareId,
+                recordedAt,
+                price
+            ]
+        }
+    }
+
+    /**
+     * Used to add new shares to our database
+     * @param share share object with all infos which are needed for an db entry
+     * @returns a query to insert a new entry in database
+     */
+    public static addNewShare(share: Share): Query {
+        return {
+            query: "INSERT INTO share (share_id, isin, wkn, last_recorded_value, name, currency_code) VALUES (?, ?, ?, ?, ?, ?);",
+            args: [
+                share.shareId,
+                share.isin,
+                share.wkn,
+                share.lastRecordedValue,
+                share.shareName,
+                share.currencyCode
             ]
         }
     }
