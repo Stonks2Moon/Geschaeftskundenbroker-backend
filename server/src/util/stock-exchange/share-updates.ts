@@ -6,7 +6,6 @@ import { Connector } from "../database/connector";
 import { QueryBuilder } from "../database/query-builder";
 import { UpdatePrice } from "./update-price.model";
 import { Share, ShareManager } from "moonstonks-boersenapi";
-import { Query } from "../database/query.model";
 const crc = require('node-crc');
 
 @Injectable()

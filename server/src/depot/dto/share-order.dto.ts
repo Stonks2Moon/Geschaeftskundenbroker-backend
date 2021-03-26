@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
+import { IsEnum, IsNotEmpty, IsNumber, IsOptional, isString, IsString } from "class-validator";
 import { Share } from "src/share/share.model";
 
 abstract class ShareOrder {
@@ -49,8 +49,8 @@ abstract class ShareOrder {
 export class PlaceShareOrder extends ShareOrder {
     @ApiProperty({ required: false })
     @IsOptional()
-    @IsNumber()
-    shareId: number;
+    @IsString()
+    shareId: string;
 }
 
 export class ReturnShareOrder extends ShareOrder {
