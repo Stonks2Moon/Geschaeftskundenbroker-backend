@@ -15,12 +15,13 @@ import { Company } from 'src/company/company.model';
 import { Share } from 'src/share/share.model';
 import { DepotSummary, DepotEntry, DepotPosition } from './dto/depot-entry.dto';
 import { ShareService } from 'src/share/share.service';
+import { executeApiCall, getOrderFunction } from '../util/stock-exchange/stock-wrapper'
 
 @Injectable()
 export class DepotService {
 
-    private stockExchangeApi = new BörsenAPI('moonstonks token');
-    private orderManager = new OrderManager(this.stockExchangeApi, 'onPlace', 'onMatch', 'onComplete', 'onDelete');
+    // private stockExchangeApi = new BörsenAPI('moonstonks token');
+    // private orderManager = new OrderManager(this.stockExchangeApi, 'onPlace', 'onMatch', 'onComplete', 'onDelete');
 
     constructor(
         private readonly customerService: CustomerService,
@@ -65,86 +66,11 @@ export class DepotService {
         //     throw new NotAcceptableException("Could not place order, the market is closed");
         // }
 
-        const orderFunctions = new Map([
-            ["market buy", {
-                f: this.orderManager.placeBuyMarketOrder,
-                args: ["shareId", "amount"]
-            }],
-            ["market sell", {
-                f: this.orderManager.placeSellMarketOrder,
-                args: ["shareId", "amount"]
-            }],
+        
 
-            ["limit buy", {
-                f: this.orderManager.placeBuyLimitOrder,
-                args: ["shareId", "amount", "limit"]
-            }],
-            ["limit sell", {
-                f: this.orderManager.placeSellLimitOrder,
-                args: ["shareId", "amount", "limit"]
-            }],
+        let orderFunction = getOrderFunction(placeOrder.order)
+        let result: Job = await executeApiCall<Job>(orderFunction.func.f, orderFunction.args, orderFunction.orderManager)
 
-            ["stop buy", {
-                f: this.orderManager.placeBuyStopMarketOrder,
-                args: ["shareId", "amount", "stop"]
-            }],
-            ["stop sell", {
-                f: this.orderManager.placeSellStopLimitOrder,
-                args: ["shareId", "amount", "stop"]
-            }],
-
-            ["stopLimit buy", {
-                f: this.orderManager.placeBuyStopLimitOrder,
-                args: ["shareId", "amount", "limit", "stop"]
-            }],
-            ["stopLimit sell", {
-                f: this.orderManager.placeSellStopLimitOrder,
-                args: ["shareId", "amount", "limit", "stop"]
-            }],
-        ]);
-
-        let orderFunction = orderFunctions.get(`${placeOrder.order.detail} ${placeOrder.order.type}`);
-        let result: Job;
-
-        console.log(orderFunction.args.map(key => placeOrder.order[key]))
-
-        try {
-            result = await orderFunction.f.apply(this.orderManager, orderFunction.args.map(key => placeOrder.order[key]))
-        } catch (error) {
-            throw new InternalServerErrorException(error);
-        }
-
-        // switch (placeOrder.order.detail) {
-        //     case "market":
-        //         if (placeOrder.order.type == "buy") {
-
-        //         } else if (placeOrder.order.type == "sell") {
-
-        //         }
-        //         break;
-        //     case "limit":
-        //         if (placeOrder.order.type == "buy") {
-
-        //         } else if (placeOrder.order.type == "sell") {
-
-        //         }
-        //         break;
-        //     case "stop":
-        //         if (placeOrder.order.type == "buy") {
-
-        //         } else if (placeOrder.order.type == "sell") {
-
-        //         }
-        //         break;
-        //     case "stopLimit":
-        //         if (placeOrder.order.type == "buy") {
-
-        //         } else if (placeOrder.order.type == "sell") {
-
-        //         }
-        //         break;
-
-        // }
 
         throw new NotImplementedException()
     }
