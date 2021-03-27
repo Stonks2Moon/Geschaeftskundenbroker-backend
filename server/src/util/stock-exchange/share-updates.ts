@@ -6,7 +6,6 @@ import { Connector } from "../database/connector";
 import { QueryBuilder } from "../database/query-builder";
 import { UpdatePrice } from "./update-price.model";
 import { Share, ShareManager } from "moonstonks-boersenapi";
-// const crc = require('node-crc');
 const crc32 = require("crc-32");
 
 @Injectable()
@@ -17,9 +16,6 @@ export class UpdateShares {
     constructor(
         private readonly shareService: ShareService
     ) {
-         
-        let _id = "3dd90952b82443bbb932109bf3e2acde"
-        console.log(`DE${_id}${crc32.str(_id)}`.toUpperCase())
         // Create socket
         try {
             this.stockExchangeServerSocket = io(StaticConsts.STOCK_EXCHANGE_API_URL);
