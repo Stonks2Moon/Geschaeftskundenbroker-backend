@@ -3,7 +3,7 @@ import { CustomerSession } from 'src/customer/customer-session.model';
 import { Depot } from './depot.model';
 import { CreateDepotDto } from './dto/create-depot.dto';
 import { PlaceOrderDto } from './dto/place-order.dto';
-import { ReturnShareOrder } from './dto/share-order.dto';
+import { PlaceShareOrder, ReturnShareOrder } from './dto/share-order.dto';
 import { BörsenAPI, Job, OrderManager } from "moonstonks-boersenapi";
 import { CustomerService } from 'src/customer/customer.service';
 import { Customer } from 'src/customer/customer.model';
@@ -15,12 +15,12 @@ import { Company } from 'src/company/company.model';
 import { Share } from 'src/share/share.model';
 import { DepotSummary, DepotEntry, DepotPosition } from './dto/depot-entry.dto';
 import { ShareService } from 'src/share/share.service';
+import { executeApiCall, getOrderFunction, marketManager, orderManager } from '../util/stock-exchange/stock-wrapper'
+import * as StaticConsts from "../util/static-consts";
+import { TradeAlgorithm } from 'src/util/stock-exchange/trade-algorithm';
 
 @Injectable()
 export class DepotService {
-
-    private stockExchangeApi = new BörsenAPI('moonstonks token');
-    private orderManager = new OrderManager(this.stockExchangeApi, 'onPlace', 'onMatch', 'onComplete', 'onDelete');
 
     constructor(
         private readonly customerService: CustomerService,
@@ -55,98 +55,46 @@ export class DepotService {
         return await this.showDepotById(depotId, customer.session)
     }
 
-    public async placeOrder(placeOrder: PlaceOrderDto): Promise<ReturnShareOrder> {
+    public async placeOrder(placeOrder: PlaceOrderDto): Promise<Array<PlaceShareOrder>> {
 
         // Validate Session
         const customer: { customer: Customer, session: CustomerSession } = await this.customerService.customerLogin({ session: placeOrder.customerSession })
 
-        // Check if market is open or not (Queue order if is closed or throw error?)
-        // if (await MarketManager.isClosed()) {
-        //     throw new NotAcceptableException("Could not place order, the market is closed");
-        // }
+        // Get relevant share
+        const share: Share = await this.shareService.getShareData(placeOrder.order.shareId);
 
-        const orderFunctions = new Map([
-            ["market buy", {
-                f: this.orderManager.placeBuyMarketOrder,
-                args: ["shareId", "amount"]
-            }],
-            ["market sell", {
-                f: this.orderManager.placeSellMarketOrder,
-                args: ["shareId", "amount"]
-            }],
-
-            ["limit buy", {
-                f: this.orderManager.placeBuyLimitOrder,
-                args: ["shareId", "amount", "limit"]
-            }],
-            ["limit sell", {
-                f: this.orderManager.placeSellLimitOrder,
-                args: ["shareId", "amount", "limit"]
-            }],
-
-            ["stop buy", {
-                f: this.orderManager.placeBuyStopMarketOrder,
-                args: ["shareId", "amount", "stop"]
-            }],
-            ["stop sell", {
-                f: this.orderManager.placeSellStopLimitOrder,
-                args: ["shareId", "amount", "stop"]
-            }],
-
-            ["stopLimit buy", {
-                f: this.orderManager.placeBuyStopLimitOrder,
-                args: ["shareId", "amount", "limit", "stop"]
-            }],
-            ["stopLimit sell", {
-                f: this.orderManager.placeSellStopLimitOrder,
-                args: ["shareId", "amount", "limit", "stop"]
-            }],
-        ]);
-
-        let orderFunction = orderFunctions.get(`${placeOrder.order.detail} ${placeOrder.order.type}`);
-        let result: Job;
-
-        console.log(orderFunction.args.map(key => placeOrder.order[key]))
-
-        try {
-            result = await orderFunction.f.apply(this.orderManager, orderFunction.args.map(key => placeOrder.order[key]))
-        } catch (error) {
-            throw new InternalServerErrorException(error);
+        // Check if market is open or not
+        const isClosed: boolean = await executeApiCall<boolean>(marketManager.isClosed, [], marketManager)
+        if (isClosed) {
+            throw new NotAcceptableException("Could not place order, the market is closed");
         }
 
-        // switch (placeOrder.order.detail) {
-        //     case "market":
-        //         if (placeOrder.order.type == "buy") {
 
-        //         } else if (placeOrder.order.type == "sell") {
+        // Check if algorithm applies
+        let orderArray: Array<PlaceShareOrder> = [];
+        switch (placeOrder.tradeAlgorithm) {
+            case 1:
+                if (placeOrder.order.amount * share.lastRecordedValue < StaticConsts.ALG_SPLIT_THRESHOLD) {
+                    throw new BadRequestException("Doesn't fulfill requirement")
+                }
+                orderArray = await TradeAlgorithm.splitBuyOrderInSmallerOrders(placeOrder.order)
+                break
 
-        //         }
-        //         break;
-        //     case "limit":
-        //         if (placeOrder.order.type == "buy") {
+            default:
+                orderArray.push(placeOrder.order)
 
-        //         } else if (placeOrder.order.type == "sell") {
+        }
+        
+        let results: Array<Job> = []
+        for(const o of orderArray) {
+            const orderFunction = getOrderFunction(o);
+            results.push(await executeApiCall<Job>(orderFunction.func.f, orderFunction.args, orderManager));
+        }
+        
+        // TODO: Order auf DB anlegen
+        // Irgendwas mit Jobs machen (speichern oder so -> GENAU)
 
-        //         }
-        //         break;
-        //     case "stop":
-        //         if (placeOrder.order.type == "buy") {
-
-        //         } else if (placeOrder.order.type == "sell") {
-
-        //         }
-        //         break;
-        //     case "stopLimit":
-        //         if (placeOrder.order.type == "buy") {
-
-        //         } else if (placeOrder.order.type == "sell") {
-
-        //         }
-        //         break;
-
-        // }
-
-        throw new NotImplementedException()
+        return orderArray;
     }
 
 

@@ -5,7 +5,7 @@ import { Depot } from './depot.model';
 import { DepotService } from './depot.service';
 import { CreateDepotDto } from './dto/create-depot.dto';
 import { PlaceOrderDto } from './dto/place-order.dto';
-import { ReturnShareOrder } from './dto/share-order.dto';
+import { PlaceShareOrder, ReturnShareOrder } from './dto/share-order.dto';
 
 @ApiTags('depot')
 @Controller('depot')
@@ -59,7 +59,7 @@ export class DepotController {
 
 
     /**
-     * 
+     * TODO
      * @param placeOrder 
      * @returns 
      */
@@ -77,7 +77,7 @@ export class DepotController {
     @Put('order')
     async placeOrder(
         @Body() placeOrder: PlaceOrderDto
-    ): Promise<ReturnShareOrder> {
+    ): Promise<Array<PlaceShareOrder>> {
         return this.depotService.placeOrder(placeOrder);
     }
 

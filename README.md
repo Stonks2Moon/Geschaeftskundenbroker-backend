@@ -5,6 +5,10 @@ Frontend: https://github.com/Stonks2Moon/Geschaeftskundenbroker-frontend
 
 Dokumentation und Organisation: https://github.com/Stonks2Moon/Geschaeftskundenbroker
 
+API: https://business.moonstonks.space/api/
+
+Swagger: https://business.moonstonks.space/api//docs
+
 
 ## Firma
 Eine Firma kann als Geschäftskunde auftreten.

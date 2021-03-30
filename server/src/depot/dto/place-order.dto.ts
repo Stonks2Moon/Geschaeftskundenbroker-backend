@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { ValidateNested } from "class-validator";
+import { IsNumber, IsOptional, ValidateNested } from "class-validator";
 import { CustomerSession } from "src/customer/customer-session.model";
 import { PlaceShareOrder } from "./share-order.dto";
 
@@ -14,4 +14,8 @@ export class PlaceOrderDto {
     @ValidateNested()
     @Type(() => PlaceShareOrder)
     order: PlaceShareOrder;
+
+    @ApiProperty()
+    @IsNumber()
+    tradeAlgorithm: number
 }

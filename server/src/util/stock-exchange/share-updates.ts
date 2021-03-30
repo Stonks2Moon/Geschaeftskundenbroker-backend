@@ -13,9 +13,7 @@ export class UpdateShares {
 
     private stockExchangeServerSocket;
 
-    constructor(
-        private readonly shareService: ShareService
-    ) {
+    constructor() {
         // Create socket
         try {
             this.stockExchangeServerSocket = io(StaticConsts.STOCK_EXCHANGE_API_URL);
