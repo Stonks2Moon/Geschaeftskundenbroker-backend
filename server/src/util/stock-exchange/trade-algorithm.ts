@@ -12,8 +12,8 @@ export class TradeAlgorithm {
         const orderValue: number = order.amount * share.lastRecordedValue;
         const numberOfOrders: number = Math.floor(orderValue / batchValue) + (orderValue % batchValue > 0 ? 1 : 0);
 
-        const batchSize: number = Math.floor(order.amount / numberOfOrders);
-        const additionToLast: number = order.amount - (numberOfOrders - 1) * batchSize
+        const batchSize: number = Math.floor(order.amount / (numberOfOrders));
+        const additionToLast: number = order.amount - (numberOfOrders) * batchSize
 
         let orderArray: Array<PlaceShareOrder> = [];
         for (let i = 0; i < numberOfOrders; i++) {
@@ -32,7 +32,12 @@ export class TradeAlgorithm {
             orderArray.push(o);
         }
 
-        orderArray[numberOfOrders - 1].amount += additionToLast
+        for (let i = additionToLast - 1; i >= 0; i--) {
+            console.log(i % numberOfOrders)
+            orderArray[i % numberOfOrders].amount += 1
+        }
+        
+        // orderArray[numberOfOrders - 1].amount += additionToLast
 
         return orderArray
     }

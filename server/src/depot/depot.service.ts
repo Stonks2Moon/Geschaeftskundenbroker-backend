@@ -55,7 +55,7 @@ export class DepotService {
         return await this.showDepotById(depotId, customer.session)
     }
 
-    public async placeOrder(placeOrder: PlaceOrderDto): Promise<ReturnShareOrder> {
+    public async placeOrder(placeOrder: PlaceOrderDto): Promise<Array<PlaceShareOrder>> {
 
         // Validate Session
         const customer: { customer: Customer, session: CustomerSession } = await this.customerService.customerLogin({ session: placeOrder.customerSession })
@@ -90,12 +90,11 @@ export class DepotService {
             const orderFunction = getOrderFunction(o);
             results.push(await executeApiCall<Job>(orderFunction.func.f, orderFunction.args, orderManager));
         }
-
         
-        //let result: Job = await executeApiCall<Job>(orderFunction.func.f, orderFunction.args, orderManager);
+        // TODO: Order auf DB anlegen
+        // Irgendwas mit Jobs machen (speichern oder so -> GENAU)
 
-
-        throw new NotImplementedException()
+        return orderArray;
     }
 
 
