@@ -1,6 +1,10 @@
 import { InternalServerErrorException } from "@nestjs/common"
-import { BörsenAPI, OrderManager } from "moonstonks-boersenapi";
+import { BörsenAPI, OrderManager, MarketManager} from "moonstonks-boersenapi";
 import { PlaceShareOrder } from "../../depot/dto/share-order.dto"
+
+export const stockExchangeApi = new BörsenAPI('moonstonks token');
+export const orderManager = new OrderManager(stockExchangeApi, 'onPlace', 'onMatch', 'onComplete', 'onDelete');
+export {MarketManager as marketManager}
 
 export async function executeApiCall<T>(func: Function, args: any[], manager: any): Promise<T> {
     try {
@@ -12,8 +16,8 @@ export async function executeApiCall<T>(func: Function, args: any[], manager: an
 }
 
 export function getOrderFunction(order: PlaceShareOrder) {
-    const stockExchangeApi = new BörsenAPI('moonstonks token');
-    const orderManager = new OrderManager(stockExchangeApi, 'onPlace', 'onMatch', 'onComplete', 'onDelete');
+    // const stockExchangeApi = new BörsenAPI('moonstonks token');
+    // const orderManager =// new OrderManager(stockExchangeApi, 'onPlace', 'onMatch', 'onComplete', 'onDelete');
 
     const orderFunctions = new Map([
         ["market buy", {
@@ -58,7 +62,6 @@ export function getOrderFunction(order: PlaceShareOrder) {
 
     return {
         func: orderFunction,
-        args: args,
-        orderManager: orderManager
+        args: args
     }
 }
