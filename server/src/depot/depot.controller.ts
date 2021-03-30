@@ -65,7 +65,8 @@ export class DepotController {
      */
     @ApiCreatedResponse({
         description: "Returns an order object",
-        type: ReturnShareOrder
+        isArray: true,
+        type: PlaceShareOrder
     })
     @ApiNotAcceptableResponse({
         description: "Market is currently closed",
