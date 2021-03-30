@@ -16,6 +16,6 @@ export class PlaceOrderDto {
     order: PlaceShareOrder;
 
     @ApiProperty()
-    @IsNumber()
+    @IsOptional()
     tradeAlgorithm: number
 }
