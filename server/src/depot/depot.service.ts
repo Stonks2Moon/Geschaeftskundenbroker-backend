@@ -71,7 +71,7 @@ export class DepotService {
 
 
         // Check if algorithm applies
-        let orderArray: Array<PlaceShareOrder>
+        let orderArray: Array<PlaceShareOrder> = [];
         switch (placeOrder.tradeAlgorithm) {
             case 1:
                 if (placeOrder.order.amount * share.lastRecordedValue < StaticConsts.ALG_SPLIT_THRESHOLD) {
