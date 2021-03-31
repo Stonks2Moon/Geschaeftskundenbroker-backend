@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Put, Type } from '@nestjs/common';
+import { Body, Controller, Get, Param, Put } from '@nestjs/common';
 import { ApiBody, ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Company } from './company.model';
 import { CompanyService } from './company.service';

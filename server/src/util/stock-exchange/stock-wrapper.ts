@@ -2,9 +2,10 @@ import { InternalServerErrorException } from "@nestjs/common"
 import { BörsenAPI, OrderManager, MarketManager} from "moonstonks-boersenapi";
 import { PlaceShareOrder } from "../../depot/dto/share-order.dto"
 const credentials = require('../../../stock-exchange.json');
+import * as StaticConsts from '../static-consts';
 
 export const stockExchangeApi = new BörsenAPI(credentials.apiToken);
-export const orderManager = new OrderManager(stockExchangeApi, 'onPlace', 'onMatch', 'onComplete', 'onDelete');
+export const orderManager = new OrderManager(stockExchangeApi, `${StaticConsts.WEBHOOK_BASE_URL}/onPlace`, `${StaticConsts.WEBHOOK_BASE_URL}/onMatch`, `${StaticConsts.WEBHOOK_BASE_URL}/onComplete`, `${StaticConsts.WEBHOOK_BASE_URL}/onDelete`);
 export {MarketManager as marketManager}
 
 export async function executeApiCall<T>(func: Function, args: any[], manager: any): Promise<T> {
