@@ -93,7 +93,7 @@ export class DepotService {
         
         // TODO: Order auf DB anlegen
         // Irgendwas mit Jobs machen (speichern oder so -> GENAU)
-
+        console.log(results)
         return orderArray;
     }
 
