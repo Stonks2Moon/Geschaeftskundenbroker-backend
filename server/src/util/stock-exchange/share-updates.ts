@@ -1,6 +1,5 @@
 import { Injectable } from "@nestjs/common";
 import * as io from 'socket.io-client'
-import { ShareService } from "src/share/share.service";
 import * as StaticConsts from 'src/util/static-consts';
 import { Connector } from "../database/connector";
 import { QueryBuilder } from "../database/query-builder";
@@ -54,9 +53,9 @@ export class UpdateShares {
             // Get all shares and filter for the spcific share by id to get the share name
             const shares: Array<Share> = await ShareManager.getShares();
 
-            const share: Share = shares.filter(s => {
-                s.id === updatePrice.shareId
-            })[0];
+            const share: Share = shares.filter(s =>  
+                s.id === updatePrice.shareId 
+            )[0];
 
             // Generate a wkn and a isin for our database
             const isin = this.generateISIN(updatePrice.shareId);

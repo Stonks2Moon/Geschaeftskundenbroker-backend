@@ -423,7 +423,7 @@ export class QueryBuilder {
      */
     public static addNewPriceRecordToHistoricalData(price: number, recordedAt: Date, shareId: string): Query {
         return {
-            query: "INSERT INTO share (share_id, recorded_at, recorded_value) VALUES (?, ?, ?);",
+            query: "INSERT INTO share_price (share_id, recorded_at, recorded_value) VALUES (?, ?, ?);",
             args: [
                 shareId,
                 recordedAt,

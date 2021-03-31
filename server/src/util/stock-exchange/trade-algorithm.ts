@@ -33,7 +33,6 @@ export class TradeAlgorithm {
         }
 
         for (let i = additionToLast - 1; i >= 0; i--) {
-            console.log(i % numberOfOrders)
             orderArray[i % numberOfOrders].amount += 1
         }
         

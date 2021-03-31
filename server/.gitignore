@@ -35,3 +35,4 @@ lerna-debug.log*
 
 # Eigene Config
 database.json
+stock-exchange.json
