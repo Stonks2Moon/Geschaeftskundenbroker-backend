@@ -1,8 +1,9 @@
 import { InternalServerErrorException } from "@nestjs/common"
 import { BörsenAPI, OrderManager, MarketManager} from "moonstonks-boersenapi";
 import { PlaceShareOrder } from "../../depot/dto/share-order.dto"
+const credentials = require('../../../stock-exchange.json');
 
-export const stockExchangeApi = new BörsenAPI('moonstonks token');
+export const stockExchangeApi = new BörsenAPI(credentials.apiToken);
 export const orderManager = new OrderManager(stockExchangeApi, 'onPlace', 'onMatch', 'onComplete', 'onDelete');
 export {MarketManager as marketManager}
 
@@ -16,9 +17,6 @@ export async function executeApiCall<T>(func: Function, args: any[], manager: an
 }
 
 export function getOrderFunction(order: PlaceShareOrder) {
-    // const stockExchangeApi = new BörsenAPI('moonstonks token');
-    // const orderManager =// new OrderManager(stockExchangeApi, 'onPlace', 'onMatch', 'onComplete', 'onDelete');
-
     const orderFunctions = new Map([
         ["market buy", {
             f: orderManager.placeBuyMarketOrder,
