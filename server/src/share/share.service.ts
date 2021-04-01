@@ -138,11 +138,6 @@ export class ShareService {
         // Get data from database
         const result = await Connector.executeQuery(QueryBuilder.getHistoricalData(shareId, fromDate, toDate))
 
-        // If no historical data is on our database, a 404 error is thrown
-        if (!result || result.length === 0) {
-            throw new NotFoundException("No data found");
-        }
-
         // Create response data (values + timestamps for chart)
         let chartValues: Array<ChartValue> = []
         result.forEach(elem => {
