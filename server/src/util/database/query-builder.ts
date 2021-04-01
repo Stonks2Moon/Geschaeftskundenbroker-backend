@@ -467,7 +467,35 @@ export class QueryBuilder {
                 job.placeOrder.stop ?? 0,
                 order.validity,
                 order.detail,
-                order.market ?? ""
+                order.market ?? "",
+            ]
+        }
+    }
+
+    public static updateJobWithOrderId(jobId: string, orderId: string): Query {
+        return {
+            query: "UPDATE job SET exchange_order_id = ? WHERE job_id = ?;",
+            args: [
+                orderId,
+                jobId
+            ]
+        }
+    }
+
+    public static deleteJobByJobId(jobId: string): Query {
+        return {
+            query: "DELETE FROM job WHERE job_id = ?",
+            args: [
+                jobId
+            ]
+        }
+    }
+
+    public static deleteJobByOrderId(orderId: string): Query {
+        return {
+            query: "DELETE FROM job WHERE exchange_order_id = ?",
+            args: [
+                orderId
             ]
         }
     }
