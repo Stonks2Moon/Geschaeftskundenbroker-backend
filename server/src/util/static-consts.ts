@@ -1,5 +1,7 @@
 // Diese Datei beinhaltet alle verwendeten Konstanten
 
+export const WEBHOOK_BASE_URL = "http://noipddns.ddns.net:8082/webhook";
+
 /*------------- Customer -------------*/
 export const HASH_SALT_ROUNDS = 10;
 

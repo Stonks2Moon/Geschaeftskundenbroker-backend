@@ -35,6 +35,7 @@ export class UpdateShares {
 
         // Check if new prices are available
         this.stockExchangeServerSocket.on("price", async (updatePrice: UpdatePrice) => {
+            console.log("PRICE UPDATED", updatePrice)
             await this.updateSharePrice(updatePrice);
         });
     }
@@ -75,7 +76,7 @@ export class UpdateShares {
 
         // Update Database entries
         await Connector.executeQuery(QueryBuilder.updateSharePrice(+updatePrice.price, updatePrice.shareId));
-        await Connector.executeQuery(QueryBuilder.addNewPriceRecordToHistoricalData(+updatePrice.price, new Date((+updatePrice.timestamp * 1000)), updatePrice.shareId));
+        await Connector.executeQuery(QueryBuilder.addNewPriceRecordToHistoricalData(+updatePrice.price, new Date(+updatePrice.timestamp), updatePrice.shareId));
     }
 
     /**
