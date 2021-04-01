@@ -90,6 +90,8 @@ export class DepotService {
             const orderFunction = getOrderFunction(o);
             results.push(await executeApiCall<Job>(orderFunction.func.f, orderFunction.args, orderManager));
         }
+
+        await this.saveJobs(results, placeOrder.order.depotId, orderArray)
         
         // TODO: Order auf DB anlegen
         // Irgendwas mit Jobs machen (speichern oder so -> GENAU)
@@ -282,5 +284,17 @@ export class DepotService {
         depot.summary = this.depotSummaryFromPositions(depot.positions)
 
         return depot
+    }
+
+    
+    private async saveJobs(jobs: Job[], depotId: string, orders: PlaceShareOrder[]): Promise<void> {
+        
+        if(jobs.length != orders.length) {
+            throw new InternalServerErrorException("Jobs / Orders length mismatch")
+        }
+
+        for(let i = 0; i < jobs.length; i++) {
+            await Connector.executeQuery(QueryBuilder.writeJobToDb(jobs[i], depotId, orders[i]))
+        }
     }
 }

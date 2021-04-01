@@ -27,7 +27,8 @@ export class TradeAlgorithm {
                 limit: order.limit,
                 stop: order.stop,
                 stopLimit: order.stopLimit,
-                market: order.market
+                market: order.market,
+                validity: order.validity
             }
             orderArray.push(o);
         }
@@ -35,8 +36,6 @@ export class TradeAlgorithm {
         for (let i = additionToLast - 1; i >= 0; i--) {
             orderArray[i % numberOfOrders].amount += 1
         }
-        
-        // orderArray[numberOfOrders - 1].amount += additionToLast
 
         return orderArray
     }

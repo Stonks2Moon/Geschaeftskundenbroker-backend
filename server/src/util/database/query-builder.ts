@@ -2,6 +2,9 @@ import { Address } from 'src/company/address.model';
 import { Company } from 'src/company/company.model';
 import { Share } from 'src/share/share.model';
 import { Query } from './query.model';
+import { Job } from "moonstonks-boersenapi";
+import { PlaceShareOrder } from 'src/depot/dto/share-order.dto';
+
 
 export class QueryBuilder {
 
@@ -447,6 +450,52 @@ export class QueryBuilder {
                 share.lastRecordedValue,
                 share.shareName,
                 share.currencyCode
+            ]
+        }
+    }
+
+    public static writeJobToDb(job: Job, depotId: string, order: PlaceShareOrder): Query {
+        return {
+            query: "INSERT INTO job (job_id, depot_id, share_id, amount, type, order_limit, order_stop, order_validity, detail, market) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
+            args: [
+                job.id,
+                depotId,
+                job.placeOrder.shareId,
+                job.placeOrder.amount,
+                job.placeOrder.type,
+                job.placeOrder.limit ?? 0,
+                job.placeOrder.stop ?? 0,
+                order.validity,
+                order.detail,
+                order.market ?? "",
+            ]
+        }
+    }
+
+    public static updateJobWithOrderId(jobId: string, orderId: string): Query {
+        return {
+            query: "UPDATE job SET exchange_order_id = ? WHERE job_id = ?;",
+            args: [
+                orderId,
+                jobId
+            ]
+        }
+    }
+
+    public static deleteJobByJobId(jobId: string): Query {
+        return {
+            query: "DELETE FROM job WHERE job_id = ?",
+            args: [
+                jobId
+            ]
+        }
+    }
+
+    public static deleteJobByOrderId(orderId: string): Query {
+        return {
+            query: "DELETE FROM job WHERE exchange_order_id = ?",
+            args: [
+                orderId
             ]
         }
     }
