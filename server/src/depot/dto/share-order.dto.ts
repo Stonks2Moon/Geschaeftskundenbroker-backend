@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional, isString, IsString } from "class-validator";
+import { IsDate, IsDateString, IsEnum, IsNotEmpty, IsNumber, IsOptional, isString, IsString } from "class-validator";
 import { Share } from "src/share/share.model";
 
 abstract class ShareOrder {
@@ -26,7 +26,7 @@ abstract class ShareOrder {
     detail: 'market' | 'limit' | 'stop' | 'stopLimit'
 
     @ApiProperty()
-    @IsDate()
+    @IsDateString()
     validity: Date
 
     @ApiProperty({ required: false })
