@@ -456,7 +456,7 @@ export class QueryBuilder {
 
     public static writeJobToDb(job: Job, depotId: string, order: PlaceShareOrder): Query {
         return {
-            query: "INSERT INTO job (job_id, depot_id, share_id, amount, type, order_limit, order_stop, order_validity, detail, market) VALUES (?, ?, ?, ?, ?, ?, ?, ?; ?, ?);",
+            query: "INSERT INTO job (job_id, depot_id, share_id, amount, type, order_limit, order_stop, order_validity, detail, market) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
             args: [
                 job.id,
                 depotId,

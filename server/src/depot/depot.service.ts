@@ -91,7 +91,7 @@ export class DepotService {
             results.push(await executeApiCall<Job>(orderFunction.func.f, orderFunction.args, orderManager));
         }
 
-        this.saveJobs(results, placeOrder.order.depotId, orderArray)
+        await this.saveJobs(results, placeOrder.order.depotId, orderArray)
         
         // TODO: Order auf DB anlegen
         // Irgendwas mit Jobs machen (speichern oder so -> GENAU)
