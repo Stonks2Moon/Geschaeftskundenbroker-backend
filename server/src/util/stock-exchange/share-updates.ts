@@ -35,8 +35,7 @@ export class UpdateShares {
 
         // Check if new prices are available
         this.stockExchangeServerSocket.on("price", async (updatePrice: UpdatePrice) => {
-            console.log("PRICE UPDATED", updatePrice)
-            await this.updateSharePrice(updatePrice);
+            await UpdateShares.updateSharePrice(updatePrice);
         });
     }
 
@@ -44,7 +43,7 @@ export class UpdateShares {
      * Updates our prices on the database
      * @param updatePrice new data from socket
      */
-    private async updateSharePrice(updatePrice: UpdatePrice): Promise<void> {
+    public static async updateSharePrice(updatePrice: UpdatePrice): Promise<void> {
 
         // Get share from database
         let result = (await Connector.executeQuery(QueryBuilder.getShareById(updatePrice.shareId)))[0];
@@ -54,13 +53,13 @@ export class UpdateShares {
             // Get all shares and filter for the spcific share by id to get the share name
             const shares: Array<Share> = await ShareManager.getShares();
 
-            const share: Share = shares.filter(s =>  
-                s.id === updatePrice.shareId 
+            const share: Share = shares.filter(s =>
+                s.id === updatePrice.shareId
             )[0];
 
             // Generate a wkn and a isin for our database
-            const isin = this.generateISIN(updatePrice.shareId);
-            const wkn = this.generateWKN(share.name, updatePrice.shareId)
+            const isin = UpdateShares.generateISIN(updatePrice.shareId);
+            const wkn = UpdateShares.generateWKN(share.name, updatePrice.shareId)
 
             // If share does not exist, add share to database
             await Connector.executeQuery(QueryBuilder.addNewShare({
@@ -84,7 +83,7 @@ export class UpdateShares {
      * @param shareId ID of the share from stock exchange
      * @returns a ISIN string
      */
-    private generateISIN(shareId: string): string {
+    private static generateISIN(shareId: string): string {
         return `DE${shareId}${crc32.str(shareId)}`.toUpperCase();
     }
 
@@ -94,7 +93,7 @@ export class UpdateShares {
      * @param shareId id of the share from stock exchange
      * @returns a WKN string
      */
-    private generateWKN(name: string, shareId: string): string {
+    private static generateWKN(name: string, shareId: string): string {
         return `${name.slice(0, 3)}${shareId.slice(2, shareId.length - 3)}`.toUpperCase();
     }
 }
