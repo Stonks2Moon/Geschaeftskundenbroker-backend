@@ -24,7 +24,7 @@ export class Connector {
 			connection = await Connector.pool.getConnection();
 			result = await connection.query(q.query, q.args);
 		} catch (err) {
-			console.log(err);
+			console.error(err);
 			throw new InternalServerErrorException("Something went wrong");
 		} finally {
 			// Close connection

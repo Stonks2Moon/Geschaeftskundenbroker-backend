@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
+import { CronJobs } from './util/cron/cron-jobs';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -36,3 +37,4 @@ async function bootstrap() {
   await app.listen(3000);
 }
 bootstrap();
+CronJobs.runJobs()
