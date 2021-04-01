@@ -27,7 +27,8 @@ export class TradeAlgorithm {
                 limit: order.limit,
                 stop: order.stop,
                 stopLimit: order.stopLimit,
-                market: order.market
+                market: order.market,
+                validity: order.validity
             }
             orderArray.push(o);
         }
