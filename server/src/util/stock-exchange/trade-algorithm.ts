@@ -5,8 +5,15 @@ import * as StaticConsts from "../static-consts";
 export class TradeAlgorithm {
     private static shareService: ShareService = new ShareService();
 
+    /**
+     * Algorithm to split bi orders into multiple smaller ones
+     * @param order Big order to be placed
+     * @returns an array of smaller orders
+     */
     public static async splitBuyOrderInSmallerOrders(order: PlaceShareOrder): Promise<Array<PlaceShareOrder>> {
 
+        // Get value of a share and split the order into batches
+        // Batchsize is calculated by using the orderValue and the number of orders
         const batchValue = StaticConsts.ALG_SPLIT_BATCH_VALUE
         const share: Share = await this.shareService.getShareData(order.shareId);
         const orderValue: number = order.amount * share.lastRecordedValue;
@@ -15,6 +22,8 @@ export class TradeAlgorithm {
         const batchSize: number = Math.floor(order.amount / (numberOfOrders));
         const additionToLast: number = order.amount - (numberOfOrders) * batchSize
 
+        // Splits the order in smaler ones and add them to an array
+        // After this there is an remaining part whic is added to array later
         let orderArray: Array<PlaceShareOrder> = [];
         for (let i = 0; i < numberOfOrders; i++) {
             const o: PlaceShareOrder = {
@@ -33,6 +42,7 @@ export class TradeAlgorithm {
             orderArray.push(o);
         }
 
+        // Add the remaining stocks to the partionated orders in array to get mostly even orders
         for (let i = additionToLast - 1; i >= 0; i--) {
             orderArray[i % numberOfOrders].amount += 1
         }

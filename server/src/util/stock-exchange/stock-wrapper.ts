@@ -1,23 +1,37 @@
 import { InternalServerErrorException } from "@nestjs/common"
-import { BörsenAPI, OrderManager, MarketManager} from "moonstonks-boersenapi";
+import { BörsenAPI, OrderManager, MarketManager } from "moonstonks-boersenapi";
 import { PlaceShareOrder } from "../../depot/dto/share-order.dto"
 const credentials = require('../../../stock-exchange.json');
 import * as StaticConsts from '../static-consts';
 
 export const stockExchangeApi = new BörsenAPI(credentials.apiToken);
 export const orderManager = new OrderManager(stockExchangeApi, `${StaticConsts.WEBHOOK_BASE_URL}/onPlace`, `${StaticConsts.WEBHOOK_BASE_URL}/onMatch`, `${StaticConsts.WEBHOOK_BASE_URL}/onComplete`, `${StaticConsts.WEBHOOK_BASE_URL}/onDelete`);
-export {MarketManager as marketManager}
+export { MarketManager as marketManager }
 
+/**
+ * Method to execute API calls to stock-exchange (to avoid using try/catch + await everytime it is used)
+ * @param func function to be called
+ * @param args arguments to be applied to the function
+ * @param manager manager to be used (e.g. Ordermanager, Marketmanager, ...)
+ * @returns the output from API call execution
+ */
 export async function executeApiCall<T>(func: Function, args: any[], manager: any): Promise<T> {
     try {
         return await func.apply(manager, args);
-    } catch(e) {
+    } catch (e) {
         console.error(e)
         throw new InternalServerErrorException(e, "Stock Exchange API failed");
     }
 }
 
+/**
+ * Method to get the correct function for buy/sell oder and market, stop, limit and stopLimit action
+ * This is much cleaner code than a nested switch case / if + else statements
+ * @param order order to be placed
+ * @returns an object with the function to be executed and the object keys which are needed for applying the function
+ */
 export function getOrderFunction(order: PlaceShareOrder) {
+    // map of all possible combinations for orders
     const orderFunctions = new Map([
         ["market buy", {
             f: orderManager.placeBuyMarketOrder,
@@ -56,7 +70,9 @@ export function getOrderFunction(order: PlaceShareOrder) {
         }],
     ]);
 
+    // get the object from map above
     const orderFunction = orderFunctions.get(`${order.detail} ${order.type}`);
+    // get the arguments for the function
     const args = orderFunction.args.map(key => order[key])
 
     return {

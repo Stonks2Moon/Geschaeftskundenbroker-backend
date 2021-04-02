@@ -21,7 +21,6 @@ export class DepotPosition extends DepotEntry {
 
     @ApiProperty()
     percentageChange: number
-
 }
 
 export class DepotSummary {

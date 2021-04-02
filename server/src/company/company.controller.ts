@@ -11,6 +11,11 @@ export class CompanyController {
         private readonly companyService: CompanyService
     ) { }
 
+    /**
+     * Used to create a company
+     * @param company company dto with all information needed for creation
+     * @returns a company object
+     */
     @ApiCreatedResponse({
         description: "Returns a Company object",
         type: Company
@@ -25,6 +30,11 @@ export class CompanyController {
         return await this.companyService.createCompany(company);
     }
 
+    /**
+     * Used to get a company by it's companycode
+     * @param companyCode code of the company
+     * @returns a company object
+     */
     @ApiOkResponse({
         description: "Returns a Company object",
         type: Company
@@ -37,6 +47,11 @@ export class CompanyController {
     }
 
 
+    /**
+     * Used to get a company by it's ID
+     * @param companyId id of the company
+     * @returns a company object
+     */
     @ApiOkResponse({
         description: "Returns a Company object",
         type: Company
@@ -48,6 +63,10 @@ export class CompanyController {
         return await this.companyService.getCompanyById(companyId);
     }
 
+    /**
+     * Used to get all companies which use our broker (for frontend dropdown in registration)
+     * @returns an array of all company objects
+     */
     @ApiOkResponse({
         description: "Returns an array of all companies, sorted alphabetically by name.",
         isArray: true,

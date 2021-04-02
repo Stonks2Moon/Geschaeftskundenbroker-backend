@@ -124,11 +124,6 @@ export class CustomerService {
         customer: Customer,
         session: CustomerSession
     }> {
-
-        // if(!isSameType(customer, CustomerDto)) {
-        //     throw new BadRequestException("Invalid requets parameters");
-        // }
-
         // Validate registration input, throws error if invalid
         await this.validateRegistrationInput(customer);
 
@@ -195,7 +190,5 @@ export class CustomerService {
         } catch (e) {
             throw new BadRequestException("Invalid Company Code");
         }
-
-
     }
 }

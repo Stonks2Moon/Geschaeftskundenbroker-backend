@@ -1,17 +1,16 @@
 import { Body, Controller, HttpCode, Param, Post, Put } from '@nestjs/common';
-import { ApiBody, ApiCreatedResponse, ApiNotAcceptableResponse, ApiOkResponse, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiCreatedResponse, ApiNotAcceptableResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { CustomerSession } from 'src/customer/customer-session.model';
 import { Depot } from './depot.model';
 import { DepotService } from './depot.service';
 import { CreateDepotDto } from './dto/create-depot.dto';
 import { PlaceOrderDto } from './dto/place-order.dto';
-import { PlaceShareOrder, ReturnShareOrder } from './dto/share-order.dto';
+import { PlaceShareOrder } from './dto/share-order.dto';
 
 @ApiTags('depot')
 @Controller('depot')
 export class DepotController {
     constructor(private readonly depotService: DepotService) { }
-
 
     /**
      * Shows all depots associated with a customer's company
@@ -34,7 +33,7 @@ export class DepotController {
         return this.depotService.showAllDepots(customerSession);
     }
 
-    
+
     /**
      * Returns a detailed Depot Object with a summary and a position
      * @param depotId Id of the depot
@@ -59,12 +58,12 @@ export class DepotController {
 
 
     /**
-     * TODO
-     * @param placeOrder 
-     * @returns 
+     * Used to place an oder (buy / sell)
+     * @param placeOrder Object with all information which are needed to perform the action
+     * @returns TODO
      */
     @ApiCreatedResponse({
-        description: "Returns an order object",
+        description: "TODO",
         isArray: true,
         type: PlaceShareOrder
     })
@@ -86,6 +85,7 @@ export class DepotController {
     /**
      * Creates a depot from the given information
      * @param createDepot Object containing a valid CustomerSession and the Depot Information
+     * @returns a Depot object
      */
     @ApiCreatedResponse({
         description: "Returns a Depot object of the created depot.",

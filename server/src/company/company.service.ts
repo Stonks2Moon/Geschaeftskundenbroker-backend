@@ -5,7 +5,6 @@ import { Company } from './company.model';
 import { Address } from './address.model';
 import { uuid } from 'uuidv4';
 import { CreateCompanyDto } from './dto/create-company.dto';
-import { Query } from 'src/util/database/query.model';
 
 const cryptoRandomString = require('crypto-random-string');
 
@@ -91,6 +90,10 @@ export class CompanyService {
     }
 
 
+    /**
+     * Method used to return all companies (for dropdown in frontend)
+     * @returns an array of all companies which use our broker
+     */
     public async getAllCompanies(): Promise<Company[]> {
         let result = await Connector.executeQuery(QueryBuilder.getAllCompanies());
 
