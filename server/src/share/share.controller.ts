@@ -1,8 +1,8 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
-import { ApiNotFoundResponse, ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
-import { HistoricalDataDto } from './dto/historical-data.dto';
-import { Share } from './share.model';
-import { ShareService } from './share.service';
+import { Controller, Get, Param, Query } from '@nestjs/common'
+import { ApiNotFoundResponse, ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger'
+import { HistoricalDataDto } from './dto/historical-data.dto'
+import { Share } from './share.model'
+import { ShareService } from './share.service'
 
 @ApiTags('share')
 @Controller('share')
@@ -60,7 +60,7 @@ export class ShareController {
         @Query('search') search?: string,
         @Query('limit') limit?: number
     ): Promise<Array<Share>> {
-        return this.shareService.getAllShares(wkn, isin, shareName, search, limit);
+        return this.shareService.getAllShares(wkn, isin, shareName, search, limit)
     }
 
     /**
@@ -83,7 +83,7 @@ export class ShareController {
         @Query('fromDate') fromDate: Date,
         @Query('toDate') toDate: Date,
     ): Promise<HistoricalDataDto> {
-        return this.shareService.getHistoricalData(shareId, fromDate, toDate);
+        return this.shareService.getHistoricalData(shareId, fromDate, toDate)
     }
 
     /**
@@ -102,6 +102,6 @@ export class ShareController {
     async getShareData(
         @Param('shareId') shareId: string
     ): Promise<Share> {
-        return this.shareService.getShareData(shareId);
+        return this.shareService.getShareData(shareId)
     }
 }

@@ -1,23 +1,23 @@
-import { BadRequestException, Injectable, InternalServerErrorException, NotAcceptableException, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { CustomerSession } from 'src/customer/customer-session.model';
-import { Depot } from './depot.model';
-import { CreateDepotDto } from './dto/create-depot.dto';
-import { PlaceOrderDto } from './dto/place-order.dto';
-import { PlaceShareOrder } from './dto/share-order.dto';
-import { Job } from "moonstonks-boersenapi";
-import { CustomerService } from 'src/customer/customer.service';
-import { Customer } from 'src/customer/customer.model';
-import { CompanyService } from 'src/company/company.service';
-import { uuid } from 'uuidv4';
-import { Connector } from 'src/util/database/connector';
-import { QueryBuilder } from 'src/util/database/query-builder';
-import { Company } from 'src/company/company.model';
-import { Share } from 'src/share/share.model';
-import { DepotSummary, DepotEntry, DepotPosition } from './dto/depot-entry.dto';
-import { ShareService } from 'src/share/share.service';
+import { BadRequestException, Injectable, InternalServerErrorException, NotAcceptableException, NotFoundException, UnauthorizedException } from '@nestjs/common'
+import { CustomerSession } from 'src/customer/customer-session.model'
+import { Depot } from './depot.model'
+import { CreateDepotDto } from './dto/create-depot.dto'
+import { PlaceOrderDto } from './dto/place-order.dto'
+import { PlaceShareOrder } from './dto/share-order.dto'
+import { Job } from "moonstonks-boersenapi"
+import { CustomerService } from 'src/customer/customer.service'
+import { Customer } from 'src/customer/customer.model'
+import { CompanyService } from 'src/company/company.service'
+import { uuid } from 'uuidv4'
+import { Connector } from 'src/util/database/connector'
+import { QueryBuilder } from 'src/util/database/query-builder'
+import { Company } from 'src/company/company.model'
+import { Share } from 'src/share/share.model'
+import { DepotSummary, DepotEntry, DepotPosition } from './dto/depot-entry.dto'
+import { ShareService } from 'src/share/share.service'
 import { executeApiCall, getOrderFunction, marketManager, orderManager } from '../util/stock-exchange/stock-wrapper'
-import { TradeAlgorithm } from 'src/util/stock-exchange/trade-algorithm';
-import * as CONST from "../util/const";
+import { TradeAlgorithm } from 'src/util/stock-exchange/trade-algorithm'
+import * as CONST from "../util/const"
 
 
 @Injectable()
@@ -73,16 +73,16 @@ export class DepotService {
         }
 
         // Get relevant share
-        const share: Share = await this.shareService.getShareData(placeOrder.order.shareId);
+        const share: Share = await this.shareService.getShareData(placeOrder.order.shareId)
 
         // Check if market is open or not
         const isClosed: boolean = await executeApiCall<boolean>(marketManager.isClosed, [], marketManager)
         if (isClosed) {
-            throw new NotAcceptableException("Could not place order, the market is closed");
+            throw new NotAcceptableException("Could not place order, the market is closed")
         }
 
         // Check if algorithm applies
-        let orderArray: Array<PlaceShareOrder> = [];
+        let orderArray: Array<PlaceShareOrder> = []
         switch (placeOrder.tradeAlgorithm) {
             case 1:
                 if (placeOrder.order.amount * share.lastRecordedValue < CONST.ALG_SPLIT_THRESHOLD) {
@@ -97,8 +97,8 @@ export class DepotService {
 
         let results: Array<Job> = []
         for (const o of orderArray) {
-            const orderFunction = getOrderFunction(o);
-            results.push(await executeApiCall<Job>(orderFunction.func.f, orderFunction.args, orderManager));
+            const orderFunction = getOrderFunction(o)
+            results.push(await executeApiCall<Job>(orderFunction.func.f, orderFunction.args, orderManager))
         }
 
         await this.saveJobs(results, placeOrder.order.depotId, orderArray, CONST.JOB_TYPES.PLACE)
@@ -106,7 +106,7 @@ export class DepotService {
         // TODO: Order auf DB anlegen
         // Irgendwas mit Jobs machen (speichern oder so -> GENAU)
         console.log(results)
-        return orderArray;
+        return orderArray
     }
 
 
@@ -154,7 +154,7 @@ export class DepotService {
             })
         })
 
-        return depots;
+        return depots
     }
 
     /**
@@ -303,7 +303,7 @@ export class DepotService {
     public async saveShareOrder(order: PlaceShareOrder): Promise<PlaceShareOrder> {
 
         // Get share by it's id
-        const share = (await this.shareService.getShareData(order.shareId));
+        const share = (await this.shareService.getShareData(order.shareId))
 
         // Create a depot entry
         const depotEntry: DepotEntry = {
@@ -315,7 +315,7 @@ export class DepotService {
 
         // Write data to db
         await Connector.executeQuery(QueryBuilder.createShareOrder(order))
-        await Connector.executeQuery(QueryBuilder.createDepotEntry(depotEntry));
+        await Connector.executeQuery(QueryBuilder.createDepotEntry(depotEntry))
 
         return order
     }
@@ -360,8 +360,8 @@ export class DepotService {
     public async deletePendingOrder(orderId: string, session: CustomerSession): Promise<PlaceShareOrder> {
 
         const customer: { customer: Customer, session: CustomerSession } = await this.customerService.customerLogin({ session: session })
-        const order: PlaceShareOrder = await this.getOrderById(orderId);
-        const depot: Depot = await this.getDepotById(order.depotId);
+        const order: PlaceShareOrder = await this.getOrderById(orderId)
+        const depot: Depot = await this.getDepotById(order.depotId)
 
         // Validate if customer is authorized to order on this depot
         if (depot.company.companyId != customer.customer.company.companyId) {
@@ -418,7 +418,7 @@ export class DepotService {
                 limit: result.order_limit,
                 market: result.market
             })
-        });
+        })
 
         return orders
     }

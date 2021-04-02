@@ -1,9 +1,9 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { Share } from "../share.model";
+import { ApiProperty } from "@nestjs/swagger"
+import { Share } from "../share.model"
 
 export class ChartValue {
     @ApiProperty()
-    recordedAt: Date;
+    recordedAt: Date
 
     @ApiProperty()
     recordedValue: number
@@ -11,7 +11,7 @@ export class ChartValue {
 
 export class HistoricalDataDto {
     @ApiProperty({ type: Share })
-    share: Share;
+    share: Share
 
     @ApiProperty({
         type: ChartValue,

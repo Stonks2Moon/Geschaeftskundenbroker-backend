@@ -1,12 +1,12 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { Connector } from 'src/util/database/connector';
-import { QueryBuilder } from 'src/util/database/query-builder';
-import { Company } from './company.model';
-import { Address } from './address.model';
-import { uuid } from 'uuidv4';
-import { CreateCompanyDto } from './dto/create-company.dto';
+import { Injectable, NotFoundException } from '@nestjs/common'
+import { Connector } from 'src/util/database/connector'
+import { QueryBuilder } from 'src/util/database/query-builder'
+import { Company } from './company.model'
+import { Address } from './address.model'
+import { uuid } from 'uuidv4'
+import { CreateCompanyDto } from './dto/create-company.dto'
 
-const cryptoRandomString = require('crypto-random-string');
+const cryptoRandomString = require('crypto-random-string')
 
 @Injectable()
 export class CompanyService {
@@ -18,14 +18,14 @@ export class CompanyService {
      */
     public async getCompanyById(companyId: string): Promise<Company> {
 
-        let result = (await Connector.executeQuery(QueryBuilder.getCompanyById(companyId)))[0];
+        let result = (await Connector.executeQuery(QueryBuilder.getCompanyById(companyId)))[0]
 
         if (!result) {
-            throw new NotFoundException("Company not found");
+            throw new NotFoundException("Company not found")
         }
 
         // Create Address object
-        const address: Address = await this.getAddressById(result.address_id);
+        const address: Address = await this.getAddressById(result.address_id)
 
         const company: Company = {
             companyId: result.company_id,
@@ -34,7 +34,7 @@ export class CompanyService {
             address: address
         }
 
-        return company;
+        return company
     }
 
 
@@ -44,13 +44,13 @@ export class CompanyService {
      * @returns a company object
      */
     public async getCompanyByCompanyCode(companyCode: string): Promise<Company> {
-        let result = (await Connector.executeQuery(QueryBuilder.getCompanyByCompanyCode(companyCode)))[0];
+        let result = (await Connector.executeQuery(QueryBuilder.getCompanyByCompanyCode(companyCode)))[0]
         if (!result) {
-            throw new NotFoundException("Company not found");
+            throw new NotFoundException("Company not found")
         }
 
-        const company: Company = await this.getCompanyById(result.company_id);
-        return company;
+        const company: Company = await this.getCompanyById(result.company_id)
+        return company
     }
 
     /**
@@ -69,13 +69,13 @@ export class CompanyService {
         }
 
         // Generate company uuid
-        const companyId: string = uuid();
+        const companyId: string = uuid()
 
         // Generate company code
-        const companyCode: string = this.generateCompanyCodeFromName(company.companyName);
+        const companyCode: string = this.generateCompanyCodeFromName(company.companyName)
 
         // Write Address to DB
-        let { insertId } = await Connector.executeQuery(QueryBuilder.createAddress(newAddress));
+        let { insertId } = await Connector.executeQuery(QueryBuilder.createAddress(newAddress))
 
         // Write company info to DB
         await Connector.executeQuery(QueryBuilder.createCompany({
@@ -86,7 +86,7 @@ export class CompanyService {
         }, insertId))
 
         // Return created company
-        return await this.getCompanyById(companyId);
+        return await this.getCompanyById(companyId)
     }
 
 
@@ -95,7 +95,7 @@ export class CompanyService {
      * @returns an array of all companies which use our broker
      */
     public async getAllCompanies(): Promise<Company[]> {
-        let result = await Connector.executeQuery(QueryBuilder.getAllCompanies());
+        let result = await Connector.executeQuery(QueryBuilder.getAllCompanies())
 
         let companies: Company[] = []
         result.forEach(c => {
@@ -113,7 +113,7 @@ export class CompanyService {
             })
         })
 
-        return companies;
+        return companies
     }
 
     /**
@@ -122,10 +122,10 @@ export class CompanyService {
      * @returns an address object
      */
     public async getAddressById(addressId: string): Promise<Address> {
-        let result = (await Connector.executeQuery(QueryBuilder.getAddressById(addressId)))[0];
+        let result = (await Connector.executeQuery(QueryBuilder.getAddressById(addressId)))[0]
 
         if (!result) {
-            throw new NotFoundException("Address not found");
+            throw new NotFoundException("Address not found")
         }
 
         const address: Address = {
@@ -135,7 +135,7 @@ export class CompanyService {
             houseNumber: result.house_number
         }
 
-        return address;
+        return address
     }
 
     /**
@@ -144,19 +144,19 @@ export class CompanyService {
      * @returns a string which is used as company code
      */
     private generateCompanyCodeFromName(companyName: string): string {
-        const words: string[] = companyName.split(" ");
-        const targetLength = 3;
-        let code: string = "";
+        const words: string[] = companyName.split(" ")
+        const targetLength = 3
+        let code: string = ""
 
         if (words.length < targetLength) {
-            let temp: number = Math.ceil(targetLength / words.length);
+            let temp: number = Math.ceil(targetLength / words.length)
             for (let word of words) {
-                code += word.slice(0, temp);
+                code += word.slice(0, temp)
             }
-            code = code.slice(0, targetLength);
+            code = code.slice(0, targetLength)
         } else {
             for (let i = 0; i < targetLength; i++) {
-                code += words[i].charAt(0);
+                code += words[i].charAt(0)
             }
         }
         if (code.length < targetLength) {

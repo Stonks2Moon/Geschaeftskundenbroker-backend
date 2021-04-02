@@ -1,11 +1,11 @@
-import { Body, Controller, Delete, HttpCode, Param, Post, Put } from '@nestjs/common';
-import { ApiBody, ApiCreatedResponse, ApiNotAcceptableResponse, ApiOkResponse, ApiParam, ApiTags } from '@nestjs/swagger';
-import { CustomerSession } from 'src/customer/customer-session.model';
-import { Depot } from './depot.model';
-import { DepotService } from './depot.service';
-import { CreateDepotDto } from './dto/create-depot.dto';
-import { PlaceOrderDto } from './dto/place-order.dto';
-import { PlaceShareOrder } from './dto/share-order.dto';
+import { Body, Controller, Delete, HttpCode, Param, Post, Put } from '@nestjs/common'
+import { ApiBody, ApiCreatedResponse, ApiNotAcceptableResponse, ApiOkResponse, ApiParam, ApiTags } from '@nestjs/swagger'
+import { CustomerSession } from 'src/customer/customer-session.model'
+import { Depot } from './depot.model'
+import { DepotService } from './depot.service'
+import { CreateDepotDto } from './dto/create-depot.dto'
+import { PlaceOrderDto } from './dto/place-order.dto'
+import { PlaceShareOrder } from './dto/share-order.dto'
 
 @ApiTags('depot')
 @Controller('depot')
@@ -30,7 +30,7 @@ export class DepotController {
     async showAllDepots(
         @Body() customerSession: CustomerSession
     ): Promise<Array<Depot>> {
-        return this.depotService.showAllDepots(customerSession);
+        return this.depotService.showAllDepots(customerSession)
     }
 
 
@@ -53,7 +53,7 @@ export class DepotController {
         @Param('depotId') depotId: string,
         @Body() customerSession: CustomerSession
     ): Promise<Depot> {
-        return this.depotService.showDepotById(depotId, customerSession);
+        return this.depotService.showDepotById(depotId, customerSession)
     }
 
 
@@ -78,7 +78,7 @@ export class DepotController {
     async placeOrder(
         @Body() placeOrder: PlaceOrderDto
     ): Promise<Array<PlaceShareOrder>> {
-        return this.depotService.placeOrder(placeOrder);
+        return this.depotService.placeOrder(placeOrder)
     }
 
 
@@ -99,7 +99,7 @@ export class DepotController {
     async createDepot(
         @Body() createDepot: CreateDepotDto
     ): Promise<Depot> {
-        return await this.depotService.createDepot(createDepot);
+        return await this.depotService.createDepot(createDepot)
     }
 
     @ApiBody({
@@ -117,7 +117,7 @@ export class DepotController {
         @Param('depotId') depotId: string,
         @Body() customerSession: CustomerSession
     ) {
-        return await this.depotService.showPendingOrders(depotId, customerSession);
+        return await this.depotService.showPendingOrders(depotId, customerSession)
     }
 
 

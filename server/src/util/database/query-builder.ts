@@ -1,11 +1,10 @@
-import { Address } from 'src/company/address.model';
-import { Company } from 'src/company/company.model';
-import { Share } from 'src/share/share.model';
-import { Query } from './query.model';
-import { Job } from "moonstonks-boersenapi";
-import { PlaceShareOrder } from 'src/depot/dto/share-order.dto';
-import { DepotEntry } from 'src/depot/dto/depot-entry.dto';
-
+import { Address } from 'src/company/address.model'
+import { Company } from 'src/company/company.model'
+import { Share } from 'src/share/share.model'
+import { Query } from './query.model'
+import { Job } from "moonstonks-boersenapi"
+import { PlaceShareOrder } from 'src/depot/dto/share-order.dto'
+import { DepotEntry } from 'src/depot/dto/depot-entry.dto'
 export class QueryBuilder {
 
     /**
@@ -422,7 +421,7 @@ export class QueryBuilder {
      */
     public static updateSharePrice(price: number, shareId: string): Query {
         return {
-            // INSERT INTO customer (customer_id, first_name, last_name, email, password_hash, company_id) VALUES (?, ?, ?, ?, ?, ?);
+            // INSERT INTO customer (customer_id, first_name, last_name, email, password_hash, company_id) VALUES (?, ?, ?, ?, ?, ?)            
             query: "UPDATE share SET last_recorded_value = ? WHERE share_id = ?;",
             args: [
                 price,

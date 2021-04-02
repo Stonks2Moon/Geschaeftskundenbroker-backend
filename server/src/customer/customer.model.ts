@@ -1,26 +1,26 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { Company } from "src/company/company.model";
+import { ApiProperty } from "@nestjs/swagger"
+import { Company } from "src/company/company.model"
 
 // Modell eines Nutzers
 export class Customer {
     @ApiProperty({ required: false })
-    customerId?: string;
+    customerId?: string
 
     @ApiProperty()
-    firstName: string;
+    firstName: string
 
     @ApiProperty()
-    lastName: string;
+    lastName: string
 
     @ApiProperty()
-    email: string;
+    email: string
 
     @ApiProperty({ required: false })
-    company?: Company;
+    company?: Company
 
     @ApiProperty({ required: true })
-    password?: string;
+    password?: string
 
     @ApiProperty({ required: false })
-    companyCode?: string;
+    companyCode?: string
 }

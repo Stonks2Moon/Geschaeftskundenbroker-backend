@@ -1,29 +1,29 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty, IsString } from "class-validator";
+import { ApiProperty } from "@nestjs/swagger"
+import { IsNotEmpty, IsString } from "class-validator"
 
 export class CreateCompanyDto {
     @ApiProperty()
     @IsNotEmpty()
     @IsString()
-    companyName: string;
+    companyName: string
 
     @ApiProperty()
     @IsNotEmpty()
     @IsString()
-    postCode: string;
+    postCode: string
 
     @ApiProperty()
     @IsNotEmpty()
     @IsString()
-    city: string;
+    city: string
 
     @ApiProperty()
     @IsNotEmpty()
     @IsString()
-    street: string;
+    street: string
 
     @ApiProperty()
     @IsNotEmpty()
     @IsString()
-    houseNumber: string;
+    houseNumber: string
 }

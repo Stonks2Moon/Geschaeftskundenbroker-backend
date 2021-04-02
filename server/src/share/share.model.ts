@@ -1,24 +1,24 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty } from "@nestjs/swagger"
 
 export class Share {
     @ApiProperty()
-    shareId?: string;
+    shareId?: string
 
     @ApiProperty()
-    shareName: string;
+    shareName: string
 
     @ApiProperty()
-    isin: string;
+    isin: string
 
     @ApiProperty()
-    wkn: string;
+    wkn: string
 
     @ApiProperty()
-    lastRecordedValue: number;
+    lastRecordedValue: number
 
     @ApiProperty()
-    currencyCode: string;
+    currencyCode: string
 
     @ApiProperty()
-    currencyName: string;
+    currencyName: string
 }

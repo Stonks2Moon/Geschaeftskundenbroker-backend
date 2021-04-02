@@ -1,8 +1,8 @@
-import { Body, Controller, Get, Param, Put } from '@nestjs/common';
-import { ApiBody, ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { Company } from './company.model';
-import { CompanyService } from './company.service';
-import { CreateCompanyDto } from './dto/create-company.dto';
+import { Body, Controller, Get, Param, Put } from '@nestjs/common'
+import { ApiBody, ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger'
+import { Company } from './company.model'
+import { CompanyService } from './company.service'
+import { CreateCompanyDto } from './dto/create-company.dto'
 
 @ApiTags('company')
 @Controller('company')
@@ -27,7 +27,7 @@ export class CompanyController {
     async createCompany(
         @Body() company: CreateCompanyDto
     ): Promise<Company> {
-        return await this.companyService.createCompany(company);
+        return await this.companyService.createCompany(company)
     }
 
     /**
@@ -43,7 +43,7 @@ export class CompanyController {
     async getCompanyByCode(
         @Param('companyCode') companyCode: string
     ): Promise<Company> {
-        return await this.companyService.getCompanyByCompanyCode(companyCode);
+        return await this.companyService.getCompanyByCompanyCode(companyCode)
     }
 
 
@@ -60,7 +60,7 @@ export class CompanyController {
     async getCompanyById(
         @Param('companyId') companyId: string
     ): Promise<Company> {
-        return await this.companyService.getCompanyById(companyId);
+        return await this.companyService.getCompanyById(companyId)
     }
 
     /**
@@ -74,7 +74,7 @@ export class CompanyController {
     })
     @Get('all')
     async getAllCompanies(): Promise<Company[]> {
-        return await this.companyService.getAllCompanies();
+        return await this.companyService.getAllCompanies()
 
     }
 }

@@ -1,10 +1,10 @@
-import { Body, Controller, HttpCode, Post, Put } from '@nestjs/common';
-import { ApiBody, ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { CustomerSession } from './customer-session.model';
-import { Customer } from './customer.model';
-import { CustomerService } from './customer.service';
-import { CustomerDto } from './dto/customer.dto';
-import { LoginDto } from './dto/login.dto';
+import { Body, Controller, HttpCode, Post, Put } from '@nestjs/common'
+import { ApiBody, ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger'
+import { CustomerSession } from './customer-session.model'
+import { Customer } from './customer.model'
+import { CustomerService } from './customer.service'
+import { CustomerDto } from './dto/customer.dto'
+import { LoginDto } from './dto/login.dto'
 
 @ApiTags('customer')
 @Controller('customer')
@@ -31,7 +31,7 @@ export class CustomerController {
         customer: Customer,
         session: CustomerSession
     }> {
-        return await this.customerService.customerLogin(login);
+        return await this.customerService.customerLogin(login)
     }
 
 
@@ -53,6 +53,6 @@ export class CustomerController {
         customer: Customer,
         session: CustomerSession
     }> {
-        return await this.customerService.registerCustomer(customer);
+        return await this.customerService.registerCustomer(customer)
     }
 }

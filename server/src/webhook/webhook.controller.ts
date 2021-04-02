@@ -1,6 +1,6 @@
-import { Body, Controller, HttpCode, Post } from '@nestjs/common';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { OrderCompletedDto, OrderDeletedDto, OrderMatchedDto } from 'moonstonks-boersenapi';
+import { Body, Controller, HttpCode, Post } from '@nestjs/common'
+import { ApiOkResponse, ApiTags } from '@nestjs/swagger'
+import { OrderCompletedDto, OrderDeletedDto, OrderMatchedDto } from 'moonstonks-boersenapi'
 import { WebhookService } from './webhook.service'
 
 @ApiTags('webhook')

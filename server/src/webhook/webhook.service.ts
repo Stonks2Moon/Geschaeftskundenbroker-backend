@@ -1,16 +1,16 @@
-import { Injectable } from '@nestjs/common';
-import { Job } from 'moonstonks-boersenapi';
-import { OrderCompletedDto, OrderDeletedDto, OrderMatchedDto } from 'moonstonks-boersenapi';
-import { DeleteOrderDto } from 'moonstonks-boersenapi/dist/dtos/DeleteOrder.dto';
-import { PlaceOrderDto } from 'moonstonks-boersenapi/dist/dtos/PlaceOrder.dto';
-import { ShareService } from 'src/share/share.service';
-import { Connector } from 'src/util/database/connector';
-import { QueryBuilder } from 'src/util/database/query-builder';
-import { JobWrapper } from './dto/job-wrapper.dto';
-import * as CONST from "../util/const";
-import { Query } from 'src/util/database/query.model';
-import { PlaceShareOrder } from 'src/depot/dto/share-order.dto';
-import { DepotService } from 'src/depot/depot.service';
+import { Injectable } from '@nestjs/common'
+import { Job } from 'moonstonks-boersenapi'
+import { OrderCompletedDto, OrderDeletedDto, OrderMatchedDto } from 'moonstonks-boersenapi'
+import { DeleteOrderDto } from 'moonstonks-boersenapi/dist/dtos/DeleteOrder.dto'
+import { PlaceOrderDto } from 'moonstonks-boersenapi/dist/dtos/PlaceOrder.dto'
+import { ShareService } from 'src/share/share.service'
+import { Connector } from 'src/util/database/connector'
+import { QueryBuilder } from 'src/util/database/query-builder'
+import { JobWrapper } from './dto/job-wrapper.dto'
+import * as CONST from "../util/const"
+import { Query } from 'src/util/database/query.model'
+import { PlaceShareOrder } from 'src/depot/dto/share-order.dto'
+import { DepotService } from 'src/depot/depot.service'
 
 
 @Injectable()
@@ -149,7 +149,7 @@ export class WebhookService {
 
         }
 
-        return job;
+        return job
     }
 
 }

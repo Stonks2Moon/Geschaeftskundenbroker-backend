@@ -1,18 +1,18 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty } from "@nestjs/swagger"
 
 export class Address {
     @ApiProperty({ required: false })
-    addressId?: string;
+    addressId?: string
 
     @ApiProperty()
-    postCode: string;
+    postCode: string
 
     @ApiProperty()
-    city: string;
+    city: string
 
     @ApiProperty()
-    street: string;
+    street: string
 
     @ApiProperty()
-    houseNumber: string;
+    houseNumber: string
 }

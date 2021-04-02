@@ -1,11 +1,11 @@
 import { InternalServerErrorException } from "@nestjs/common"
-import { BörsenAPI, OrderManager, MarketManager } from "moonstonks-boersenapi";
+import { BörsenAPI, OrderManager, MarketManager } from "moonstonks-boersenapi"
 import { PlaceShareOrder } from "../../depot/dto/share-order.dto"
-const credentials = require('../../../stock-exchange.json');
-import * as CONST from '../const';
+const credentials = require('../../../stock-exchange.json')
+import * as CONST from '../const'
 
-export const stockExchangeApi = new BörsenAPI(credentials.apiToken);
-export const orderManager = new OrderManager(stockExchangeApi, `${CONST.WEBHOOK_BASE_URL}/onPlace`, `${CONST.WEBHOOK_BASE_URL}/onMatch`, `${CONST.WEBHOOK_BASE_URL}/onComplete`, `${CONST.WEBHOOK_BASE_URL}/onDelete`);
+export const stockExchangeApi = new BörsenAPI(credentials.apiToken)
+export const orderManager = new OrderManager(stockExchangeApi, `${CONST.WEBHOOK_BASE_URL}/onPlace`, `${CONST.WEBHOOK_BASE_URL}/onMatch`, `${CONST.WEBHOOK_BASE_URL}/onComplete`, `${CONST.WEBHOOK_BASE_URL}/onDelete`)
 export { MarketManager as marketManager }
 
 /**
@@ -17,10 +17,10 @@ export { MarketManager as marketManager }
  */
 export async function executeApiCall<T>(func: Function, args: any[], manager: any): Promise<T> {
     try {
-        return await func.apply(manager, args);
+        return await func.apply(manager, args)
     } catch (e) {
         // console.error(e)
-        throw new InternalServerErrorException(e, "Stock Exchange API failed");
+        throw new InternalServerErrorException(e, "Stock Exchange API failed")
     }
 }
 
@@ -68,10 +68,10 @@ export function getOrderFunction(order: PlaceShareOrder) {
             f: orderManager.placeSellStopLimitOrder,
             args: ["shareId", "amount", "limit", "stop"]
         }],
-    ]);
+    ])
 
     // get the object from map above
-    const orderFunction = orderFunctions.get(`${order.detail} ${order.type}`);
+    const orderFunction = orderFunctions.get(`${order.detail} ${order.type}`)
     // get the arguments for the function
     const args = orderFunction.args.map(key => order[key])
 
