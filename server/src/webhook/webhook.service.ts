@@ -91,7 +91,7 @@ export class WebhookService {
             detail: job.detail,
             orderId: job.id,
             shareId: job.share.shareId,
-            type: job.jobType,
+            type: job.placeOrder.type,
             validity: job.orderValidity,
             limit: job.placeOrder.limit,
             market: job.market,
