@@ -278,7 +278,7 @@ export class QueryBuilder {
 
     public static createDepotEntry(depotEntry: DepotEntry): Query {
         return {
-            query: "INSERT INTO depot_entry (depot_id, share_id, amount, cost_value, created_at) VALUES (?, ?, ?, ?, NOW()",
+            query: "INSERT INTO depot_entry (depot_id, share_id, amount, cost_value, created_at) VALUES (?, ?, ?, ?, NOW());",
             args: [
                 depotEntry.depotId,
                 depotEntry.share.shareId,
@@ -475,7 +475,7 @@ export class QueryBuilder {
      */
     public static writeJobToDb(job: Job, depotId: string, order: PlaceShareOrder, jobType: string): Query {
         return {
-            query: "INSERT INTO job (job_id, depot_id, share_id, amount, transaction_type, order_limit, order_stop, order_validity, detail, market, job_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
+            query: "INSERT INTO job (job_id, depot_id, share_id, amount, transaction_type, order_limit, order_stop, order_validity, detail, market, job_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
             args: [
                 job.id,
                 depotId,

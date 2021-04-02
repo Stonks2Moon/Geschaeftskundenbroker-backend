@@ -1,5 +1,5 @@
 import { Controller, Get } from '@nestjs/common'
-import { ApiResponse, ApiTags } from '@nestjs/swagger'
+import { ApiInternalServerErrorResponse, ApiResponse, ApiTags } from '@nestjs/swagger'
 import * as CONST from '../util/const'
 
 @Controller('meta')
@@ -25,7 +25,9 @@ export class MetaController {
             }
         }
     })
-    
+    @ApiInternalServerErrorResponse({
+        description: "Something went wrong"
+    })
     @Get('')
     async exportCONST() {
         return {

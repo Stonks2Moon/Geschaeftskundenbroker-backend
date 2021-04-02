@@ -26,3 +26,16 @@ export const JOB_TYPES = {
     // COMPLETE: "complete"
 }
 
+/*------------- ShareOrder -------------*/
+export const ORDER = {
+    TYPE: {
+        BUY: "buy",
+        SELL: "sell"
+    },
+    DETAIL: {
+        MARKET: "market",
+        LIMIT: "limit",
+        STOP: "stop",
+        STOP_LIMIT: "stopLimit"
+    }
+}
