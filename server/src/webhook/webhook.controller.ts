@@ -1,5 +1,6 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { OrderCompletedDto, OrderDeletedDto, OrderMatchedDto } from 'moonstonks-boersenapi';
 import { WebhookService } from './webhook.service'
 
 @ApiTags('webhook')
@@ -27,7 +28,7 @@ export class WebhookController {
      */
     @Post('onMatch')
     async onMatch(
-        @Body() data: any
+        @Body() data: OrderMatchedDto
     ): Promise<void> {
         await this.webhookService.onMatch(data)
     }
@@ -38,7 +39,7 @@ export class WebhookController {
      */
     @Post('onComplete')
     async onComplete(
-        @Body() data: any
+        @Body() data: OrderCompletedDto
     ): Promise<void> {
         await this.webhookService.onComplete(data)
     }
@@ -49,7 +50,7 @@ export class WebhookController {
      */
     @Post('onDelete')
     async onDelete(
-        @Body() data: any
+        @Body() data: OrderDeletedDto
     ): Promise<void> {
         await this.webhookService.onDelete(data)
     }

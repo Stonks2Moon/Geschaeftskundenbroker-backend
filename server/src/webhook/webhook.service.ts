@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { OrderCompletedDto, OrderDeletedDto, OrderMatchedDto } from 'moonstonks-boersenapi';
 import { Connector } from 'src/util/database/connector';
 import { QueryBuilder } from 'src/util/database/query-builder';
 
@@ -8,18 +9,18 @@ export class WebhookService {
         await Connector.executeQuery(QueryBuilder.updateJobWithOrderId(data.jobId, data.id))
     }
 
-    public async onMatch(data: any): Promise<void> {
+    public async onMatch(data: OrderMatchedDto): Promise<void> {
         // console.log("Inside WebhookService: onMatch")
         // console.log(data)
 
     }
 
 
-    public async onComplete(data: any): Promise<void> {
+    public async onComplete(data: OrderCompletedDto): Promise<void> {
         await Connector.executeQuery(QueryBuilder.deleteJobByOrderId(data.orderId))
     }
 
-    public async onDelete(data: any): Promise<void> {
+    public async onDelete(data: OrderDeletedDto): Promise<void> {
         // console.log("Inside WebhookService: onDelete")
         // console.log(data)
     }
