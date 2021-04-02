@@ -1,11 +1,10 @@
-import { Body, Controller, HttpCode, Post, Put, Res } from '@nestjs/common';
-import { ApiBody, ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
-
-import { CustomerSession } from './customer-session.model';
-import { Customer } from './customer.model';
-import { CustomerService } from './customer.service';
-import { CustomerDto } from './dto/customer.dto';
-import { LoginDto } from './dto/login.dto';
+import { Body, Controller, HttpCode, Post, Put } from '@nestjs/common'
+import { ApiBody, ApiCreatedResponse, ApiInternalServerErrorResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger'
+import { CustomerSession } from './customer-session.model'
+import { Customer } from './customer.model'
+import { CustomerService } from './customer.service'
+import { CustomerDto } from './dto/customer.dto'
+import { LoginDto } from './dto/login.dto'
 
 @ApiTags('customer')
 @Controller('customer')
@@ -17,12 +16,15 @@ export class CustomerController {
      * @param login LoginDto containing either a session or a Email/Password
      * @returns 
      */
-    @ApiBody({ 
-        description: "Input for customer login, only one parameters is required. Either a CustomerSession or a Email/Password.", 
-        type: LoginDto 
+    @ApiBody({
+        description: "Input for customer login, only one parameters is required. Either a CustomerSession or a Email/Password.",
+        type: LoginDto
     })
     @ApiOkResponse({
         description: "Returns a Customer and CustomerSession object"
+    })
+    @ApiInternalServerErrorResponse({
+        description: "Something went wrong"
     })
     @Post('login')
     @HttpCode(200)
@@ -32,7 +34,7 @@ export class CustomerController {
         customer: Customer,
         session: CustomerSession
     }> {
-        return await this.customerService.customerLogin(login);
+        return await this.customerService.customerLogin(login)
     }
 
 
@@ -40,12 +42,15 @@ export class CustomerController {
      * Create a customer provided the given information
      * @param customer CustomerDto object 
      */
-    @ApiBody({ 
-        description: "CustomerDto object containing necessary information to create a new user/customer", 
-        type: CustomerDto 
+    @ApiBody({
+        description: "CustomerDto object containing necessary information to create a new user/customer",
+        type: CustomerDto
     })
     @ApiCreatedResponse({
         description: "Returns a Customer and CustomerSession object"
+    })
+    @ApiInternalServerErrorResponse({
+        description: "Something went wrong"
     })
     @Put()
     async register(
@@ -54,7 +59,6 @@ export class CustomerController {
         customer: Customer,
         session: CustomerSession
     }> {
-        return await this.customerService.registerCustomer(customer);
+        return await this.customerService.registerCustomer(customer)
     }
-
 }

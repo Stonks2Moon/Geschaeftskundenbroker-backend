@@ -1,5 +1,5 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { Share } from "src/share/share.model";
+import { ApiProperty } from "@nestjs/swagger"
+import { Share } from "src/share/share.model"
 
 export class DepotEntry {
     @ApiProperty()
@@ -21,7 +21,6 @@ export class DepotPosition extends DepotEntry {
 
     @ApiProperty()
     percentageChange: number
-
 }
 
 export class DepotSummary {

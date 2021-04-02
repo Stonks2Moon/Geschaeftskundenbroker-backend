@@ -1,13 +1,13 @@
-import { BadRequestException, Injectable, NotFoundException, NotImplementedException } from '@nestjs/common';
-import { Share } from './share.model';
-import * as StaticConsts from 'src/util/static-consts';
-import { Connector } from 'src/util/database/connector';
-import { QueryBuilder } from 'src/util/database/query-builder';
-import { ChartValue, HistoricalDataDto } from './dto/historical-data.dto';
-import { isDateString, isEmpty } from 'class-validator';
-import * as Moment from 'moment';
-import { extendMoment } from 'moment-range';
-const moment = extendMoment(Moment);
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
+import { Share } from './share.model'
+import * as CONST from 'src/util/const'
+import { Connector } from 'src/util/database/connector'
+import { QueryBuilder } from 'src/util/database/query-builder'
+import { ChartValue, HistoricalDataDto } from './dto/historical-data.dto'
+import { isDateString, isEmpty } from 'class-validator'
+import * as Moment from 'moment'
+import { extendMoment } from 'moment-range'
+const moment = extendMoment(Moment)
 
 @Injectable()
 export class ShareService {
@@ -30,29 +30,29 @@ export class ShareService {
     ): Promise<Array<Share>> {
 
         // Check if limit is given, else use default result limit
-        let resultLimit = StaticConsts.DEFAULT_SEARCH_LIMIT;
+        let resultLimit = CONST.DEFAULT_SEARCH_LIMIT
         if (limit && isNaN(limit)) {
-            resultLimit = limit;
+            resultLimit = limit
         }
 
-        let response: Array<Share> = [];
-        let result;
+        let response: Array<Share> = []
+        let result
         // Check what is given for search and call database to get all shares, which match with the case
         if (wkn) {
-            result = await Connector.executeQuery(QueryBuilder.getSharesByWkn(wkn, resultLimit));
+            result = await Connector.executeQuery(QueryBuilder.getSharesByWkn(wkn, resultLimit))
         } else if (isin) {
-            result = await Connector.executeQuery(QueryBuilder.getSharesByIsin(isin, resultLimit));
+            result = await Connector.executeQuery(QueryBuilder.getSharesByIsin(isin, resultLimit))
         } else if (shareName) {
-            result = await Connector.executeQuery(QueryBuilder.getSharesByName(shareName, resultLimit));
+            result = await Connector.executeQuery(QueryBuilder.getSharesByName(shareName, resultLimit))
         } else if (search) {
-            result = await Connector.executeQuery(QueryBuilder.getSharesBySearch(search, resultLimit));
+            result = await Connector.executeQuery(QueryBuilder.getSharesBySearch(search, resultLimit))
         } else {
-            result = await Connector.executeQuery(QueryBuilder.getAllShares(resultLimit));
+            result = await Connector.executeQuery(QueryBuilder.getAllShares(resultLimit))
         }
 
         // If no shares are found throw 404 error
         if (!result || result.length === 0) {
-            throw new NotFoundException("No shares found");
+            throw new NotFoundException("No shares found")
         }
 
         // Add data to response array
@@ -66,10 +66,10 @@ export class ShareService {
                 currencyCode: elem.currency_code,
                 currencyName: elem.currency_name
             }
-            response.push(share);
-        });
+            response.push(share)
+        })
 
-        return response;
+        return response
     }
 
     /**
@@ -83,15 +83,15 @@ export class ShareService {
 
         // Check if share ID is given and a number
         if (!shareId) {
-            throw new BadRequestException("Invalid share ID");
+            throw new BadRequestException("Invalid share ID")
         }
 
         // Get share from database
-        let result = (await Connector.executeQuery(QueryBuilder.getShareById(shareId)))[0];
+        let result = (await Connector.executeQuery(QueryBuilder.getShareById(shareId)))[0]
 
         // If no share is found throw 404 error
         if (!result) {
-            throw new NotFoundException("Share not found");
+            throw new NotFoundException("Share not found")
         }
 
         // Create return object
@@ -105,7 +105,7 @@ export class ShareService {
             currencyName: result.currency_name
         }
 
-        return share;
+        return share
     }
 
     /**
@@ -124,7 +124,7 @@ export class ShareService {
         // Get data about share (for response)
         // If the share is invalid, the code below is not executed,
         // because the getShare method throws an error directly
-        const responseShare = await this.getShareData(shareId);
+        const responseShare = await this.getShareData(shareId)
 
         // Check if given date data is correct (using moment.js to check if from date is before to date)
         if (isEmpty(fromDate)
@@ -132,7 +132,7 @@ export class ShareService {
             || !isDateString(fromDate)
             || !isDateString(toDate)
             || moment(toDate.toString()).diff(fromDate.toString()) < 0) {
-            throw new BadRequestException("No valid date information");
+            throw new BadRequestException("No valid date information")
         }
 
         // Get data from database
@@ -145,8 +145,8 @@ export class ShareService {
                 recordedAt: elem.recorded_at,
                 recordedValue: elem.recorded_value
             }
-            chartValues.push(value);
-        });
+            chartValues.push(value)
+        })
 
         // Create response object
         const response: HistoricalDataDto = {
@@ -156,7 +156,6 @@ export class ShareService {
 
         return response
     }
-
 
     /**
      * Checks if a share id is in a given array of shares

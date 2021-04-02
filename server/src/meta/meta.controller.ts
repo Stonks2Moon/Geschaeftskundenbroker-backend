@@ -1,10 +1,14 @@
-import { Controller, Get } from '@nestjs/common';
-import { ApiBody, ApiProperty, ApiResponse, ApiTags } from '@nestjs/swagger';
-import * as StaticConsts from '../util/static-consts';
+import { Controller, Get } from '@nestjs/common'
+import { ApiInternalServerErrorResponse, ApiResponse, ApiTags } from '@nestjs/swagger'
+import * as CONST from '../util/const'
 
 @Controller('meta')
 export class MetaController {
-    
+
+    /**
+     * Used to give constant variables used in backend to frontend
+     * @returns an object with used backend constants
+     */
     @ApiTags('')
     @ApiResponse({
         schema: {
@@ -14,19 +18,22 @@ export class MetaController {
                 'ALGORITHMS': {
                     type: 'object',
                     properties: {
-                        'NO_ALG': { type : 'number' },
-                        'SPLIT_ALG': { type : 'number' },
+                        'NO_ALG': { type: 'number' },
+                        'SPLIT_ALG': { type: 'number' },
                     }
                 }
             }
         }
     })
+    @ApiInternalServerErrorResponse({
+        description: "Something went wrong"
+    })
     @Get('')
-    async exportStaticConsts() {
+    async exportCONST() {
         return {
-            DEFAULT_SEARCH_LIMIT: StaticConsts.DEFAULT_SEARCH_LIMIT,
-            ALG_SPLIT_THRESHOLD: StaticConsts.ALG_SPLIT_THRESHOLD,
-            ALGORITHMS: StaticConsts.ALGORITHMS
+            DEFAULT_SEARCH_LIMIT: CONST.DEFAULT_SEARCH_LIMIT,
+            ALG_SPLIT_THRESHOLD: CONST.ALG_SPLIT_THRESHOLD,
+            ALGORITHMS: CONST.ALGORITHMS
         }
     }
 }

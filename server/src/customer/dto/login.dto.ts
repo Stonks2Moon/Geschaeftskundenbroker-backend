@@ -1,8 +1,8 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { Type } from "class-transformer";
-import { IsOptional, ValidateNested } from "class-validator";
-import { CustomerSession } from "../customer-session.model";
-import { LoginInputDto } from "./login-input.dto";
+import { ApiProperty } from "@nestjs/swagger"
+import { Type } from "class-transformer"
+import { IsOptional, ValidateNested } from "class-validator"
+import { CustomerSession } from "../customer-session.model"
+import { LoginInputDto } from "./login-input.dto"
 
 export class LoginDto {
     @ApiProperty({ required: false })

@@ -1,11 +1,10 @@
-import { Address } from 'src/company/address.model';
-import { Company } from 'src/company/company.model';
-import { Share } from 'src/share/share.model';
-import { Query } from './query.model';
-import { Job } from "moonstonks-boersenapi";
-import { PlaceShareOrder } from 'src/depot/dto/share-order.dto';
-
-
+import { Address } from 'src/company/address.model'
+import { Company } from 'src/company/company.model'
+import { Share } from 'src/share/share.model'
+import { Query } from './query.model'
+import { Job } from "moonstonks-boersenapi"
+import { PlaceShareOrder } from 'src/depot/dto/share-order.dto'
+import { DepotEntry } from 'src/depot/dto/depot-entry.dto'
 export class QueryBuilder {
 
     /**
@@ -277,6 +276,19 @@ export class QueryBuilder {
     }
 
 
+    public static createDepotEntry(depotEntry: DepotEntry): Query {
+        return {
+            query: "INSERT INTO depot_entry (depot_id, share_id, amount, cost_value, created_at) VALUES (?, ?, ?, ?, NOW());",
+            args: [
+                depotEntry.depotId,
+                depotEntry.share.shareId,
+                depotEntry.amount,
+                depotEntry.costValue
+            ]
+        }
+    }
+
+
     /**
      * Returns a query to get a depot by it's ID
      * @param depotId ID of the depot
@@ -409,7 +421,7 @@ export class QueryBuilder {
      */
     public static updateSharePrice(price: number, shareId: string): Query {
         return {
-            // INSERT INTO customer (customer_id, first_name, last_name, email, password_hash, company_id) VALUES (?, ?, ?, ?, ?, ?);
+            // INSERT INTO customer (customer_id, first_name, last_name, email, password_hash, company_id) VALUES (?, ?, ?, ?, ?, ?)            
             query: "UPDATE share SET last_recorded_value = ? WHERE share_id = ?;",
             args: [
                 price,
@@ -454,9 +466,16 @@ export class QueryBuilder {
         }
     }
 
-    public static writeJobToDb(job: Job, depotId: string, order: PlaceShareOrder): Query {
+    /**
+     * Method to return a DB query to write jobs to database
+     * @param job Job
+     * @param depotId depotId of user 
+     * @param order Order with all information needed
+     * @returns a Query object 
+     */
+    public static writeJobToDb(job: Job, depotId: string, order: PlaceShareOrder, jobType: string): Query {
         return {
-            query: "INSERT INTO job (job_id, depot_id, share_id, amount, type, order_limit, order_stop, order_validity, detail, market) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
+            query: "INSERT INTO job (job_id, depot_id, share_id, amount, transaction_type, order_limit, order_stop, order_validity, detail, market, job_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
             args: [
                 job.id,
                 depotId,
@@ -468,10 +487,17 @@ export class QueryBuilder {
                 order.validity,
                 order.detail,
                 order.market ?? "",
+                jobType
             ]
         }
     }
 
+    /**
+     * Returns a DB query to update the job on the DB (used for webhooks)
+     * @param jobId id of the job
+     * @param orderId id of the order
+     * @returns a Query object
+     */
     public static updateJobWithOrderId(jobId: string, orderId: string): Query {
         return {
             query: "UPDATE job SET exchange_order_id = ? WHERE job_id = ?;",
@@ -482,6 +508,11 @@ export class QueryBuilder {
         }
     }
 
+    /**
+     * Returns a DB query to delete a job after it's done
+     * @param jobId id of the job
+     * @returns a Query object
+     */
     public static deleteJobByJobId(jobId: string): Query {
         return {
             query: "DELETE FROM job WHERE job_id = ?",
@@ -491,11 +522,77 @@ export class QueryBuilder {
         }
     }
 
+    /**
+     * Returns a DB query to delete a job
+     * @param orderId id of the order
+     * @returns a Query object
+     */
     public static deleteJobByOrderId(orderId: string): Query {
         return {
             query: "DELETE FROM job WHERE exchange_order_id = ?",
             args: [
                 orderId
+            ]
+        }
+    }
+
+    /**
+     * Returns a DB query to get a job by it's id or by an order id
+     * @param info object with order id or job id
+     * @returns a Query object
+     */
+    public static getJobById(info: {
+        jobId?: string,
+        orderId?: string
+    }): Query {
+        const field: string = info.jobId ? "job_id" : "exchange_order_id"
+        const value: string = info.jobId ? info.jobId : info.orderId
+        return {
+            query: `SELECT * FROM job WHERE ${field} = ?;`,
+            args: [
+                value
+            ]
+        }
+    }
+
+    /**
+     * Creates and entry on the share_order table
+     * @param order order object to be created on the db
+     * @returns a Query object
+     */
+    public static createShareOrder(order: PlaceShareOrder): Query {
+        return {
+            query: "INSERT INTO share_order (order_id, depot_id, share_id, amount, transaction_type, order_stop, order_limit, order_validity, detail, market) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            args: [
+                order.orderId,
+                order.depotId,
+                order.shareId,
+                order.amount,
+                order.type,
+                order.stop,
+                order.limit,
+                order.validity,
+                order.detail,
+                order.market
+            ]
+        }
+    }
+
+
+    public static getShareOrderByOrderId(orderId: string): Query {
+        return {
+            query: "SELECT * FROM share_order WHERE order_id = ?;",
+            args: [
+                orderId
+            ]
+        }
+    }
+
+    public static getShareOrdersByDepotId(depotId: string): Query {
+        return {
+            query: "SELECT * FROM share_order WHERE depot_id = ?;",
+            args: [
+                depotId
             ]
         }
     }

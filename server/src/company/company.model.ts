@@ -1,19 +1,19 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger'
 import { Address } from './address.model'
 
 export class Company {
     @ApiProperty()
-    companyId: string;
+    companyId: string
 
     @ApiProperty()
-    companyCode: string;
+    companyCode: string
 
     @ApiProperty()
-    companyName: string;
+    companyName: string
 
     @ApiProperty()
-    address: Address;
+    address: Address
 
     @ApiProperty()
-    addressId?: number;
+    addressId?: number
 }

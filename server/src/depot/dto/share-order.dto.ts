@@ -1,24 +1,24 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { IsDate, IsDateString, IsEnum, IsNotEmpty, IsNumber, IsOptional, isString, IsString } from "class-validator";
-import { Share } from "src/share/share.model";
+import { ApiProperty } from "@nestjs/swagger"
+import { IsDateString, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator"
+import { Share } from "src/share/share.model"
 
 abstract class ShareOrder {
-    orderId: string;
+    orderId: string
 
     @ApiProperty()
     @IsNotEmpty()
     @IsString()
-    depotId: string;
+    depotId: string
 
     @ApiProperty()
     @IsNotEmpty()
     @IsNumber()
-    amount: number;
+    amount: number
 
     @ApiProperty({ enum: ['buy', 'sell'] })
     @IsNotEmpty()
     //@IsEnum({ enum: ['buy', 'sell'] })
-    type: 'buy' | 'sell';
+    type: 'buy' | 'sell'
 
     @ApiProperty({ enum: ['market', 'limit', 'stop', 'stopLimit'] })
     @IsNotEmpty()
@@ -32,35 +32,35 @@ abstract class ShareOrder {
     @ApiProperty({ required: false })
     @IsOptional()
     @IsNumber()
-    limit?: number;
+    limit?: number
 
     @ApiProperty({ required: false })
     @IsOptional()
     @IsNumber()
-    stop?: number;
+    stop?: number
 
     @ApiProperty({ required: false })
     @IsOptional()
     @IsNumber()
-    stopLimit?: number;
+    stopLimit?: number
 
     @ApiProperty({ required: false })
     @IsOptional()
     @IsString()
-    market?: string;
+    market?: string
 }
 
 export class PlaceShareOrder extends ShareOrder {
     @ApiProperty({ required: false })
     @IsOptional()
     @IsString()
-    shareId: string;
+    shareId: string
 }
 
 export class ReturnShareOrder extends ShareOrder {
     @ApiProperty({ required: false })
-    orderId: string;
+    orderId: string
 
     @ApiProperty({ required: false })
-    share: Share;
+    share: Share
 }
