@@ -17,3 +17,12 @@ export const ALGORITHMS = {
     NO_ALG: 0,
     SPLIT_ALG: 1
 }
+
+/*------------- JOB -------------*/
+export const JOB_TYPES = {
+    PLACE: "place",
+    DELETE: "delete",
+    // MATCH: "match",
+    // COMPLETE: "complete"
+}
+

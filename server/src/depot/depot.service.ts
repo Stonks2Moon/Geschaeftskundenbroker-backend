@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, InternalServerErrorException, NotAcceptableException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotAcceptableException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { CustomerSession } from 'src/customer/customer-session.model';
 import { Depot } from './depot.model';
 import { CreateDepotDto } from './dto/create-depot.dto';
@@ -16,8 +16,9 @@ import { Share } from 'src/share/share.model';
 import { DepotSummary, DepotEntry, DepotPosition } from './dto/depot-entry.dto';
 import { ShareService } from 'src/share/share.service';
 import { executeApiCall, getOrderFunction, marketManager, orderManager } from '../util/stock-exchange/stock-wrapper'
-import * as CONST from "../util/const";
 import { TradeAlgorithm } from 'src/util/stock-exchange/trade-algorithm';
+import * as CONST from "../util/const";
+
 
 @Injectable()
 export class DepotService {
@@ -56,7 +57,7 @@ export class DepotService {
     }
 
     /**
-     * Method to place an order, this also handles the algoritmic trading
+     * Method to place an order, this also handles the algorithmic trading
      * @param placeOrder placeOrder object with all needed information to perform task
      * @returns TODO
      */
@@ -64,6 +65,12 @@ export class DepotService {
 
         // Validate Session
         const customer: { customer: Customer, session: CustomerSession } = await this.customerService.customerLogin({ session: placeOrder.customerSession })
+
+        // Validate if customer is authorized to order on this depot
+        const depot: Depot = await this.getDepotById(placeOrder.order.depotId)
+        if (depot.company.companyId != customer.customer.company.companyId) {
+            throw new UnauthorizedException(`Customer with id ${customer.customer.customerId} is not allowed to access depot with id ${depot.depotId}`)
+        }
 
         // Get relevant share
         const share: Share = await this.shareService.getShareData(placeOrder.order.shareId);
@@ -94,7 +101,7 @@ export class DepotService {
             results.push(await executeApiCall<Job>(orderFunction.func.f, orderFunction.args, orderManager));
         }
 
-        await this.saveJobs(results, placeOrder.order.depotId, orderArray)
+        await this.saveJobs(results, placeOrder.order.depotId, orderArray, CONST.JOB_TYPES.PLACE)
 
         // TODO: Order auf DB anlegen
         // Irgendwas mit Jobs machen (speichern oder so -> GENAU)
@@ -288,33 +295,131 @@ export class DepotService {
         return depot
     }
 
+    /**
+     * Saves a share order object to DB
+     * @param order share order object
+     * @returns the created share order object
+     */
+    public async saveShareOrder(order: PlaceShareOrder): Promise<PlaceShareOrder> {
 
-    public async getJobById(info: {
-        jobId?: string,
-        orderId?: string
-    }): Promise<Job> {
-        const result = (await Connector.executeQuery(QueryBuilder.getJobById(info)))
+        // Get share by it's id
+        const share = (await this.shareService.getShareData(order.shareId));
 
-        // const job: Job = {
+        // Create a depot entry
+        const depotEntry: DepotEntry = {
+            depotId: order.depotId,
+            share: share,
+            amount: order.amount,
+            costValue: share.lastRecordedValue * order.amount,
+        }
 
-        // }
-        return null
+        // Write data to db
+        await Connector.executeQuery(QueryBuilder.createShareOrder(order))
+        await Connector.executeQuery(QueryBuilder.createDepotEntry(depotEntry));
+
+        return order
     }
 
-    
+
+
     /**
      * Method to write the Jobs wich are returned from stock-exchange to our db, 
      * @param jobs Array of jobs from stock-exchange
      * @param depotId depotId of user
      * @param orders Array of orders (from algorithm)
      */
-    private async saveJobs(jobs: Job[], depotId: string, orders: PlaceShareOrder[]): Promise<void> {
+    private async saveJobs(jobs: Job[], depotId: string, orders: PlaceShareOrder[], jobType: string): Promise<void> {
         if (jobs.length != orders.length) {
             throw new InternalServerErrorException("Jobs / Orders length mismatch")
         }
 
         for (let i = 0; i < jobs.length; i++) {
-            await Connector.executeQuery(QueryBuilder.writeJobToDb(jobs[i], depotId, orders[i]))
+            await Connector.executeQuery(QueryBuilder.writeJobToDb(jobs[i], depotId, orders[i], jobType))
         }
+    }
+
+
+    /**
+     * 
+     * @param depotId 
+     * @param session 
+     * @returns 
+     */
+    public async showPendingOrders(depotId: string, session: CustomerSession): Promise<PlaceShareOrder[]> {
+        const customer: { customer: Customer, session: CustomerSession } = await this.customerService.customerLogin({ session: session })
+
+        // Validate if customer is authorized to order on this depot
+        const depot: Depot = await this.getDepotById(depotId)
+        if (depot.company.companyId != customer.customer.company.companyId) {
+            throw new UnauthorizedException(`Customer with id ${customer.customer.customerId} is not allowed to access depot with id ${depot.depotId}`)
+        }
+
+        return await this.getOrdersByDepotId(depotId)
+    }
+
+    public async deletePendingOrder(orderId: string, session: CustomerSession): Promise<PlaceShareOrder> {
+
+        const customer: { customer: Customer, session: CustomerSession } = await this.customerService.customerLogin({ session: session })
+        const order: PlaceShareOrder = await this.getOrderById(orderId);
+        const depot: Depot = await this.getDepotById(order.depotId);
+
+        // Validate if customer is authorized to order on this depot
+        if (depot.company.companyId != customer.customer.company.companyId) {
+            throw new UnauthorizedException(`Customer with id ${customer.customer.customerId} is not allowed to access depot with id ${depot.depotId}`)
+        }
+
+        return null
+    }
+
+
+    /**
+     * 
+     * @param orderId 
+     * @returns 
+     */
+    private async getOrderById(orderId): Promise<PlaceShareOrder> {
+        const result = (await Connector.executeQuery(QueryBuilder.getShareOrderByOrderId(orderId)))[0]
+        const order: PlaceShareOrder = {
+            orderId: result.order_id,
+            depotId: result.depot_id,
+            type: result.transaction_type,
+            detail: result.detail,
+            amount: result.amount,
+            shareId: result.share_id,
+            validity: result.order_validity,
+            stop: result.order_stop,
+            limit: result.order_limit,
+            market: result.market
+        }
+
+        return order
+    }
+
+
+    /**
+     * Returns an array of all pending order for a depot
+     * @param depotId 
+     * @returns Array of pending orders
+     */
+    private async getOrdersByDepotId(depotId: string): Promise<PlaceShareOrder[]> {
+        const results = (await Connector.executeQuery(QueryBuilder.getShareOrdersByDepotId(depotId)))
+        let orders: Array<PlaceShareOrder> = []
+
+        results.forEach(result => {
+            orders.push({
+                orderId: result.order_id,
+                depotId: result.depot_id,
+                type: result.transaction_type,
+                detail: result.detail,
+                amount: result.amount,
+                shareId: result.share_id,
+                validity: result.order_validity,
+                stop: result.order_stop,
+                limit: result.order_limit,
+                market: result.market
+            })
+        });
+
+        return orders
     }
 }

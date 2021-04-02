@@ -1,5 +1,5 @@
-import { Body, Controller, HttpCode, Param, Post, Put } from '@nestjs/common';
-import { ApiBody, ApiCreatedResponse, ApiNotAcceptableResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Delete, HttpCode, Param, Post, Put } from '@nestjs/common';
+import { ApiBody, ApiCreatedResponse, ApiNotAcceptableResponse, ApiOkResponse, ApiParam, ApiTags } from '@nestjs/swagger';
 import { CustomerSession } from 'src/customer/customer-session.model';
 import { Depot } from './depot.model';
 import { DepotService } from './depot.service';
@@ -100,5 +100,36 @@ export class DepotController {
         @Body() createDepot: CreateDepotDto
     ): Promise<Depot> {
         return await this.depotService.createDepot(createDepot);
+    }
+
+    @ApiBody({
+        description: "Valid CustomerSession as Authentication object",
+        type: CustomerSession
+    })
+    @ApiOkResponse({
+        description: "TODO",
+        type: PlaceShareOrder,
+        isArray: true
+    })
+    @Post('order/all/:depotId')
+    @HttpCode(200)
+    async showPendingOrders(
+        @Param('depotId') depotId: string,
+        @Body() customerSession: CustomerSession
+    ) {
+        return await this.depotService.showPendingOrders(depotId, customerSession);
+    }
+
+
+    @ApiBody({
+        description: "Valid CustomerSession as Authentication object",
+        type: CustomerSession
+    })
+    @Delete('order/:orderId')
+    async deletePendingOrder(
+        @Param('orderId') orderId: string,
+        @Body() customerSession: CustomerSession
+    ) {
+
     }
 }

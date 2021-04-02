@@ -4,6 +4,7 @@ import { Share } from 'src/share/share.model';
 import { Query } from './query.model';
 import { Job } from "moonstonks-boersenapi";
 import { PlaceShareOrder } from 'src/depot/dto/share-order.dto';
+import { DepotEntry } from 'src/depot/dto/depot-entry.dto';
 
 export class QueryBuilder {
 
@@ -276,6 +277,19 @@ export class QueryBuilder {
     }
 
 
+    public static createDepotEntry(depotEntry: DepotEntry): Query {
+        return {
+            query: "INSERT INTO depot_entry (depot_id, share_id, amount, cost_value, created_at) VALUES (?, ?, ?, ?, NOW()",
+            args: [
+                depotEntry.depotId,
+                depotEntry.share.shareId,
+                depotEntry.amount,
+                depotEntry.costValue
+            ]
+        }
+    }
+
+
     /**
      * Returns a query to get a depot by it's ID
      * @param depotId ID of the depot
@@ -460,7 +474,7 @@ export class QueryBuilder {
      * @param order Order with all information needed
      * @returns a Query object 
      */
-    public static writeJobToDb(job: Job, depotId: string, order: PlaceShareOrder): Query {
+    public static writeJobToDb(job: Job, depotId: string, order: PlaceShareOrder, jobType: string): Query {
         return {
             query: "INSERT INTO job (job_id, depot_id, share_id, amount, transaction_type, order_limit, order_stop, order_validity, detail, market, job_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
             args: [
@@ -474,6 +488,7 @@ export class QueryBuilder {
                 order.validity,
                 order.detail,
                 order.market ?? "",
+                jobType
             ]
         }
     }
@@ -522,6 +537,11 @@ export class QueryBuilder {
         }
     }
 
+    /**
+     * Returns a DB query to get a job by it's id or by an order id
+     * @param info object with order id or job id
+     * @returns a Query object
+     */
     public static getJobById(info: {
         jobId?: string,
         orderId?: string
@@ -533,6 +553,48 @@ export class QueryBuilder {
             args: [
                 value
             ]
-        } 
+        }
+    }
+
+    /**
+     * Creates and entry on the share_order table
+     * @param order order object to be created on the db
+     * @returns a Query object
+     */
+    public static createShareOrder(order: PlaceShareOrder): Query {
+        return {
+            query: "INSERT INTO share_order (order_id, depot_id, share_id, amount, transaction_type, order_stop, order_limit, order_validity, detail, market) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            args: [
+                order.orderId,
+                order.depotId,
+                order.shareId,
+                order.amount,
+                order.type,
+                order.stop,
+                order.limit,
+                order.validity,
+                order.detail,
+                order.market
+            ]
+        }
+    }
+
+
+    public static getShareOrderByOrderId(orderId: string): Query {
+        return {
+            query: "SELECT * FROM share_order WHERE order_id = ?;",
+            args: [
+                orderId
+            ]
+        }
+    }
+
+    public static getShareOrdersByDepotId(depotId: string): Query {
+        return {
+            query: "SELECT * FROM share_order WHERE depot_id = ?;",
+            args: [
+                depotId
+            ]
+        }
     }
 }

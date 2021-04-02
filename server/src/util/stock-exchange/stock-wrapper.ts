@@ -19,7 +19,7 @@ export async function executeApiCall<T>(func: Function, args: any[], manager: an
     try {
         return await func.apply(manager, args);
     } catch (e) {
-        console.error(e)
+        // console.error(e)
         throw new InternalServerErrorException(e, "Stock Exchange API failed");
     }
 }
