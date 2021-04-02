@@ -1,5 +1,5 @@
 import { Controller, Get } from '@nestjs/common'
-import { ApiInternalServerErrorResponse, ApiResponse, ApiTags } from '@nestjs/swagger'
+import { ApiInternalServerErrorResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger'
 import * as CONST from '../util/const'
 
 @Controller('meta')
@@ -10,7 +10,7 @@ export class MetaController {
      * @returns an object with used backend constants
      */
     @ApiTags('')
-    @ApiResponse({
+    @ApiOkResponse({
         schema: {
             properties: {
                 'DEFAULT_SEARCH_LIMIT': { type: 'number' },
