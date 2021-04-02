@@ -16,7 +16,7 @@ import { Share } from 'src/share/share.model';
 import { DepotSummary, DepotEntry, DepotPosition } from './dto/depot-entry.dto';
 import { ShareService } from 'src/share/share.service';
 import { executeApiCall, getOrderFunction, marketManager, orderManager } from '../util/stock-exchange/stock-wrapper'
-import * as StaticConsts from "../util/static-consts";
+import * as CONST from "../util/const";
 import { TradeAlgorithm } from 'src/util/stock-exchange/trade-algorithm';
 
 @Injectable()
@@ -78,7 +78,7 @@ export class DepotService {
         let orderArray: Array<PlaceShareOrder> = [];
         switch (placeOrder.tradeAlgorithm) {
             case 1:
-                if (placeOrder.order.amount * share.lastRecordedValue < StaticConsts.ALG_SPLIT_THRESHOLD) {
+                if (placeOrder.order.amount * share.lastRecordedValue < CONST.ALG_SPLIT_THRESHOLD) {
                     throw new BadRequestException("Doesn't fulfill requirement")
                 }
                 orderArray = await TradeAlgorithm.splitBuyOrderInSmallerOrders(placeOrder.order)

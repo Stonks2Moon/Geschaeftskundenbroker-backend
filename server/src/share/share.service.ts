@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { Share } from './share.model';
-import * as StaticConsts from 'src/util/static-consts';
+import * as CONST from 'src/util/const';
 import { Connector } from 'src/util/database/connector';
 import { QueryBuilder } from 'src/util/database/query-builder';
 import { ChartValue, HistoricalDataDto } from './dto/historical-data.dto';
@@ -30,7 +30,7 @@ export class ShareService {
     ): Promise<Array<Share>> {
 
         // Check if limit is given, else use default result limit
-        let resultLimit = StaticConsts.DEFAULT_SEARCH_LIMIT;
+        let resultLimit = CONST.DEFAULT_SEARCH_LIMIT;
         if (limit && isNaN(limit)) {
             resultLimit = limit;
         }

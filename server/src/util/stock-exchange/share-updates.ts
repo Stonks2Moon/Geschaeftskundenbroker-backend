@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import * as io from 'socket.io-client'
-import * as StaticConsts from 'src/util/static-consts';
+import * as CONST from 'src/util/const';
 import { Connector } from "../database/connector";
 import { QueryBuilder } from "../database/query-builder";
 import { UpdatePrice } from "./update-price.model";
@@ -15,7 +15,7 @@ export class UpdateShares {
     constructor() {
         // Create socket
         try {
-            this.stockExchangeServerSocket = io(StaticConsts.STOCK_EXCHANGE_API_URL);
+            this.stockExchangeServerSocket = io(CONST.STOCK_EXCHANGE_API_URL);
         } catch (e) {
             console.error(e);
         }

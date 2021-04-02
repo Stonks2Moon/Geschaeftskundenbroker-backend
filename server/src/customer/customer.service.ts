@@ -3,7 +3,7 @@ import { Connector } from 'src/util/database/connector';
 import { QueryBuilder } from 'src/util/database/query-builder';
 import { CustomerSession } from './customer-session.model';
 import { Customer } from './customer.model';
-import * as StaticConsts from 'src/util/static-consts';
+import * as CONST from 'src/util/const';
 import { Company } from 'src/company/company.model';
 import { CompanyService } from 'src/company/company.service';
 import * as EmailValidator from 'email-validator';
@@ -134,7 +134,7 @@ export class CustomerService {
         const customerId: string = uuid();
 
         // Hash password and write to DB
-        const passwordHash: string = bcrypt.hashSync(customer.password, StaticConsts.HASH_SALT_ROUNDS);
+        const passwordHash: string = bcrypt.hashSync(customer.password, CONST.HASH_SALT_ROUNDS);
 
         // Write info to DB
         await Connector.executeQuery(QueryBuilder.createCustomer({

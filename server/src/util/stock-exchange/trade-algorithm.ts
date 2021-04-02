@@ -1,7 +1,7 @@
 import { PlaceShareOrder } from "src/depot/dto/share-order.dto";
 import { Share } from "src/share/share.model";
 import { ShareService } from "src/share/share.service";
-import * as StaticConsts from "../static-consts";
+import * as CONST from "../const";
 export class TradeAlgorithm {
     private static shareService: ShareService = new ShareService();
 
@@ -14,7 +14,7 @@ export class TradeAlgorithm {
 
         // Get value of a share and split the order into batches
         // Batchsize is calculated by using the orderValue and the number of orders
-        const batchValue = StaticConsts.ALG_SPLIT_BATCH_VALUE
+        const batchValue = CONST.ALG_SPLIT_BATCH_VALUE
         const share: Share = await this.shareService.getShareData(order.shareId);
         const orderValue: number = order.amount * share.lastRecordedValue;
         const numberOfOrders: number = Math.floor(orderValue / batchValue) + (orderValue % batchValue > 0 ? 1 : 0);

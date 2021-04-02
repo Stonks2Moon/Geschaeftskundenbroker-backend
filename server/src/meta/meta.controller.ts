@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
-import * as StaticConsts from '../util/static-consts';
+import * as CONST from '../util/const';
 
 @Controller('meta')
 export class MetaController {
@@ -26,11 +26,11 @@ export class MetaController {
         }
     })
     @Get('')
-    async exportStaticConsts() {
+    async exportCONST() {
         return {
-            DEFAULT_SEARCH_LIMIT: StaticConsts.DEFAULT_SEARCH_LIMIT,
-            ALG_SPLIT_THRESHOLD: StaticConsts.ALG_SPLIT_THRESHOLD,
-            ALGORITHMS: StaticConsts.ALGORITHMS
+            DEFAULT_SEARCH_LIMIT: CONST.DEFAULT_SEARCH_LIMIT,
+            ALG_SPLIT_THRESHOLD: CONST.ALG_SPLIT_THRESHOLD,
+            ALGORITHMS: CONST.ALGORITHMS
         }
     }
 }
