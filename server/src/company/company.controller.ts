@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Param, Put } from '@nestjs/common'
-import { ApiBody, ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger'
+import { ApiBody, ApiCreatedResponse, ApiInternalServerErrorResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger'
 import { Company } from './company.model'
 import { CompanyService } from './company.service'
 import { CreateCompanyDto } from './dto/create-company.dto'
@@ -20,6 +20,9 @@ export class CompanyController {
         description: "Returns a Company object",
         type: Company
     })
+    @ApiInternalServerErrorResponse({
+        description: "Something went wrong"
+    })
     @ApiBody({
         description: "Create a company", type: CreateCompanyDto
     })
@@ -39,6 +42,9 @@ export class CompanyController {
         description: "Returns a Company object",
         type: Company
     })
+    @ApiInternalServerErrorResponse({
+        description: "Something went wrong"
+    })
     @Get('code/:companyCode')
     async getCompanyByCode(
         @Param('companyCode') companyCode: string
@@ -56,6 +62,9 @@ export class CompanyController {
         description: "Returns a Company object",
         type: Company
     })
+    @ApiInternalServerErrorResponse({
+        description: "Something went wrong"
+    })
     @Get('id/:companyId')
     async getCompanyById(
         @Param('companyId') companyId: string
@@ -71,6 +80,9 @@ export class CompanyController {
         description: "Returns an array of all companies, sorted alphabetically by name.",
         isArray: true,
         type: Company
+    })
+    @ApiInternalServerErrorResponse({
+        description: "Something went wrong"
     })
     @Get('all')
     async getAllCompanies(): Promise<Company[]> {

@@ -1,5 +1,5 @@
 import { Body, Controller, HttpCode, Post, Put } from '@nestjs/common'
-import { ApiBody, ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger'
+import { ApiBody, ApiCreatedResponse, ApiInternalServerErrorResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger'
 import { CustomerSession } from './customer-session.model'
 import { Customer } from './customer.model'
 import { CustomerService } from './customer.service'
@@ -23,6 +23,9 @@ export class CustomerController {
     @ApiOkResponse({
         description: "Returns a Customer and CustomerSession object"
     })
+    @ApiInternalServerErrorResponse({
+        description: "Something went wrong"
+    })
     @Post('login')
     @HttpCode(200)
     async login(
@@ -45,6 +48,9 @@ export class CustomerController {
     })
     @ApiCreatedResponse({
         description: "Returns a Customer and CustomerSession object"
+    })
+    @ApiInternalServerErrorResponse({
+        description: "Something went wrong"
     })
     @Put()
     async register(

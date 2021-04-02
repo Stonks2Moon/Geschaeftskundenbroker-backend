@@ -340,10 +340,10 @@ export class DepotService {
 
 
     /**
-     * 
-     * @param depotId 
-     * @param session 
-     * @returns 
+     * Returns all open share orders
+     * @param depotId id of depot
+     * @param session customer session
+     * @returns an array of PlaceShareOrder objects
      */
     public async showPendingOrders(depotId: string, session: CustomerSession): Promise<PlaceShareOrder[]> {
         const customer: { customer: Customer, session: CustomerSession } = await this.customerService.customerLogin({ session: session })
@@ -357,6 +357,12 @@ export class DepotService {
         return await this.getOrdersByDepotId(depotId)
     }
 
+    /**
+     * Used to delete pending orders
+     * @param orderId id of order
+     * @param session customer session
+     * @returns the deleted ShareOrder object
+     */
     public async deletePendingOrder(orderId: string, session: CustomerSession): Promise<PlaceShareOrder> {
 
         const customer: { customer: Customer, session: CustomerSession } = await this.customerService.customerLogin({ session: session })
@@ -368,12 +374,20 @@ export class DepotService {
             throw new UnauthorizedException(`Customer with id ${customer.customer.customerId} is not allowed to access depot with id ${depot.depotId}`)
         }
 
-        return null
+        // Delete order 
+        const result: boolean = await executeApiCall<boolean>(orderManager.deleteOrder, [orderId], orderManager)
+
+        // If error occurs throw error
+        if(!result) {
+            throw new NotAcceptableException(`Could not delete order ${orderId}`)
+        }
+
+        return order
     }
 
 
     /**
-     * 
+     * Returns a single share order by id
      * @param orderId 
      * @returns 
      */

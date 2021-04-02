@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, HttpCode, Param, Post, Put } from '@nestjs/common'
-import { ApiBody, ApiCreatedResponse, ApiNotAcceptableResponse, ApiOkResponse, ApiParam, ApiTags } from '@nestjs/swagger'
+import { ApiBody, ApiCreatedResponse, ApiInternalServerErrorResponse, ApiNotAcceptableResponse, ApiOkResponse, ApiParam, ApiTags } from '@nestjs/swagger'
 import { CustomerSession } from 'src/customer/customer-session.model'
 import { Depot } from './depot.model'
 import { DepotService } from './depot.service'
@@ -20,6 +20,9 @@ export class DepotController {
         description: "Returns an array of Depot objects with a DepotSummary",
         type: Depot,
         isArray: true
+    })
+    @ApiInternalServerErrorResponse({
+        description: "Something went wrong"
     })
     @ApiBody({
         description: "Valid CustomerSession as Authentication object",
@@ -42,6 +45,9 @@ export class DepotController {
     @ApiOkResponse({
         description: "Returns a detailed Depot Object with a summary and a position",
         type: Depot
+    })
+    @ApiInternalServerErrorResponse({
+        description: "Something went wrong"
     })
     @ApiBody({
         description: "Valid CustomerSession as Authentication object",
@@ -70,6 +76,9 @@ export class DepotController {
     @ApiNotAcceptableResponse({
         description: "Market is currently closed",
     })
+    @ApiInternalServerErrorResponse({
+        description: "Something went wrong"
+    })
     @ApiBody({
         description: "Place an order",
         type: PlaceOrderDto
@@ -91,6 +100,9 @@ export class DepotController {
         description: "Returns a Depot object of the created depot.",
         type: Depot
     })
+    @ApiInternalServerErrorResponse({
+        description: "Something went wrong"
+    })
     @ApiBody({
         description: "CreateDepotDto containing a valid CustomerSession, a name and an optional description.",
         type: CreateDepotDto
@@ -111,6 +123,9 @@ export class DepotController {
         type: PlaceShareOrder,
         isArray: true
     })
+    @ApiInternalServerErrorResponse({
+        description: "Something went wrong"
+    })
     @Post('order/all/:depotId')
     @HttpCode(200)
     async showPendingOrders(
@@ -125,11 +140,21 @@ export class DepotController {
         description: "Valid CustomerSession as Authentication object",
         type: CustomerSession
     })
+    @ApiNotAcceptableResponse({
+        description: "Market is currently closed",
+    })
+    @ApiOkResponse({
+        description: "Successfully deleted order",
+        type: PlaceShareOrder
+    })
+    @ApiInternalServerErrorResponse({
+        description: "Something went wrong"
+    })
     @Delete('order/:orderId')
     async deletePendingOrder(
         @Param('orderId') orderId: string,
         @Body() customerSession: CustomerSession
     ) {
-
+        return await this.depotService.deletePendingOrder(orderId, customerSession);
     }
 }

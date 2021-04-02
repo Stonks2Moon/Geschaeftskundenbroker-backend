@@ -1,5 +1,5 @@
 import { Body, Controller, HttpCode, Post } from '@nestjs/common'
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger'
+import { ApiInternalServerErrorResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger'
 import { OrderCompletedDto, OrderDeletedDto, OrderMatchedDto } from 'moonstonks-boersenapi'
 import { WebhookService } from './webhook.service'
 
@@ -18,6 +18,9 @@ export class WebhookController {
     @ApiOkResponse({
         description: "Returns nothing"
     })
+    @ApiInternalServerErrorResponse({
+        description: "Something went wrong"
+    })
     @Post('onPlace')
     @HttpCode(200)
     async onPlace(
@@ -32,6 +35,9 @@ export class WebhookController {
      */
     @ApiOkResponse({
         description: "Returns nothing"
+    })
+    @ApiInternalServerErrorResponse({
+        description: "Something went wrong"
     })
     @Post('onMatch')
     @HttpCode(200)
@@ -48,6 +54,9 @@ export class WebhookController {
     @ApiOkResponse({
         description: "Returns nothing"
     })
+    @ApiInternalServerErrorResponse({
+        description: "Something went wrong"
+    })
     @Post('onComplete')
     @HttpCode(200)
     async onComplete(
@@ -62,6 +71,9 @@ export class WebhookController {
      */
     @ApiOkResponse({
         description: "Returns nothing"
+    })
+    @ApiInternalServerErrorResponse({
+        description: "Something went wrong"
     })
     @Post('onDelete')
     @HttpCode(200)
