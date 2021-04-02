@@ -103,9 +103,6 @@ export class DepotService {
 
         await this.saveJobs(results, placeOrder.order.depotId, orderArray, CONST.JOB_TYPES.PLACE)
 
-        // TODO: Order auf DB anlegen
-        // Irgendwas mit Jobs machen (speichern oder so -> GENAU)
-        console.log(results)
         return orderArray
     }
 

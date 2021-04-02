@@ -26,6 +26,8 @@ export class WebhookService {
      * @param data data from stock-exchange
      */
     public async onPlace(data: any): Promise<void> {
+        console.log("on place")
+        console.log(data)
         await Connector.executeQuery(QueryBuilder.updateJobWithOrderId(data.jobId, data.id))
     }
 
@@ -34,6 +36,8 @@ export class WebhookService {
      * @param data 
      */
     public async onMatch(data: OrderMatchedDto): Promise<void> {
+        console.log("on match")
+        console.log(data)
         // console.log("Inside WebhookService: onMatch")
         // console.log(data)
 
@@ -45,6 +49,9 @@ export class WebhookService {
      * @param data 
      */
     public async onComplete(data: OrderCompletedDto): Promise<void> {
+
+        console.log("on complete")
+        console.log(data)
         // Get Job from DB
         const job: JobWrapper = await this.getJobById({ orderId: data.orderId })
 
@@ -66,6 +73,8 @@ export class WebhookService {
      * @param data 
      */
     public async onDelete(data: OrderDeletedDto): Promise<void> {
+        console.log("on delete")
+        console.log(data)
         // console.log("Inside WebhookService: onDelete")
         // console.log(data)
     }
@@ -81,7 +90,7 @@ export class WebhookService {
             depotId: job.depotId,
             detail: job.detail,
             orderId: job.id,
-            shareId: job.share.currencyCode,
+            shareId: job.share.shareId,
             type: job.jobType,
             validity: job.orderValidity,
             limit: job.placeOrder.limit,
@@ -104,7 +113,7 @@ export class WebhookService {
     }): Promise<JobWrapper> {
 
         // Get job from DB
-        const result = (await Connector.executeQuery(QueryBuilder.getJobById(info)))
+        const result = (await Connector.executeQuery(QueryBuilder.getJobById(info)))[0]
 
         // Get share object
         const share = (await this.shareService.getShareData(result.share_id))
