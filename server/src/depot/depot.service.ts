@@ -301,13 +301,14 @@ export class DepotService {
 
         // Get share by it's id
         const share = (await this.shareService.getShareData(order.shareId))
+        const multiplier: number = order.type === CONST.ORDER.TYPE.SELL ? -1 : 1
 
         // Create a depot entry
         const depotEntry: DepotEntry = {
             depotId: order.depotId,
             share: share,
-            amount: order.amount,
-            costValue: share.lastRecordedValue * order.amount,
+            amount: order.amount * multiplier,
+            costValue: share.lastRecordedValue * order.amount * multiplier,
         }
 
         // Write data to db
