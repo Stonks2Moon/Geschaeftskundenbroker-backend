@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Param, Put } from '@nestjs/common'
-import { ApiBody, ApiCreatedResponse, ApiInternalServerErrorResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger'
+import { ApiBody, ApiCreatedResponse, ApiInternalServerErrorResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger'
 import { Company } from './company.model'
 import { CompanyService } from './company.service'
 import { CreateCompanyDto } from './dto/create-company.dto'
@@ -45,6 +45,9 @@ export class CompanyController {
     @ApiInternalServerErrorResponse({
         description: "Something went wrong"
     })
+    @ApiNotFoundResponse({
+        description: "Company not found by given code"
+    })
     @Get('code/:companyCode')
     async getCompanyByCode(
         @Param('companyCode') companyCode: string
@@ -64,6 +67,9 @@ export class CompanyController {
     })
     @ApiInternalServerErrorResponse({
         description: "Something went wrong"
+    })
+    @ApiNotFoundResponse({
+        description: "Company not found by given id"
     })
     @Get('id/:companyId')
     async getCompanyById(
@@ -87,6 +93,5 @@ export class CompanyController {
     @Get('all')
     async getAllCompanies(): Promise<Company[]> {
         return await this.companyService.getAllCompanies()
-
     }
 }

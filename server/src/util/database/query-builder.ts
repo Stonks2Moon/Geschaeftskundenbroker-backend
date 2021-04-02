@@ -5,6 +5,7 @@ import { Query } from './query.model'
 import { Job } from "moonstonks-boersenapi"
 import { PlaceShareOrder } from 'src/depot/dto/share-order.dto'
 import { DepotEntry } from 'src/depot/dto/depot-entry.dto'
+
 export class QueryBuilder {
 
     /**
@@ -579,6 +580,11 @@ export class QueryBuilder {
     }
 
 
+    /**
+     * Returns a query to get a share order for a given order id
+     * @param orderId id of the order
+     * @returns a Query object
+     */
     public static getShareOrderByOrderId(orderId: string): Query {
         return {
             query: "SELECT * FROM share_order WHERE order_id = ?;",
@@ -588,6 +594,11 @@ export class QueryBuilder {
         }
     }
 
+    /**
+     * Returns a query to get all share orders for a given depot id
+     * @param depotId id of the depot
+     * @returns a Query object
+     */
     public static getShareOrdersByDepotId(depotId: string): Query {
         return {
             query: "SELECT * FROM share_order WHERE depot_id = ?;",

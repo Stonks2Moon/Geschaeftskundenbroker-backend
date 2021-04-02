@@ -1,5 +1,5 @@
 import { Controller, Get, Param, Query } from '@nestjs/common'
-import { ApiInternalServerErrorResponse, ApiNotFoundResponse, ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger'
+import { ApiBadRequestResponse, ApiInternalServerErrorResponse, ApiNotFoundResponse, ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger'
 import { HistoricalDataDto } from './dto/historical-data.dto'
 import { Share } from './share.model'
 import { ShareService } from './share.service'
@@ -25,7 +25,7 @@ export class ShareController {
         description: "Returns all shares OR can be used to search for a share by wkn, isin or name."
     })
     @ApiNotFoundResponse({
-        description: "Share not found"
+        description: "No shares found"
     })
     @ApiInternalServerErrorResponse({
         description: "Something went wrong"
@@ -83,6 +83,9 @@ export class ShareController {
     @ApiInternalServerErrorResponse({
         description: "Something went wrong"
     })
+    @ApiBadRequestResponse({
+        description: "No valid date information"
+    })
     @Get('historical-data')
     async getHistoricalData(
         @Query('shareId') shareId: string,
@@ -106,6 +109,9 @@ export class ShareController {
     })
     @ApiInternalServerErrorResponse({
         description: "Something went wrong"
+    })
+    @ApiBadRequestResponse({
+        description: "Invalid share id"
     })
     @Get(':shareId')
     async getShareData(
