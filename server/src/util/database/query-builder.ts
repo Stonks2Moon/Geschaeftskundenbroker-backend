@@ -499,4 +499,18 @@ export class QueryBuilder {
             ]
         }
     }
+
+    public static getJobById(info: {
+        jobId?: string,
+        orderId?: string
+    }): Query {
+        const field: string = info.jobId ? "job_id" : "exchange_order_id"
+        const value: string = info.jobId ? info.jobId : info.orderId
+        return {
+            query: `SELECT * FROM job WHERE ${field} = ?;`,
+            args: [
+                value
+            ]
+        } 
+    }
 }

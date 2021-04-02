@@ -286,6 +286,19 @@ export class DepotService {
         return depot
     }
 
+
+    public async getJobById(info: {
+        jobId?: string,
+        orderId?: string
+    }): Promise<Job> {
+        const result = (await Connector.executeQuery(QueryBuilder.getJobById(info)))
+
+        // const job: Job = {
+
+        // }
+        return null
+    }
+
     
     private async saveJobs(jobs: Job[], depotId: string, orders: PlaceShareOrder[]): Promise<void> {
         
