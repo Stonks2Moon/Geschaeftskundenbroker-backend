@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, HttpCode, Param, Post, Put } from '@nestjs/common'
-import { ApiBody, ApiCreatedResponse, ApiInternalServerErrorResponse, ApiNotAcceptableResponse, ApiOkResponse, ApiParam, ApiTags } from '@nestjs/swagger'
+import { ApiBadRequestResponse, ApiBody, ApiCreatedResponse, ApiInternalServerErrorResponse, ApiNotAcceptableResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger'
 import { CustomerSession } from 'src/customer/customer-session.model'
 import { Depot } from './depot.model'
 import { DepotService } from './depot.service'
@@ -23,6 +23,15 @@ export class DepotController {
     })
     @ApiInternalServerErrorResponse({
         description: "Something went wrong"
+    })
+    @ApiBadRequestResponse({
+        description: "Insufficient authorization arguments OR Invalid share ID"
+    })
+    @ApiNotFoundResponse({
+        description: "Share not found"
+    })
+    @ApiUnauthorizedResponse({
+        description: "Customer not authorized"
     })
     @ApiBody({
         description: "Valid CustomerSession as Authentication object",
@@ -49,6 +58,15 @@ export class DepotController {
     @ApiInternalServerErrorResponse({
         description: "Something went wrong"
     })
+    @ApiBadRequestResponse({
+        description: "Insufficient authorization arguments OR Invalid share ID"
+    })
+    @ApiNotFoundResponse({
+        description: "Depot now found OR Share not found"
+    })
+    @ApiUnauthorizedResponse({
+        description: "Customer not authorized"
+    })
     @ApiBody({
         description: "Valid CustomerSession as Authentication object",
         type: CustomerSession
@@ -66,10 +84,10 @@ export class DepotController {
     /**
      * Used to place an oder (buy / sell)
      * @param placeOrder Object with all information which are needed to perform the action
-     * @returns TODO
+     * @returns an array of PlaceShareOrder objects
      */
     @ApiCreatedResponse({
-        description: "TODO",
+        description: "An array with all orders is provided (if algorithmic trading is used, there is more than one item in it).",
         isArray: true,
         type: PlaceShareOrder
     })
@@ -78,6 +96,15 @@ export class DepotController {
     })
     @ApiInternalServerErrorResponse({
         description: "Something went wrong"
+    })
+    @ApiUnauthorizedResponse({
+        description: "Customer not authorized"
+    })
+    @ApiBadRequestResponse({
+        description: "Insufficient authorization arguments OR doesn't fulfill algorithmic trading requirement OR invalid share ID"
+    })
+    @ApiNotFoundResponse({
+        description: "Share not found"
     })
     @ApiBody({
         description: "Place an order",
@@ -97,14 +124,20 @@ export class DepotController {
      * @returns a Depot object
      */
     @ApiCreatedResponse({
-        description: "Returns a Depot object of the created depot.",
+        description: "Returns a Depot object of the created depot",
         type: Depot
     })
     @ApiInternalServerErrorResponse({
         description: "Something went wrong"
     })
+    @ApiUnauthorizedResponse({
+        description: "Customer not authorized"
+    })
+    @ApiBadRequestResponse({
+        description: "Insufficient authorization arguments OR Invalid name OR invalid share ID"
+    })
     @ApiBody({
-        description: "CreateDepotDto containing a valid CustomerSession, a name and an optional description.",
+        description: "CreateDepotDto containing a valid CustomerSession, a name and an optional description",
         type: CreateDepotDto
     })
     @Put()
@@ -114,17 +147,32 @@ export class DepotController {
         return await this.depotService.createDepot(createDepot)
     }
 
+    /**
+     * Used to show open orders
+     * @param depotId id of depot
+     * @param customerSession customer session for login
+     * @returns an array with pending orders
+     */
     @ApiBody({
         description: "Valid CustomerSession as Authentication object",
         type: CustomerSession
     })
     @ApiOkResponse({
-        description: "TODO",
+        description: "Returns the pending orders for a depot",
         type: PlaceShareOrder,
         isArray: true
     })
     @ApiInternalServerErrorResponse({
         description: "Something went wrong"
+    })
+    @ApiUnauthorizedResponse({
+        description: "Customer not authorized"
+    })
+    @ApiBadRequestResponse({
+        description: "Insufficient authorization arguments"
+    })
+    @ApiNotFoundResponse({
+        description: "Depot now found OR Company not found OR Adress not found"
     })
     @Post('order/all/:depotId')
     @HttpCode(200)
@@ -136,6 +184,12 @@ export class DepotController {
     }
 
 
+    /**
+     * Used to delete an open order
+     * @param orderId id of the order
+     * @param customerSession session of customer for login
+     * @returns the deleted order
+     */
     @ApiBody({
         description: "Valid CustomerSession as Authentication object",
         type: CustomerSession
@@ -149,6 +203,15 @@ export class DepotController {
     })
     @ApiInternalServerErrorResponse({
         description: "Something went wrong"
+    })
+    @ApiUnauthorizedResponse({
+        description: "Customer not authorized"
+    })
+    @ApiBadRequestResponse({
+        description: "Insufficient authorization arguments"
+    })
+    @ApiNotFoundResponse({
+        description: "Depot now found OR Company not found OR Adress not found"
     })
     @Delete('order/:orderId')
     async deletePendingOrder(

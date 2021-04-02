@@ -13,7 +13,7 @@ export class WebhookController {
 
     /**
      * Webhook called on Place
-     * @param data 
+     * @param data
      */
     @ApiOkResponse({
         description: "Returns nothing"

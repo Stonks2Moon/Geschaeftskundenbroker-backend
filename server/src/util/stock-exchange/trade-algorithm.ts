@@ -2,11 +2,12 @@ import { PlaceShareOrder } from "src/depot/dto/share-order.dto"
 import { Share } from "src/share/share.model"
 import { ShareService } from "src/share/share.service"
 import * as CONST from "../const"
+
 export class TradeAlgorithm {
     private static shareService: ShareService = new ShareService()
 
     /**
-     * Algorithm to split bi orders into multiple smaller ones
+     * Algorithm to split big orders into multiple smaller ones
      * @param order Big order to be placed
      * @returns an array of smaller orders
      */

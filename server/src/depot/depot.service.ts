@@ -59,7 +59,7 @@ export class DepotService {
     /**
      * Method to place an order, this also handles the algorithmic trading
      * @param placeOrder placeOrder object with all needed information to perform task
-     * @returns TODO
+     * @returns the placed order if successfull else throw an error
      */
     public async placeOrder(placeOrder: PlaceOrderDto): Promise<Array<PlaceShareOrder>> {
 
@@ -376,7 +376,7 @@ export class DepotService {
         const result: boolean = await executeApiCall<boolean>(orderManager.deleteOrder, [orderId], orderManager)
 
         // If error occurs throw error
-        if(!result) {
+        if (!result) {
             throw new NotAcceptableException(`Could not delete order ${orderId}`)
         }
 

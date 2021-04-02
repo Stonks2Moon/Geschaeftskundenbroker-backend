@@ -9,7 +9,6 @@ import { CompanyService } from 'src/company/company.service'
 import * as EmailValidator from 'email-validator'
 import { uuid } from 'uuidv4'
 import { CustomerDto } from './dto/customer.dto'
-import { LoginInputDto } from './dto/login-input.dto'
 import { LoginDto } from './dto/login.dto'
 
 const bcrypt = require('bcrypt')
