@@ -1,15 +1,14 @@
 // Diese Datei beinhaltet alle verwendeten Konstanten
 
-export const WEBHOOK_BASE_URL = "http://noipddns.ddns.net:8082/webhook";
-
 /*------------- Customer -------------*/
 export const HASH_SALT_ROUNDS = 10;
 
 /*------------- Share -------------*/
 export const DEFAULT_SEARCH_LIMIT = 20;
 
-/*------------- API URL -------------*/
+/*------------- API URLS -------------*/
 export const STOCK_EXCHANGE_API_URL = "ws://boerse.moonstonks.space:16001";
+export const WEBHOOK_BASE_URL = "https://business.moonstonks.space/api/webhook";
 
 /*------------- ALGORITHM -------------*/
 export const ALG_SPLIT_THRESHOLD = 10_000;

@@ -36,5 +36,8 @@ async function bootstrap() {
   // Start NestJS server on port 3000
   await app.listen(3000);
 }
+
+// start Nest
 bootstrap();
-CronJobs.runJobs()
+// Start Cronjobs
+CronJobs.runJobs();

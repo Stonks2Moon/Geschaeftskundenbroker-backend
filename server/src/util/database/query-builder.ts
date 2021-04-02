@@ -5,7 +5,6 @@ import { Query } from './query.model';
 import { Job } from "moonstonks-boersenapi";
 import { PlaceShareOrder } from 'src/depot/dto/share-order.dto';
 
-
 export class QueryBuilder {
 
     /**
@@ -454,9 +453,16 @@ export class QueryBuilder {
         }
     }
 
+    /**
+     * Method to return a DB query to write jobs to database
+     * @param job Job
+     * @param depotId depotId of user 
+     * @param order Order with all information needed
+     * @returns a Query object 
+     */
     public static writeJobToDb(job: Job, depotId: string, order: PlaceShareOrder): Query {
         return {
-            query: "INSERT INTO job (job_id, depot_id, share_id, amount, type, order_limit, order_stop, order_validity, detail, market) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
+            query: "INSERT INTO job (job_id, depot_id, share_id, amount, transaction_type, order_limit, order_stop, order_validity, detail, market, job_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
             args: [
                 job.id,
                 depotId,
@@ -472,6 +478,12 @@ export class QueryBuilder {
         }
     }
 
+    /**
+     * Returns a DB query to update the job on the DB (used for webhooks)
+     * @param jobId id of the job
+     * @param orderId id of the order
+     * @returns a Query object
+     */
     public static updateJobWithOrderId(jobId: string, orderId: string): Query {
         return {
             query: "UPDATE job SET exchange_order_id = ? WHERE job_id = ?;",
@@ -482,6 +494,11 @@ export class QueryBuilder {
         }
     }
 
+    /**
+     * Returns a DB query to delete a job after it's done
+     * @param jobId id of the job
+     * @returns a Query object
+     */
     public static deleteJobByJobId(jobId: string): Query {
         return {
             query: "DELETE FROM job WHERE job_id = ?",
@@ -491,6 +508,11 @@ export class QueryBuilder {
         }
     }
 
+    /**
+     * Returns a DB query to delete a job
+     * @param orderId id of the order
+     * @returns a Query object
+     */
     public static deleteJobByOrderId(orderId: string): Query {
         return {
             query: "DELETE FROM job WHERE exchange_order_id = ?",

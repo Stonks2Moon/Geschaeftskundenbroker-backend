@@ -1,9 +1,9 @@
-import { BadRequestException, Injectable, InternalServerErrorException, NotAcceptableException, NotFoundException, NotImplementedException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotAcceptableException, NotFoundException } from '@nestjs/common';
 import { CustomerSession } from 'src/customer/customer-session.model';
 import { Depot } from './depot.model';
 import { CreateDepotDto } from './dto/create-depot.dto';
 import { PlaceOrderDto } from './dto/place-order.dto';
-import { PlaceShareOrder, ReturnShareOrder } from './dto/share-order.dto';
+import { PlaceShareOrder } from './dto/share-order.dto';
 import { Job } from "moonstonks-boersenapi";
 import { CustomerService } from 'src/customer/customer.service';
 import { Customer } from 'src/customer/customer.model';
@@ -55,6 +55,11 @@ export class DepotService {
         return await this.showDepotById(depotId, customer.session)
     }
 
+    /**
+     * Method to place an order, this also handles the algoritmic trading
+     * @param placeOrder placeOrder object with all needed information to perform task
+     * @returns TODO
+     */
     public async placeOrder(placeOrder: PlaceOrderDto): Promise<Array<PlaceShareOrder>> {
 
         // Validate Session
@@ -69,7 +74,6 @@ export class DepotService {
             throw new NotAcceptableException("Could not place order, the market is closed");
         }
 
-
         // Check if algorithm applies
         let orderArray: Array<PlaceShareOrder> = [];
         switch (placeOrder.tradeAlgorithm) {
@@ -82,17 +86,16 @@ export class DepotService {
 
             default:
                 orderArray.push(placeOrder.order)
-
         }
-        
+
         let results: Array<Job> = []
-        for(const o of orderArray) {
+        for (const o of orderArray) {
             const orderFunction = getOrderFunction(o);
             results.push(await executeApiCall<Job>(orderFunction.func.f, orderFunction.args, orderManager));
         }
 
         await this.saveJobs(results, placeOrder.order.depotId, orderArray)
-        
+
         // TODO: Order auf DB anlegen
         // Irgendwas mit Jobs machen (speichern oder so -> GENAU)
         console.log(results)
@@ -233,7 +236,6 @@ export class DepotService {
         }
 
         return depotPositions
-
     }
 
     /**
@@ -300,13 +302,18 @@ export class DepotService {
     }
 
     
+    /**
+     * Method to write the Jobs wich are returned from stock-exchange to our db, 
+     * @param jobs Array of jobs from stock-exchange
+     * @param depotId depotId of user
+     * @param orders Array of orders (from algorithm)
+     */
     private async saveJobs(jobs: Job[], depotId: string, orders: PlaceShareOrder[]): Promise<void> {
-        
-        if(jobs.length != orders.length) {
+        if (jobs.length != orders.length) {
             throw new InternalServerErrorException("Jobs / Orders length mismatch")
         }
 
-        for(let i = 0; i < jobs.length; i++) {
+        for (let i = 0; i < jobs.length; i++) {
             await Connector.executeQuery(QueryBuilder.writeJobToDb(jobs[i], depotId, orders[i]))
         }
     }

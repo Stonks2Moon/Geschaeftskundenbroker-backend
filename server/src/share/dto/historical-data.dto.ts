@@ -10,7 +10,7 @@ export class ChartValue {
 }
 
 export class HistoricalDataDto {
-    @ApiProperty({type: Share})
+    @ApiProperty({ type: Share })
     share: Share;
 
     @ApiProperty({

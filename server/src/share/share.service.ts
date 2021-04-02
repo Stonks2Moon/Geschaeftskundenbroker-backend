@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException, NotImplementedException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { Share } from './share.model';
 import * as StaticConsts from 'src/util/static-consts';
 import { Connector } from 'src/util/database/connector';
@@ -156,7 +156,6 @@ export class ShareService {
 
         return response
     }
-
 
     /**
      * Checks if a share id is in a given array of shares

@@ -1,10 +1,14 @@
 import { Controller, Get } from '@nestjs/common';
-import { ApiBody, ApiProperty, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import * as StaticConsts from '../util/static-consts';
 
 @Controller('meta')
 export class MetaController {
-    
+
+    /**
+     * Used to give constant variables used in backend to frontend
+     * @returns an object with used backend constants
+     */
     @ApiTags('')
     @ApiResponse({
         schema: {
@@ -14,8 +18,8 @@ export class MetaController {
                 'ALGORITHMS': {
                     type: 'object',
                     properties: {
-                        'NO_ALG': { type : 'number' },
-                        'SPLIT_ALG': { type : 'number' },
+                        'NO_ALG': { type: 'number' },
+                        'SPLIT_ALG': { type: 'number' },
                     }
                 }
             }

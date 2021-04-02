@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { ConnectedSocket } from '@nestjs/websockets';
 import { Job } from 'moonstonks-boersenapi';
 import { Connector } from 'src/util/database/connector';
 import { QueryBuilder } from 'src/util/database/query-builder';
