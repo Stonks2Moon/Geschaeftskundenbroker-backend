@@ -31,7 +31,7 @@ export class ShareService {
 
         // Check if limit is given, else use default result limit
         let resultLimit = CONST.DEFAULT_SEARCH_LIMIT
-        if (limit && isNaN(limit)) {
+        if (limit && !isNaN(limit)) {
             resultLimit = limit
         }
 
@@ -117,8 +117,8 @@ export class ShareService {
      */
     public async getHistoricalData(
         shareId: string,
-        fromDate: Date,
-        toDate: Date
+        fromDate: Date | string,
+        toDate: Date | string
     ): Promise<HistoricalDataDto> {
 
         // Get data about share (for response)
@@ -136,7 +136,7 @@ export class ShareService {
         }
 
         // Get data from database
-        const result = await Connector.executeQuery(QueryBuilder.getHistoricalData(shareId, fromDate, toDate))
+        const result = await Connector.executeQuery(QueryBuilder.getHistoricalData(shareId, fromDate as Date, toDate as Date))
 
         // Create response data (values + timestamps for chart)
         let chartValues: Array<ChartValue> = []
