@@ -16,9 +16,11 @@ describe('', () => {
     })
 
     it('Should get all shares', async () => {
-        let shares = await testShareController.getAllShares();
+        const shares: Array<Share> = await testShareController.getAllShares();
 
-        expect(shares).toBeDefined()
+        expect(shares.length).toBeGreaterThan(0)
+        expect(shares[0]).toBeDefined()
+        expect(shares[0].lastRecordedValue).not.toBeNaN()
     })
 
     // it('Should search for a share by wkn with and without limit', () => {
