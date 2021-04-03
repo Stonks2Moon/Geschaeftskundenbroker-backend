@@ -46,7 +46,7 @@ describe('Test Customer controller', () => {
             firstName: "Max-Test",
             lastName: "Muster-Test",
             companyCode: testCompany.companyCode,
-            email: "max-muster-test@test-mail.com",
+            email: "max-muster-test-2@test-mail.com",
             password: "testpassword1234"
         }
 
