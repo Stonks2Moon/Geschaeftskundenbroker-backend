@@ -222,7 +222,7 @@ export class QueryBuilder {
      */
     public static createDepot(depotId: string, companyId: string, name: string, description: string): Query {
         return {
-            query: "INSERT INTO depot (depotId, company_id, name, description) VALUES (?, ?, ?, ?);",
+            query: "INSERT INTO depot (depot_id, company_id, name, description) VALUES (?, ?, ?, ?);",
             args: [
                 depotId,
                 companyId,
