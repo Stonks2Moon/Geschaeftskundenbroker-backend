@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
 import { Share } from './share.model'
 import * as CONST from '../util/const'
-import { Connector } from '../util/database/connector'
+import { Connector } from 'src/util/database/connector'
 import { QueryBuilder } from '../util/database/query-builder'
 import { ChartValue, HistoricalDataDto } from './dto/historical-data.dto'
 import { isDateString, isEmpty } from 'class-validator'
