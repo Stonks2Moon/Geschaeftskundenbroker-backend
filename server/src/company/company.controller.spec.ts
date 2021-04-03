@@ -6,7 +6,7 @@ import { Company } from './company.model';
 import { CompanyModule } from './company.module';
 import { CreateCompanyDto } from './dto/create-company.dto';
 
-describe('', () => {
+describe('Test Company controller', () => {
 
     let testCompanyController: CompanyController
     let testCompanies: Array<Company> = []
