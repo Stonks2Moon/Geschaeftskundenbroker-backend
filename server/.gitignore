@@ -37,3 +37,4 @@ lerna-debug.log*
 database.json
 stock-exchange.json
 run-tests.sh
+run-tests.bat
