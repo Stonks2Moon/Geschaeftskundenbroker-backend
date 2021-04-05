@@ -171,8 +171,9 @@ export class DepotService {
             totalCurrentValue += p.currentValue
         })
 
-        // Calculate percentage change 
-        percentageChange = 100 * ((totalCurrentValue - totalCostValue) / totalCostValue)
+
+        // Calculate percentage change (avoid division by 0)
+        percentageChange = totalCostValue > 0 ? 100 * ((totalCurrentValue - totalCostValue) / totalCostValue) : 0
 
         // Create depot summary object
         const depotSummary: DepotSummary = {
@@ -326,7 +327,7 @@ export class DepotService {
      * @param depotId depotId of user
      * @param orders Array of orders (from algorithm)
      */
-    private async saveJobs(jobs: Job[], depotId: string, orders: PlaceShareOrder[], jobType: string): Promise<void> {
+    public async saveJobs(jobs: Job[], depotId: string, orders: PlaceShareOrder[], jobType: string): Promise<void> {
         if (jobs.length != orders.length) {
             throw new InternalServerErrorException("Jobs / Orders length mismatch")
         }

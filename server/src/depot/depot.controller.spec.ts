@@ -14,6 +14,7 @@ import { DepotController } from './depot.controller';
 import { Depot } from './depot.model';
 import { DepotModule } from './depot.module';
 import { CreateDepotDto } from './dto/create-depot.dto';
+import { PlaceShareOrder } from './dto/share-order.dto';
 
 describe('Test Depot controller', () => {
 
@@ -34,6 +35,8 @@ describe('Test Depot controller', () => {
         customer: Customer,
         session: CustomerSession
     }
+
+    let testDepot: Depot;
 
     beforeAll(async () => {
         // Some initialization
@@ -157,30 +160,60 @@ describe('Test Depot controller', () => {
         expect(depots[0]).toBeDefined()
         expect(depots[0].company.companyId).toEqual(testCompany.companyId)
 
-        const loginCredentials: CustomerSession = {
-            sessionId: testCustomer.session.sessionId,
-            customerId: testCustomer.customer.customerId
+        // const loginCredentials: CustomerSession = {
+        //     sessionId: testCustomer.session.sessionId,
+        //     customerId: testCustomer.customer.customerId
+        // }
+
+        // let depotList: Array<Depot> = await testDepotController.showAllDepots(loginCredentials)
+
+        // expect(depotList).toBeDefined()
+        // expect(depotList.length).toEqual(5)
+        // expect(depotList[0]).toBeDefined()
+        // expect(depotList[0].company.companyName).toEqual(testCompany.companyName)
+
+
+        // // Delete test depots
+        // for (let i = 0; i < depots.length; i++) {
+        //     const deleteDepotQuery: Query = {
+        //         query: "DELETE FROM depot WHERE depot_id = ?",
+        //         args: [
+        //             depots[i].depotId
+        //         ]
+        //     }
+
+        //     await Connector.executeQuery(deleteDepotQuery)
+        // }
+    })
+
+    it('Should list all depots for the current customer', async () => {
+        const depots: Array<Depot> = await testDepotController.showAllDepots(testCustomer.session)
+
+        expect(depots).toBeDefined()
+        expect(depots.length).toBeGreaterThan(0)
+        for(const d of depots) {
+            expect(d.company.companyId).toEqual(testCompany.companyId)
+            expect(d.summary.totalValue).toEqual(0)
+            expect(d.summary.percentageChange).toEqual(0)
         }
 
-        let depotList: Array<Depot> = await testDepotController.showAllDepots(loginCredentials)
+        testDepot = depots[0]
+    })
 
-        expect(depotList).toBeDefined()
-        expect(depotList.length).toEqual(5)
-        expect(depotList[0]).toBeDefined()
-        expect(depotList[0].company.companyName).toEqual(testCompany.companyName)
+    it('Should get a single depot by id', async () => {
+        const depot: Depot = await testDepotController.showDepotById(testDepot.depotId, testCustomer.session)
 
+        expect(depot).toBeDefined()
+        expect(depot.company.companyId).toEqual(testCompany.companyId)
+        expect(depot.summary.totalValue).toEqual(0)
+        expect(depot.summary.percentageChange).toEqual(0)
+    })
 
-        // Delete test depots
-        for (let i = 0; i < depots.length; i++) {
-            const deleteDepotQuery: Query = {
-                query: "DELETE FROM depot WHERE depot_id = ?",
-                args: [
-                    depots[i].depotId
-                ]
-            }
+    it('It should display all (0) pending orders', async () => {
+        const pendingOrders: PlaceShareOrder[] = await testDepotController.showPendingOrders(testDepot.depotId, testCustomer.session)
 
-            await Connector.executeQuery(deleteDepotQuery)
-        }
+        expect(pendingOrders).toBeDefined()
+        expect(pendingOrders.length).toBeGreaterThanOrEqual(0)
     })
 
     afterAll(async () => {
@@ -203,6 +236,16 @@ describe('Test Depot controller', () => {
         }
 
         await Connector.executeQuery(deleteUserQuery)
+
+        // Delete created test depots
+        const deleteDepotsQuery: Query = {
+            query: "DELETE FROM depot WHERE company_id = ?",
+            args: [
+                testCompany.companyId
+            ]
+        }
+
+        await Connector.executeQuery(deleteDepotsQuery)
 
         // Delete test company
         const deleteCompanyQuery: Query = {
