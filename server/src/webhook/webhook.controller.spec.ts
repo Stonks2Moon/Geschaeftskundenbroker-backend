@@ -24,6 +24,8 @@ import { DepotService } from "src/depot/depot.service";
 import * as CONST from "../util/const"
 import { Connector } from "src/util/database/connector";
 
+const cryptoRandomString = require('crypto-random-string')
+
 describe('Test Depot controller', () => {
 
     // Test Controller
@@ -52,7 +54,7 @@ describe('Test Depot controller', () => {
         firstName: "Max-Test",
         lastName: "Muster-Test",
         companyCode: "",
-        email: "max-muster-test-3@test-mail.com",
+        email: `${cryptoRandomString({length: 10, type: 'alphanumeric'})}@test-mail.com`,
         password: "testpassword1234"
     }
 
@@ -63,7 +65,7 @@ describe('Test Depot controller', () => {
     }
 
     let testOnPlace = {
-        id: "New_exchange_order_id",
+        id: cryptoRandomString({ length: 20, type: 'alphanumeric'}),
         jobId: ""
     }
 
@@ -106,7 +108,7 @@ describe('Test Depot controller', () => {
 
         // Fill fake PlaceShareOrder
         testPlaceShareOrder = {
-            orderId: "",
+            orderId: cryptoRandomString({length: 10, type: 'alphanumeric'}),
             depotId: testDepot.depotId,
             shareId: testShare.shareId,
             amount: 10_000,
@@ -117,7 +119,7 @@ describe('Test Depot controller', () => {
 
         // Write the share order to db without using Stock API
         testJob = {
-            id: "1",
+            id: cryptoRandomString({length: 5, type: 'numeric'}),
             placeOrder: {
                 amount: testPlaceShareOrder.amount,
                 shareId: testShare.shareId,
@@ -225,6 +227,14 @@ describe('Test Depot controller', () => {
             query: "DELETE FROM company WHERE company_id = ?;",
             args: [
                 testCompany.companyId
+            ]
+        })
+
+        // Delete address
+        await Connector.executeQuery({
+            query: "DELETE FROM address WHERE address_id = ?",
+            args: [
+                testCompany.address.addressId
             ]
         })
     })

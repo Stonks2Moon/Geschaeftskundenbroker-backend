@@ -259,12 +259,9 @@ describe('Test Depot controller', () => {
 
         // Delete test adress of company
         const deleteAdressQuery: Query = {
-            query: "DELETE FROM address WHERE post_code = ? AND city = ? AND street = ? AND house_number = ?;",
+            query: "DELETE FROM address WHERE address_id = ?;",
             args: [
-                companyDto.postCode,
-                companyDto.city,
-                companyDto.street,
-                companyDto.houseNumber
+                testCompany.address.addressId
             ]
         }
 

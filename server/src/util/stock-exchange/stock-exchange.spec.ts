@@ -15,6 +15,7 @@ import { executeApiCall, getOrderFunction } from "./stock-wrapper"
 import { connectableObservableDescriptor } from "rxjs/internal/observable/ConnectableObservable"
 
 const moment = require('moment')
+const cryptoRandomString = require('crypto-random-string')
 // const rewire = require("rewire") 
 
 describe('Test various functions of the stock exchange logic', () => {
@@ -26,7 +27,7 @@ describe('Test various functions of the stock exchange logic', () => {
     // const shareUpdateRewire = rewire("./share-updates")
     
     let fakeShare: Share = {
-        shareId: "fake_share_id_10582",
+        shareId: cryptoRandomString({length: 10, type:'alphanumeric'}),
         shareName: "Test Share",
         isin: "TestISIN",
         wkn: "TestWKN",
@@ -104,7 +105,7 @@ describe('Test various functions of the stock exchange logic', () => {
 
     it('Should create a new share and update its price', async () => {
         let newFakeShare: Share = {
-            shareId: "fake_share_id_90452",
+            shareId: cryptoRandomString({length: 10, type:'alphanumeric'}),
             shareName: "Test Share",
             isin: "test01isin",
             wkn: "TestWKN",
@@ -129,7 +130,7 @@ describe('Test various functions of the stock exchange logic', () => {
 
         expect(orderArray).toBeDefined()
         expect(orderArray.length).toBeGreaterThan(0)
-        expect(orderArray[0].amount).toBeGreaterThan(orderArray[orderArray.length - 1].amount)
+        expect(orderArray[0].amount).toBeGreaterThanOrEqual(orderArray[orderArray.length - 1].amount)
     })
 
     it('Should get a order function from the stock wrapper', () => {

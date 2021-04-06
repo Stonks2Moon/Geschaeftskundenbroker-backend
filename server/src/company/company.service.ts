@@ -129,6 +129,7 @@ export class CompanyService {
         }
 
         const address: Address = {
+            addressId: result.address_id,
             postCode: result.post_code,
             city: result.city,
             street: result.street,
