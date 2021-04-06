@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import cryptoRandomString from 'crypto-random-string';
 import { CompanyController } from 'src/company/company.controller';
 import { Company } from 'src/company/company.model';
 import { CompanyModule } from 'src/company/company.module';
@@ -52,7 +53,7 @@ describe('Test Depot controller', () => {
             firstName: "Max-Test",
             lastName: "Muster-Test",
             companyCode: testCompany.companyCode,
-            email: "max-muster-test-3@test-mail.com",
+            email: `${cryptoRandomString({length: 10, type: 'alphanumeric'})}@test-mail.com`,
             password: "testpassword1234"
         }
 

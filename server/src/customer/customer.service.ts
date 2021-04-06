@@ -52,7 +52,7 @@ export class CustomerService {
      * @param session customer session
      * @returns a customer + customer session
      */
-    public async customerLogin(_l: LoginDto): Promise<{
+    public async customerLogin(loginDto: LoginDto): Promise<{
         customer: Customer,
         session: CustomerSession
     }> {
@@ -61,8 +61,8 @@ export class CustomerService {
         let customerId: string
         let sessionId: string
 
-        const login = _l.login
-        const session = _l.session
+        const login = loginDto.login
+        const session = loginDto.session
 
 
         // Check parameters
