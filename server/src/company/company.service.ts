@@ -31,6 +31,7 @@ export class CompanyService {
             companyId: result.company_id,
             companyCode: result.company_code,
             companyName: result.company_name,
+            addressId: address.addressId,
             address: address
         }
 

@@ -2,7 +2,7 @@ import { ApiProperty } from "@nestjs/swagger"
 
 export class Address {
     @ApiProperty({ required: false })
-    addressId?: string
+    addressId?: number
 
     @ApiProperty()
     postCode: string
