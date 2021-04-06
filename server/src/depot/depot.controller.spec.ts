@@ -1,5 +1,4 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import cryptoRandomString from 'crypto-random-string';
 import { CompanyController } from 'src/company/company.controller';
 import { Company } from 'src/company/company.model';
 import { CompanyModule } from 'src/company/company.module';
@@ -16,6 +15,8 @@ import { Depot } from './depot.model';
 import { DepotModule } from './depot.module';
 import { CreateDepotDto } from './dto/create-depot.dto';
 import { PlaceShareOrder } from './dto/share-order.dto';
+
+const cryptoRandomString = require('crypto-random-string')
 
 describe('Test Depot controller', () => {
 
