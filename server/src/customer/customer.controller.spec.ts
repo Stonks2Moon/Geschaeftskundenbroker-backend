@@ -154,5 +154,33 @@ describe('Test Customer controller', () => {
 
         testCompany = await testCompanyController.createCompany(companyDto)
         const testCustomer = await testCustomerController.register(testCustomerDto)
+
+        const alreadyEmail: CustomerDto = {
+            firstName: "Max-Test",
+            lastName: "Muster-Test",
+            companyCode: testCompany.companyCode,
+            email: "max-muster-test-2@test-mail.com",
+            password: "testpassword1234"
+        }
+
+        // try {
+        //     await testCustomerController.
+        // }
+
+
+        // Delete test company and customer
+        await Connector.executeQuery({
+            query: "DELETE FROM customer WHERE customer_id = ?",
+            args: [
+                testCustomer.customer.customerId
+            ]
+        })
+
+        await Connector.executeQuery({
+            query: "DELETE FROM company WHERE company_id = ?",
+            args: [
+                testCompany.companyId
+            ]
+        })
     })
 })
