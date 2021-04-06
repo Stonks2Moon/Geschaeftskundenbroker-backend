@@ -17,7 +17,8 @@ export class CronJobs {
     public static async runJobs(): Promise<any[]> {
         // Register Cron Job here
         const jobsFunctions = [
-            CronJobs.updateHistoricalData
+            CronJobs.updateHistoricalData,
+            CronJobs.checkForTimedOutOrders
         ]
 
         let jobs: any[] = []

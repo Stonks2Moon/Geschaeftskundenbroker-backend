@@ -134,4 +134,25 @@ describe('Test Customer controller', () => {
 
         await Connector.executeQuery(deleteAdressQuery)
     })
+
+    it('Should test the exception cases for customer registration and login', async () => {
+        const companyDto: CreateCompanyDto = {
+            companyName: "Test company from unit-test-2",
+            postCode: "68165",
+            city: "Mannheim",
+            street: "Test street",
+            houseNumber: "2"
+        }
+
+        const testCustomerDto: CustomerDto = {
+            firstName: "Max-Test",
+            lastName: "Muster-Test",
+            companyCode: testCompany.companyCode,
+            email: "max-muster-test-2@test-mail.com",
+            password: "testpassword1234"
+        }
+
+        testCompany = await testCompanyController.createCompany(companyDto)
+        const testCustomer = await testCustomerController.register(testCustomerDto)
+    })
 })

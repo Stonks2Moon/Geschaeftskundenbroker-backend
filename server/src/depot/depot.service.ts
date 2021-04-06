@@ -8,7 +8,7 @@ import { Job } from "moonstonks-boersenapi"
 import { CustomerService } from 'src/customer/customer.service'
 import { Customer } from 'src/customer/customer.model'
 import { CompanyService } from 'src/company/company.service'
-import { uuid } from 'uuidv4'
+import { v4 as uuid } from 'uuid'
 import { Connector } from 'src/util/database/connector'
 import { QueryBuilder } from 'src/util/database/query-builder'
 import { Company } from 'src/company/company.model'
@@ -257,7 +257,7 @@ export class DepotService {
 
         // Throw exception if depot not found
         if (!result) {
-            throw new NotFoundException("Depot now found")
+            throw new NotFoundException("Depot not found")
         }
 
         const depot: Depot = {

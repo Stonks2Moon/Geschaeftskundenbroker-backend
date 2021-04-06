@@ -7,7 +7,7 @@ import * as CONST from 'src/util/const'
 import { Company } from 'src/company/company.model'
 import { CompanyService } from 'src/company/company.service'
 import * as EmailValidator from 'email-validator'
-import { uuid } from 'uuidv4'
+import { v4 as uuid } from 'uuid'
 import { CustomerDto } from './dto/customer.dto'
 import { LoginDto } from './dto/login.dto'
 
