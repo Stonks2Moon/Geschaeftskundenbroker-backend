@@ -79,6 +79,7 @@ export class CustomerController {
     }
 
     @ApiBody({
+        description: "CustomerSession object for login",
         type: CustomerSession
     })
     @ApiOkResponse({
