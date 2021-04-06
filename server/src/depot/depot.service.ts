@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, InternalServerErrorException, NotAcceptableException, NotFoundException, UnauthorizedException } from '@nestjs/common'
+import { BadRequestException, Injectable, InternalServerErrorException, NotAcceptableException, NotFoundException, UnauthorizedException, UnprocessableEntityException } from '@nestjs/common'
 import { CustomerSession } from 'src/customer/customer-session.model'
 import { Depot } from './depot.model'
 import { CreateDepotDto } from './dto/create-depot.dto'
@@ -68,9 +68,22 @@ export class DepotService {
         const customer: { customer: Customer, session: CustomerSession } = await this.customerService.customerLogin({ session: placeOrder.customerSession })
 
         // Validate if customer is authorized to order on this depot
-        const depot: Depot = await this.getDepotById(placeOrder.order.depotId)
+        const depot: Depot = await this.showDepotById(placeOrder.order.depotId, placeOrder.customerSession)
         if (depot.company.companyId != customer.customer.company.companyId) {
             throw new UnauthorizedException(`Customer with id ${customer.customer.customerId} is not allowed to access depot with id ${depot.depotId}`)
+        }
+
+        // Check if customer has enough shares to sell
+        if (placeOrder.order.type === CONST.ORDER.TYPE.SELL) {
+            // Check if given share is in customers depot
+            const pos = depot.positions.filter((p) => {
+                return p.share.shareId === placeOrder.order.shareId
+            })[0]
+
+            // If customer does not have the given share or not enough throw error
+            if (!pos || pos.amount < placeOrder.order.amount) {
+                throw new UnprocessableEntityException(`Customer with id ${customer.customer.customerId} has not enough shares with id ${placeOrder.order.shareId} to sell`)
+            }
         }
 
         // Get relevant share

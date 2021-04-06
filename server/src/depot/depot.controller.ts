@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, HttpCode, Param, Post, Put } from '@nestjs/common'
-import { ApiBadRequestResponse, ApiBody, ApiCreatedResponse, ApiInternalServerErrorResponse, ApiNotAcceptableResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger'
+import { ApiBadRequestResponse, ApiBody, ApiCreatedResponse, ApiInternalServerErrorResponse, ApiNotAcceptableResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags, ApiUnauthorizedResponse, ApiUnprocessableEntityResponse } from '@nestjs/swagger'
 import { CustomerSession } from 'src/customer/customer-session.model'
 import { JobWrapper } from 'src/webhook/dto/job-wrapper.dto'
 import { Depot } from './depot.model'
@@ -106,6 +106,9 @@ export class DepotController {
     })
     @ApiNotFoundResponse({
         description: "Share not found"
+    })
+    @ApiUnprocessableEntityResponse({
+        description: "User has not enough shares to sell the given amount"
     })
     @ApiBody({
         description: "Place an order",
