@@ -581,7 +581,7 @@ export class QueryBuilder {
 
 
     /**
-     * Returns a query to get a share order for a given order id
+     * Returns a query to get a job for a given order id
      * @param orderId id of the order
      * @returns a Query object
      */
@@ -595,7 +595,7 @@ export class QueryBuilder {
     }
 
     /**
-     * Returns a query to get all share orders for a given depot id
+     * Returns a query to get all jobs for a given depot id
      * @param depotId id of the depot
      * @returns a Query object
      */

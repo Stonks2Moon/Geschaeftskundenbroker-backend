@@ -41,6 +41,10 @@ export class MetaController {
         }
     }
 
+    /**
+     * Used to get pricing from stock exchange api
+     * @returns The pricing from the stock exchange for business broker
+     */
     @ApiOkResponse({
         description: "Returns an Pricing object",
         type: StockExchangePricing
