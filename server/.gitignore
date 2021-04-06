@@ -38,3 +38,4 @@ database.json
 stock-exchange.json
 run-tests.sh
 run-tests.bat
+run-dev.bat
