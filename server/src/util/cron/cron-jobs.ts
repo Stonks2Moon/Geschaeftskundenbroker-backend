@@ -2,7 +2,10 @@ const schedule = require('node-schedule')
 const { Job, _, __ } = require('node-schedule/lib/Job')
 const CronJob = typeof Job
 import { Share, ShareManager } from 'moonstonks-boersenapi'
+import { DepotService } from 'src/depot/depot.service'
+import { Connector } from '../database/connector'
 import { UpdateShares } from '../stock-exchange/share-updates'
+import { executeApiCall, orderManager } from '../stock-exchange/stock-wrapper'
 import { UpdatePrice } from '../stock-exchange/update-price.model'
 
 export class CronJobs {
@@ -48,12 +51,22 @@ export class CronJobs {
     /**
      * Checks if order validity is overdue, then cancel the job
      */
-    // public static async checkForTimedOutOrders() {
-    //     return schedule.scheduleJob('*/1 * * * * *', async function () {
-    //         // TODO
-    //     })
-    // }
+    public static async checkForTimedOutOrders() {
+        return schedule.scheduleJob('*/1 * * * * *', async function () {
+            // Get all expired jobs from DB
+            const results = await Connector.executeQuery({
+                query: "SELECT * FROM job WHERE order_validity < NOW()",
+                args: []
+            })
 
+            // Delete jobs on stock exchange; call on webhook deletes them from DB
+            for(const r of results) {
+                try {
+                    await executeApiCall<boolean>(orderManager.deleteOrder, [r.exchange_order_id], orderManager)
+                } catch {}
+            }
+        })
+    }
 }
 
 export function addDays(date: Date, days: number): Date {

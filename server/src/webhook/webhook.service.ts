@@ -24,8 +24,6 @@ export class WebhookService {
      * @param data data from stock-exchange
      */
     public async onPlace(data: any): Promise<void> {
-        console.log("on place")
-        console.log(data)
         await Connector.executeQuery(QueryBuilder.updateJobWithOrderId(data.jobId, data.id))
     }
 
@@ -34,11 +32,7 @@ export class WebhookService {
      * @param data 
      */
     public async onMatch(data: OrderMatchedDto): Promise<void> {
-        console.log("on match")
-        console.log(data)
-        // console.log("Inside WebhookService: onMatch")
-        // console.log(data)
-
+        // TODO
     }
 
 
@@ -47,9 +41,6 @@ export class WebhookService {
      * @param data 
      */
     public async onComplete(data: OrderCompletedDto): Promise<void> {
-
-        console.log("on complete")
-        console.log(data)
         // Get Job from DB
         const job: JobWrapper = await this.getJobById({ orderId: data.orderId })
 
@@ -60,21 +51,18 @@ export class WebhookService {
             const order: PlaceShareOrder = await this.jobToOrder(job)
             await this.depotService.saveShareOrder(order)
         } else if (job.jobType === CONST.JOB_TYPES.DELETE) {
-
-            // Delete Job from DB
-            await Connector.executeQuery(QueryBuilder.deleteJobByJobId(job.id))
+            console.log("Inside onComplete: DELETION")
+            console.log(data)
         }
     }
 
     /**
-     * 
+     * Delete a pending job after deletion confirmation from stock api
      * @param data 
      */
     public async onDelete(data: OrderDeletedDto): Promise<void> {
-        console.log("on delete")
-        console.log(data)
-        // console.log("Inside WebhookService: onDelete")
-        // console.log(data)
+        const job: JobWrapper = await this.getJobById({ orderId: data.orderId })
+        await Connector.executeQuery(QueryBuilder.deleteJobByJobId(job.id))
     }
 
     /**
