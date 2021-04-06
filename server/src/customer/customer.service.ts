@@ -7,7 +7,7 @@ import * as CONST from 'src/util/const'
 import { Company } from 'src/company/company.model'
 import { CompanyService } from 'src/company/company.service'
 import * as EmailValidator from 'email-validator'
-import { uuid } from 'uuidv4'
+import { v4 as uuid } from 'uuid'
 import { CustomerDto } from './dto/customer.dto'
 import { LoginDto } from './dto/login.dto'
 
@@ -26,11 +26,19 @@ export class CustomerService {
      * @param customerId Id of the Customer
      * @returns a customer object
      */
-    public async getCustomer(customerId: string): Promise<Customer> {
+    public async getCustomer(customerId: string, loginSession?: CustomerSession): Promise<Customer> {
+
         let result = (await Connector.executeQuery(QueryBuilder.getCustomerById(customerId)))[0]
 
         if (!result) {
             throw new NotFoundException("Customer not found")
+        }
+
+        if(loginSession) {
+            const { customer, session } = await this.customerLogin({session: loginSession})
+            if(session.customerId != customerId) {
+                throw new UnauthorizedException("Invalid Session")
+            }
         }
 
         const company: Company = await this.companyService.getCompanyById(result.company_id)
@@ -183,9 +191,6 @@ export class CustomerService {
         // Check if company code exists
         try {
             const company: Company = await this.companyService.getCompanyByCompanyCode(customer.companyCode)
-            if (!company) {
-                throw new NotFoundException("No company")
-            }
         } catch (e) {
             throw new BadRequestException("Invalid Company Code")
         }

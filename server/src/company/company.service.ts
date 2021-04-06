@@ -3,7 +3,7 @@ import { Connector } from 'src/util/database/connector'
 import { QueryBuilder } from 'src/util/database/query-builder'
 import { Company } from './company.model'
 import { Address } from './address.model'
-import { uuid } from 'uuidv4'
+import { v4 as uuid } from 'uuid'
 import { CreateCompanyDto } from './dto/create-company.dto'
 
 const cryptoRandomString = require('crypto-random-string')
@@ -31,6 +31,7 @@ export class CompanyService {
             companyId: result.company_id,
             companyCode: result.company_code,
             companyName: result.company_name,
+            addressId: address.addressId,
             address: address
         }
 

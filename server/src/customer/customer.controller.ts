@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, Post, Put } from '@nestjs/common'
+import { Body, Controller, Get, HttpCode, Param, Post, Put } from '@nestjs/common'
 import { ApiBadRequestResponse, ApiBody, ApiCreatedResponse, ApiInternalServerErrorResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger'
 import { CustomerSession } from './customer-session.model'
 import { Customer } from './customer.model'
@@ -76,5 +76,33 @@ export class CustomerController {
         session: CustomerSession
     }> {
         return await this.customerService.registerCustomer(customer)
+    }
+
+    @ApiBody({
+        type: CustomerSession
+    })
+    @ApiOkResponse({
+        type: Customer,
+        description: "Customer information as object"
+    })
+    @ApiInternalServerErrorResponse({
+        description: "Something went wrong"
+    })
+    @ApiUnauthorizedResponse({
+        description: "User is not authorized to login"
+    })
+    @ApiNotFoundResponse({
+        description: "Customer not found"
+    })
+    @ApiBadRequestResponse({
+        description: "Insufficient authorization arguments"
+    })
+    @Post(':id')
+    @HttpCode(200)
+    async getCustomer(
+        @Param('id') id: string,
+        @Body() session: CustomerSession
+    ): Promise<Customer> {
+        return await this.customerService.getCustomer(id, session)
     }
 }

@@ -94,6 +94,7 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../dist/coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "testTimeout": 500000
   }
 }

@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, InternalServerErrorException, NotAcceptableException, NotFoundException, UnauthorizedException } from '@nestjs/common'
+import { BadRequestException, Injectable, InternalServerErrorException, NotAcceptableException, NotFoundException, UnauthorizedException, UnprocessableEntityException } from '@nestjs/common'
 import { CustomerSession } from 'src/customer/customer-session.model'
 import { Depot } from './depot.model'
 import { CreateDepotDto } from './dto/create-depot.dto'
@@ -8,7 +8,7 @@ import { Job } from "moonstonks-boersenapi"
 import { CustomerService } from 'src/customer/customer.service'
 import { Customer } from 'src/customer/customer.model'
 import { CompanyService } from 'src/company/company.service'
-import { uuid } from 'uuidv4'
+import { v4 as uuid } from 'uuid'
 import { Connector } from 'src/util/database/connector'
 import { QueryBuilder } from 'src/util/database/query-builder'
 import { Company } from 'src/company/company.model'
@@ -68,9 +68,22 @@ export class DepotService {
         const customer: { customer: Customer, session: CustomerSession } = await this.customerService.customerLogin({ session: placeOrder.customerSession })
 
         // Validate if customer is authorized to order on this depot
-        const depot: Depot = await this.getDepotById(placeOrder.order.depotId)
+        const depot: Depot = await this.showDepotById(placeOrder.order.depotId, placeOrder.customerSession)
         if (depot.company.companyId != customer.customer.company.companyId) {
             throw new UnauthorizedException(`Customer with id ${customer.customer.customerId} is not allowed to access depot with id ${depot.depotId}`)
+        }
+
+        // Check if customer has enough shares to sell
+        if (placeOrder.order.type === CONST.ORDER.TYPE.SELL) {
+            // Check if given share is in customers depot
+            const pos = depot.positions.filter((p) => {
+                return p.share.shareId === placeOrder.order.shareId
+            })[0]
+
+            // If customer does not have the given share or not enough throw error
+            if (!pos || pos.amount < placeOrder.order.amount) {
+                throw new UnprocessableEntityException(`Customer with id ${customer.customer.customerId} has not enough shares with id ${placeOrder.order.shareId} to sell`)
+            }
         }
 
         // Get relevant share
@@ -257,7 +270,7 @@ export class DepotService {
 
         // Throw exception if depot not found
         if (!result) {
-            throw new NotFoundException("Depot now found")
+            throw new NotFoundException("Depot not found")
         }
 
         const depot: Depot = {
@@ -392,9 +405,9 @@ export class DepotService {
      * @returns 
      */
     private async getOrderById(orderId): Promise<PlaceShareOrder> {
-        const result = (await Connector.executeQuery(QueryBuilder.getShareOrderByOrderId(orderId)))[0]
+        const result = (await Connector.executeQuery(QueryBuilder.getJobByOrderId(orderId)))[0]
         const order: PlaceShareOrder = {
-            orderId: result.order_id,
+            orderId: result.exchange_order_id,
             depotId: result.depot_id,
             type: result.transaction_type,
             detail: result.detail,

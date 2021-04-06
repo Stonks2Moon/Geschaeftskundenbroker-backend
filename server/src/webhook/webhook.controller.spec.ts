@@ -23,6 +23,7 @@ import { Job, OrderCompletedDto } from "moonstonks-boersenapi";
 import { DepotService } from "src/depot/depot.service";
 import * as CONST from "../util/const"
 import { Connector } from "src/util/database/connector";
+import { UpdateShares } from "src/util/stock-exchange/share-updates";
 
 const cryptoRandomString = require('crypto-random-string')
 
@@ -76,6 +77,7 @@ describe('Test Depot controller', () => {
     }
     let testDepot: Depot
     let testShare: Share
+    let testExchangeOrderId: string
 
     beforeAll(async () => {
         // Some initialization
@@ -150,15 +152,32 @@ describe('Test Depot controller', () => {
             args: [testJob.id]
         }))[0]
 
+        testExchangeOrderId = result.exchange_order_id
+
         expect(result).toBeDefined()
         expect(result.exchange_order_id).toEqual(testOnPlace.id)
     })
 
+    it('Should delete a job from the DB', async () => {
+        await webhookController.onDelete({orderId: testExchangeOrderId, timestamp: 0, remaining: 0})
+
+        const result = (await Connector.executeQuery({
+            query: "SELECT * FROM job WHERE exchange_order_id = ?;",
+            args: [testExchangeOrderId]
+        }))[0]
+
+        expect(result).toBeUndefined()
+    })
+
     it('It should transform a job into a ShareOrder', async () => {
         let data: OrderCompletedDto = {
-            orderId: testOnPlace.id,
+            orderId: testExchangeOrderId,
             timestamp: (new Date()).getMilliseconds()
         }
+
+        await depotService.saveJobs([testJob], testDepot.depotId, [testPlaceShareOrder], CONST.JOB_TYPES.PLACE)
+
+        await webhookController.onPlace(testOnPlace)
 
         await webhookController.onComplete(data)
 
@@ -168,6 +187,20 @@ describe('Test Depot controller', () => {
         expect(depot.summary.totalValue).toBeGreaterThan(0)
         expect(depot.positions.length).toEqual(1)
         expect(depot.positions[0].share.shareId).toEqual(testShare.shareId)
+    })
+
+    it('Should create a UpdateShares instance', () => {
+        const updateShares = new UpdateShares()
+        expect(updateShares).toBeDefined()
+    })
+
+    it('Should run the onMatch callback', () => {
+        webhookController.onMatch({
+            amount: 0,
+            orderId: "",
+            price: 0,
+            timestamp: 0
+        })
     })
 
 

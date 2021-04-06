@@ -20,15 +20,15 @@ export class UpdateShares {
             console.error(e)
         }
 
-        // Check if socket connected
-        this.stockExchangeServerSocket.on("connect", () => {
-            //console.log(this.stockExchangeServerSocket.id)
-        })
+        // // Check if socket connected
+        // this.stockExchangeServerSocket.on("connect", () => {
+        //     //console.log(this.stockExchangeServerSocket.id)
+        // })
 
-        // Check if socket disconnected
-        this.stockExchangeServerSocket.on("disconnect", () => {
-            //console.log(this.stockExchangeServerSocket.id)
-        })
+        // // Check if socket disconnected
+        // this.stockExchangeServerSocket.on("disconnect", () => {
+        //     //console.log(this.stockExchangeServerSocket.id)
+        // })
 
         // Handle socket errors
         this.stockExchangeServerSocket.on("error", error => console.error(error))

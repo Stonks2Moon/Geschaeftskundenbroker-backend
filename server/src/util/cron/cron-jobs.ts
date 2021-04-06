@@ -17,7 +17,8 @@ export class CronJobs {
     public static async runJobs(): Promise<any[]> {
         // Register Cron Job here
         const jobsFunctions = [
-            CronJobs.updateHistoricalData
+            CronJobs.updateHistoricalData,
+            CronJobs.checkForTimedOutOrders
         ]
 
         let jobs: any[] = []
@@ -60,15 +61,21 @@ export class CronJobs {
             })
 
             // Delete jobs on stock exchange; call on webhook deletes them from DB
-            for(const r of results) {
+            for (const r of results) {
                 try {
                     await executeApiCall<boolean>(orderManager.deleteOrder, [r.exchange_order_id], orderManager)
-                } catch {}
+                } catch { }
             }
         })
     }
 }
 
+/**
+ * Used for unit tests to add days to a given date
+ * @param date given date
+ * @param days days to be added to given date
+ * @returns the updated date
+ */
 export function addDays(date: Date, days: number): Date {
     var result = new Date(date);
     result.setDate(result.getDate() + days);
