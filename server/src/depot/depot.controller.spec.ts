@@ -10,6 +10,7 @@ import { CustomerModule } from 'src/customer/customer.module';
 import { CustomerDto } from 'src/customer/dto/customer.dto';
 import { Connector } from 'src/util/database/connector';
 import { Query } from 'src/util/database/query.model';
+import { JobWrapper } from 'src/webhook/dto/job-wrapper.dto';
 import { DepotController } from './depot.controller';
 import { Depot } from './depot.model';
 import { DepotModule } from './depot.module';
@@ -212,7 +213,7 @@ describe('Test Depot controller', () => {
     })
 
     it('It should display all (0) pending orders', async () => {
-        const pendingOrders: PlaceShareOrder[] = await testDepotController.showPendingOrders(testDepot.depotId, testCustomer.session)
+        const pendingOrders: JobWrapper[] = await testDepotController.showPendingOrders(testDepot.depotId, testCustomer.session)
 
         expect(pendingOrders).toBeDefined()
         expect(pendingOrders.length).toBeGreaterThanOrEqual(0)

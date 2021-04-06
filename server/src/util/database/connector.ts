@@ -3,7 +3,7 @@ import { Query } from './query.model'
 
 export class Connector {
 	private static mariadb = require('mariadb')
-	private static credentials = require('../../../database.json')
+	private static credentials = require('../../_config/config').database
 	private static pool: any = Connector.mariadb.createPool({
 		host: Connector.credentials.host,
 		port: Connector.credentials.port,
