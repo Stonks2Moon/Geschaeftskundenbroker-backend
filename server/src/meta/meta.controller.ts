@@ -2,6 +2,7 @@ import { Controller, Get } from '@nestjs/common'
 import { ApiInternalServerErrorResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger'
 import * as CONST from '../util/const'
 
+@ApiTags('meta')
 @Controller('meta')
 export class MetaController {
 
@@ -9,7 +10,6 @@ export class MetaController {
      * Used to give constant variables used in backend to frontend
      * @returns an object with used backend constants
      */
-    @ApiTags('')
     @ApiOkResponse({
         schema: {
             properties: {

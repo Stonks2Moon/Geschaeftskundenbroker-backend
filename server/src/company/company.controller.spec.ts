@@ -88,4 +88,37 @@ describe('Test Company controller', () => {
 
         await Connector.executeQuery(deleteAdressQuery)
     })
+
+    it('Should create a company with a short name', async () => {
+        const companyDto: CreateCompanyDto = {
+            companyName: "A",
+            postCode: "68165",
+            city: "Mannheim",
+            street: "Test street",
+            houseNumber: "1"
+        }
+
+        const company: Company = await testCompanyController.createCompany(companyDto)
+
+        expect(company).toBeDefined()
+        expect(company.companyName).toEqual(companyDto.companyName)
+        expect(company.address).toBeDefined()
+        expect(company.address.city).toEqual(companyDto.city)
+
+        // Delete test company
+        await Connector.executeQuery({
+            query: "DELETE FROM company WHERE company_id = ?;",
+            args: [
+                company.companyId
+            ]
+        })
+
+        // Delete the address
+        await Connector.executeQuery({
+            query: "DELETE FROM address WHERE address_id = ?",
+            args: [
+                company.address.addressId
+            ]
+        })
+    })
 })

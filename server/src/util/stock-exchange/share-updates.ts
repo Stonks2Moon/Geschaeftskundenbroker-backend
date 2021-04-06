@@ -73,9 +73,15 @@ export class UpdateShares {
             }))
         }
 
+        // console.log("Here", updatePrice.timestamp, new Date(+updatePrice.timestamp))
+
         // Update Database entries
         await Connector.executeQuery(QueryBuilder.updateSharePrice(+updatePrice.price, updatePrice.shareId))
         await Connector.executeQuery(QueryBuilder.addNewPriceRecordToHistoricalData(+updatePrice.price, new Date(+updatePrice.timestamp), updatePrice.shareId))
+    }
+
+    public stopSocket() {
+        this.stockExchangeServerSocket.off()
     }
 
     /**

@@ -14,6 +14,9 @@ import { DepotController } from './depot.controller';
 import { Depot } from './depot.model';
 import { DepotModule } from './depot.module';
 import { CreateDepotDto } from './dto/create-depot.dto';
+import { PlaceShareOrder } from './dto/share-order.dto';
+
+const cryptoRandomString = require('crypto-random-string')
 
 describe('Test Depot controller', () => {
 
@@ -35,6 +38,8 @@ describe('Test Depot controller', () => {
         session: CustomerSession
     }
 
+    let testDepot: Depot;
+
     beforeAll(async () => {
         // Some initialization
         const module: TestingModule = await Test.createTestingModule({
@@ -49,7 +54,7 @@ describe('Test Depot controller', () => {
             firstName: "Max-Test",
             lastName: "Muster-Test",
             companyCode: testCompany.companyCode,
-            email: "max-muster-test-3@test-mail.com",
+            email: `${cryptoRandomString({length: 10, type: 'alphanumeric'})}@test-mail.com`,
             password: "testpassword1234"
         }
 
@@ -157,30 +162,60 @@ describe('Test Depot controller', () => {
         expect(depots[0]).toBeDefined()
         expect(depots[0].company.companyId).toEqual(testCompany.companyId)
 
-        const loginCredentials: CustomerSession = {
-            sessionId: testCustomer.session.sessionId,
-            customerId: testCustomer.customer.customerId
+        // const loginCredentials: CustomerSession = {
+        //     sessionId: testCustomer.session.sessionId,
+        //     customerId: testCustomer.customer.customerId
+        // }
+
+        // let depotList: Array<Depot> = await testDepotController.showAllDepots(loginCredentials)
+
+        // expect(depotList).toBeDefined()
+        // expect(depotList.length).toEqual(5)
+        // expect(depotList[0]).toBeDefined()
+        // expect(depotList[0].company.companyName).toEqual(testCompany.companyName)
+
+
+        // // Delete test depots
+        // for (let i = 0; i < depots.length; i++) {
+        //     const deleteDepotQuery: Query = {
+        //         query: "DELETE FROM depot WHERE depot_id = ?",
+        //         args: [
+        //             depots[i].depotId
+        //         ]
+        //     }
+
+        //     await Connector.executeQuery(deleteDepotQuery)
+        // }
+    })
+
+    it('Should list all depots for the current customer', async () => {
+        const depots: Array<Depot> = await testDepotController.showAllDepots(testCustomer.session)
+
+        expect(depots).toBeDefined()
+        expect(depots.length).toBeGreaterThan(0)
+        for(const d of depots) {
+            expect(d.company.companyId).toEqual(testCompany.companyId)
+            expect(d.summary.totalValue).toEqual(0)
+            expect(d.summary.percentageChange).toEqual(0)
         }
 
-        let depotList: Array<Depot> = await testDepotController.showAllDepots(loginCredentials)
+        testDepot = depots[0]
+    })
 
-        expect(depotList).toBeDefined()
-        expect(depotList.length).toEqual(5)
-        expect(depotList[0]).toBeDefined()
-        expect(depotList[0].company.companyName).toEqual(testCompany.companyName)
+    it('Should get a single depot by id', async () => {
+        const depot: Depot = await testDepotController.showDepotById(testDepot.depotId, testCustomer.session)
 
+        expect(depot).toBeDefined()
+        expect(depot.company.companyId).toEqual(testCompany.companyId)
+        expect(depot.summary.totalValue).toEqual(0)
+        expect(depot.summary.percentageChange).toEqual(0)
+    })
 
-        // Delete test depots
-        for (let i = 0; i < depots.length; i++) {
-            const deleteDepotQuery: Query = {
-                query: "DELETE FROM depot WHERE depot_id = ?",
-                args: [
-                    depots[i].depotId
-                ]
-            }
+    it('It should display all (0) pending orders', async () => {
+        const pendingOrders: PlaceShareOrder[] = await testDepotController.showPendingOrders(testDepot.depotId, testCustomer.session)
 
-            await Connector.executeQuery(deleteDepotQuery)
-        }
+        expect(pendingOrders).toBeDefined()
+        expect(pendingOrders.length).toBeGreaterThanOrEqual(0)
     })
 
     afterAll(async () => {
@@ -204,6 +239,16 @@ describe('Test Depot controller', () => {
 
         await Connector.executeQuery(deleteUserQuery)
 
+        // Delete created test depots
+        const deleteDepotsQuery: Query = {
+            query: "DELETE FROM depot WHERE company_id = ?",
+            args: [
+                testCompany.companyId
+            ]
+        }
+
+        await Connector.executeQuery(deleteDepotsQuery)
+
         // Delete test company
         const deleteCompanyQuery: Query = {
             query: "DELETE FROM company WHERE company_id = ?;",
@@ -216,12 +261,9 @@ describe('Test Depot controller', () => {
 
         // Delete test adress of company
         const deleteAdressQuery: Query = {
-            query: "DELETE FROM address WHERE post_code = ? AND city = ? AND street = ? AND house_number = ?;",
+            query: "DELETE FROM address WHERE address_id = ?;",
             args: [
-                companyDto.postCode,
-                companyDto.city,
-                companyDto.street,
-                companyDto.houseNumber
+                testCompany.address.addressId
             ]
         }
 

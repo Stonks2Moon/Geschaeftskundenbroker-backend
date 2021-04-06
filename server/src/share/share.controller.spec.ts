@@ -84,11 +84,11 @@ describe('', () => {
         const toDate = "2022-12-31 01:01:01"
         const id = testShares[0].shareId
 
-        const historiocalData: HistoricalDataDto = await testShareController.getHistoricalData(id, fromDate, toDate)
+        const historicalData: HistoricalDataDto = await testShareController.getHistoricalData(id, fromDate, toDate)
 
-        expect(historiocalData).toBeDefined()
-        expect(historiocalData.share).toBeDefined()
-        expect(historiocalData.share.shareId).toEqual(id)
-        expect(historiocalData.chartValues.length).toBeGreaterThanOrEqual(0)
+        expect(historicalData).toBeDefined()
+        expect(historicalData.share).toBeDefined()
+        expect(historicalData.share.shareId).toEqual(id)
+        expect(historicalData.chartValues.length).toBeGreaterThanOrEqual(0)
     })
 })
