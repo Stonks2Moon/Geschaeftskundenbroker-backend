@@ -585,9 +585,9 @@ export class QueryBuilder {
      * @param orderId id of the order
      * @returns a Query object
      */
-    public static getShareOrderByOrderId(orderId: string): Query {
+    public static getJobByOrderId(orderId: string): Query {
         return {
-            query: "SELECT * FROM share_order WHERE order_id = ?;",
+            query: "SELECT * FROM job WHERE exchange_order_id = ?;",
             args: [
                 orderId
             ]

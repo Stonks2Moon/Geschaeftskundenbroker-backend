@@ -392,9 +392,9 @@ export class DepotService {
      * @returns 
      */
     private async getOrderById(orderId): Promise<PlaceShareOrder> {
-        const result = (await Connector.executeQuery(QueryBuilder.getShareOrderByOrderId(orderId)))[0]
+        const result = (await Connector.executeQuery(QueryBuilder.getJobByOrderId(orderId)))[0]
         const order: PlaceShareOrder = {
-            orderId: result.order_id,
+            orderId: result.exchange_order_id,
             depotId: result.depot_id,
             type: result.transaction_type,
             detail: result.detail,
