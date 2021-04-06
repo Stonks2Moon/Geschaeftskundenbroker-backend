@@ -1,7 +1,7 @@
 import { InternalServerErrorException } from "@nestjs/common"
 import { BörsenAPI, OrderManager, MarketManager } from "moonstonks-boersenapi"
 import { PlaceShareOrder } from "../../depot/dto/share-order.dto"
-const credentials = require('../../../stock-exchange.json')
+const credentials = require('../../_config/config').stockeExchange
 import * as CONST from '../const'
 
 export const stockExchangeApi = new BörsenAPI(credentials.apiToken)

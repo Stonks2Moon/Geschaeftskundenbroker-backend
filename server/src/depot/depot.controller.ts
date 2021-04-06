@@ -1,6 +1,7 @@
 import { Body, Controller, Delete, HttpCode, Param, Post, Put } from '@nestjs/common'
 import { ApiBadRequestResponse, ApiBody, ApiCreatedResponse, ApiInternalServerErrorResponse, ApiNotAcceptableResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger'
 import { CustomerSession } from 'src/customer/customer-session.model'
+import { JobWrapper } from 'src/webhook/dto/job-wrapper.dto'
 import { Depot } from './depot.model'
 import { DepotService } from './depot.service'
 import { CreateDepotDto } from './dto/create-depot.dto'
@@ -159,7 +160,7 @@ export class DepotController {
     })
     @ApiOkResponse({
         description: "Returns the pending orders for a depot",
-        type: PlaceShareOrder,
+        type: JobWrapper,
         isArray: true
     })
     @ApiInternalServerErrorResponse({

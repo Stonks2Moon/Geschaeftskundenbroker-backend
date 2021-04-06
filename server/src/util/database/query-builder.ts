@@ -599,9 +599,9 @@ export class QueryBuilder {
      * @param depotId id of the depot
      * @returns a Query object
      */
-    public static getShareOrdersByDepotId(depotId: string): Query {
+    public static getJobsByDepotId(depotId: string): Query {
         return {
-            query: "SELECT * FROM share_order WHERE depot_id = ?;",
+            query: "SELECT * FROM job WHERE depot_id = ?;",
             args: [
                 depotId
             ]

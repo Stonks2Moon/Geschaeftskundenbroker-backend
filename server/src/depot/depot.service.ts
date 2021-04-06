@@ -18,6 +18,7 @@ import { ShareService } from 'src/share/share.service'
 import { executeApiCall, getOrderFunction, marketManager, orderManager } from '../util/stock-exchange/stock-wrapper'
 import { TradeAlgorithm } from 'src/util/stock-exchange/trade-algorithm'
 import * as CONST from "../util/const"
+import { JobWrapper } from 'src/webhook/dto/job-wrapper.dto'
 
 
 @Injectable()
@@ -342,9 +343,9 @@ export class DepotService {
      * Returns all open share orders
      * @param depotId id of depot
      * @param session customer session
-     * @returns an array of PlaceShareOrder objects
+     * @returns an array of JobWrapper objects
      */
-    public async showPendingOrders(depotId: string, session: CustomerSession): Promise<PlaceShareOrder[]> {
+    public async showPendingOrders(depotId: string, session: CustomerSession): Promise<JobWrapper[]> {
         const customer: { customer: Customer, session: CustomerSession } = await this.customerService.customerLogin({ session: session })
 
         // Validate if customer is authorized to order on this depot
@@ -353,7 +354,7 @@ export class DepotService {
             throw new UnauthorizedException(`Customer with id ${customer.customer.customerId} is not allowed to access depot with id ${depot.depotId}`)
         }
 
-        return await this.getOrdersByDepotId(depotId)
+        return await this.getJobsByDepotId(depotId)
     }
 
     /**
@@ -414,24 +415,35 @@ export class DepotService {
      * @param depotId 
      * @returns Array of pending orders
      */
-    private async getOrdersByDepotId(depotId: string): Promise<PlaceShareOrder[]> {
-        const results = (await Connector.executeQuery(QueryBuilder.getShareOrdersByDepotId(depotId)))
-        let orders: Array<PlaceShareOrder> = []
+    private async getJobsByDepotId(depotId: string): Promise<JobWrapper[]> {
+        const results = (await Connector.executeQuery(QueryBuilder.getJobsByDepotId(depotId)))
+        let orders: Array<JobWrapper> = []
 
-        results.forEach(result => {
+        for (const r of results) {
+            const share: Share = await this.shareService.getShareData(r.share_id)
+
             orders.push({
-                orderId: result.order_id,
-                depotId: result.depot_id,
-                type: result.transaction_type,
-                detail: result.detail,
-                amount: result.amount,
-                shareId: result.share_id,
-                validity: result.order_validity,
-                stop: result.order_stop,
-                limit: result.order_limit,
-                market: result.market
+                depotId: r.depot_id,
+                share: share,
+                detail: r.detail,
+                exchangeOrderId: r.exchange_order_id,
+                orderValidity: r.order_validity,
+                id: r.job_id,
+                jobType: r.job_type,
+                market: r.market,
+                placeOrder: {
+                    shareId: share.shareId,
+                    amount: r.amount,
+                    type: r.transaction_type,
+                    limit: r.order_limit,
+                    stop: r.order_stop,
+                    onMatch: "",
+                    onDelete: "",
+                    onComplete: "",
+                    onPlace: ""
+                }
             })
-        })
+        }
 
         return orders
     }
