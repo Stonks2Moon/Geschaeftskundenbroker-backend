@@ -478,7 +478,7 @@ export class QueryBuilder {
         return {
             query: "INSERT INTO job (job_id, depot_id, share_id, amount, transaction_type, order_limit, order_stop, order_validity, detail, market, job_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
             args: [
-                job.id,
+                +job.id,
                 depotId,
                 job.placeOrder.shareId,
                 job.placeOrder.amount,

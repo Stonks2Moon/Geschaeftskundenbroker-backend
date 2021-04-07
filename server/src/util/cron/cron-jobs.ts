@@ -41,7 +41,7 @@ export class CronJobs {
                 const o: UpdatePrice = {
                     shareId: shares[i].id,
                     price: +shares[i].price,
-                    timestamp: (new Date()).getMilliseconds()
+                    timestamp: (new Date()).getTime()
                 }
 
                 UpdateShares.updateSharePrice(o)

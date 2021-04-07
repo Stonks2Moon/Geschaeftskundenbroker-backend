@@ -5,11 +5,15 @@ import { CompanyModule } from 'src/company/company.module';
 import { CreateCompanyDto } from 'src/company/dto/create-company.dto';
 import { Connector } from 'src/util/database/connector';
 import { Query } from 'src/util/database/query.model';
+import { cleanUp, CleanUpIds } from 'src/util/testing/cleanup';
+import { CustomerSession } from './customer-session.model';
 import { CustomerController } from './customer.controller';
 import { Customer } from './customer.model';
 import { CustomerModule } from './customer.module';
 import { CustomerDto } from './dto/customer.dto';
 import { LoginDto } from './dto/login.dto';
+
+const cryptoRandomString = require('crypto-random-string')
 
 describe('Test Customer controller', () => {
 
@@ -23,46 +27,73 @@ describe('Test Customer controller', () => {
         street: "Test street",
         houseNumber: "2"
     }
+
+    const registerCustomer: CustomerDto = {
+        firstName: "Max-Test",
+        lastName: "Muster-Test",
+        companyCode: "",
+        email: `max-muster-test-${cryptoRandomString({length: 10, type: 'alphanumeric'})}@test-mail.com`,
+        password: "testpassword1234"
+    }
+
     let testCompany: Company;
 
-    let testCustomerId: string
-    let testCompanyId: string
-    let testAddressId: number
+    // let testCustomerId: string
+    // let testCompanyId: string
+    // let testAddressId: number
+
+    let testCustomer: {
+        customer: Customer,
+        session: CustomerSession
+    }
+
+    let cleanUpIds: CleanUpIds = {
+        customerIds: [],
+        depotIds: [],
+        companyIds: [],
+        addressIds: [],
+        shareIds: []
+    }
+
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
-            imports: [CustomerModule]
+            imports: [CustomerModule, CompanyModule]
         }).compile()
 
         testCustomerController = module.get<CustomerController>(CustomerController)
-    })
-
-    it('Should register a customer and login', async () => {
-        const module: TestingModule = await Test.createTestingModule({
-            imports: [CompanyModule]
-        }).compile()
-
         testCompanyController = module.get<CompanyController>(CompanyController)
 
         // Some initialization
         testCompany = await testCompanyController.createCompany(companyDto)
-        testCompanyId = testCompany.companyId
-        testAddressId = testCompany.addressId
+        cleanUpIds.companyIds.push(testCompany.companyId)
+        cleanUpIds.addressIds.push(testCompany.addressId)
 
-        const registerCustomer: CustomerDto = {
-            firstName: "Max-Test",
-            lastName: "Muster-Test",
+        // testCompanyId = testCompany.companyId
+        // testAddressId = testCompany.addressId
+
+        registerCustomer.companyCode = testCompany.companyCode
+
+        testCustomer = await testCustomerController.register(registerCustomer)
+        cleanUpIds.customerIds.push(testCustomer.customer.customerId)
+    })
+
+
+    it('Should register a customer and login', async () => {
+        const testCustomerCreateDto: CustomerDto = {
             companyCode: testCompany.companyCode,
-            email: "max-muster-test-2@test-mail.com",
-            password: "testpassword1234"
+            email: `max-muster-test-${cryptoRandomString({length: 10, type: 'alphanumeric'})}@test-mail.com`,
+            firstName: "Max",
+            lastName: "Muster",
+            password: "hello_world"
         }
-
-        let { customer, session } = await testCustomerController.register(registerCustomer)
-        testCustomerId = customer.customerId
+        
+        let { customer, session } = await testCustomerController.register(testCustomerCreateDto)
+        cleanUpIds.customerIds.push(customer.customerId)
 
         expect(customer).toBeDefined()
         expect(session).toBeDefined()
-        expect(customer.email).toEqual(registerCustomer.email)
+        expect(customer.email).toEqual(testCustomerCreateDto.email)
         expect(customer.customerId).toBeDefined()
         expect(session.customerId).toEqual(customer.customerId)
         expect(session.sessionId).toBeDefined()
@@ -79,14 +110,14 @@ describe('Test Customer controller', () => {
         expect(loginResponse).toBeDefined()
         expect(loginResponse.customer).toBeDefined()
         expect(loginResponse.session).toBeDefined()
-        expect(loginResponse.customer.firstName).toEqual(registerCustomer.firstName)
-        expect(loginResponse.customer.lastName).toEqual(registerCustomer.lastName)
+        expect(loginResponse.customer.firstName).toEqual(testCustomerCreateDto.firstName)
+        expect(loginResponse.customer.lastName).toEqual(testCustomerCreateDto.lastName)
         expect(loginResponse.session.customerId).toEqual(customer.customerId)
 
         const loginWithPasswordDto: LoginDto = {
             login: {
-                email: registerCustomer.email,
-                password: registerCustomer.password
+                email: testCustomerCreateDto.email,
+                password: testCustomerCreateDto.password
             }
         }
 
@@ -95,41 +126,9 @@ describe('Test Customer controller', () => {
         expect(loginResponse).toBeDefined()
         expect(loginResponse.customer).toBeDefined()
         expect(loginResponse.session).toBeDefined()
-        expect(loginResponse.customer.firstName).toEqual(registerCustomer.firstName)
-        expect(loginResponse.customer.lastName).toEqual(registerCustomer.lastName)
+        expect(loginResponse.customer.firstName).toEqual(testCustomerCreateDto.firstName)
+        expect(loginResponse.customer.lastName).toEqual(testCustomerCreateDto.lastName)
         expect(loginResponse.session.customerId).toEqual(customer.customerId)
-
-        // Delete test user session
-        await Connector.executeQuery({
-            query: "DELETE FROM customer_session WHERE session_id = ?",
-            args: [
-                loginResponse.session.sessionId
-            ]
-        })
-
-        // Delete test user
-        await Connector.executeQuery({
-            query: "DELETE FROM customer WHERE customer_id = ?",
-            args: [
-                customer.customerId
-            ]
-        })
-
-        // Delete test company
-        await Connector.executeQuery({
-            query: "DELETE FROM company WHERE company_id = ?;",
-            args: [
-                testCompany.companyId
-            ]
-        })
-
-        // Delete test adress of company
-        await Connector.executeQuery({
-            query: "DELETE FROM address WHERE address_id = ?;",
-            args: [
-                testCompany.addressId
-            ]
-        })
     })
 
     it('Should test the exception cases for customer registration and login', async () => {
@@ -142,8 +141,8 @@ describe('Test Customer controller', () => {
         }
 
         testCompany = await testCompanyController.createCompany(companyDto)
-        testCompanyId = testCompany.companyId
-        testAddressId = testCompany.addressId
+        cleanUpIds.companyIds.push(testCompany.companyId)
+        cleanUpIds.addressIds.push(testCompany.addressId)
 
         const testCustomerDto: CustomerDto = {
             firstName: "Max-Test",
@@ -153,8 +152,8 @@ describe('Test Customer controller', () => {
             password: "testpassword1234"
         }
 
-        const testCustomer = await testCustomerController.register(testCustomerDto)
-        testCustomerId = testCustomer.customer.email
+        testCustomer = await testCustomerController.register(testCustomerDto)
+        cleanUpIds.customerIds.push(testCustomer.customer.customerId)
 
         const alreadyEmail: CustomerDto = {
             firstName: "Max-Test",
@@ -280,39 +279,6 @@ describe('Test Customer controller', () => {
         } catch(e) {
             expect(e.message).toEqual("Invalid Session")
         }
-
-        
-        // Delete customer session
-        await Connector.executeQuery({
-            query: "DELETE FROM customer_session WHERE customer_id = ?",
-            args: [
-                testCustomer.customer.customerId
-            ]
-        })
-
-        // Delete test company and customer
-        await Connector.executeQuery({
-            query: "DELETE FROM customer WHERE customer_id = ?",
-            args: [
-                testCustomer.customer.customerId
-            ]
-        })
-
-        // Delete the company
-        await Connector.executeQuery({
-            query: "DELETE FROM company WHERE company_id = ?",
-            args: [
-                testCompany.companyId
-            ]
-        })
-
-        // Delete the address
-        await Connector.executeQuery({
-            query: "DELETE FROM address WHERE address_id = ?",
-            args: [
-                testCompany.addressId
-            ]
-        })
     })
 
     it('Should test invalid login parameters', async () => {
@@ -325,8 +291,8 @@ describe('Test Customer controller', () => {
         }
 
         testCompany = await testCompanyController.createCompany(companyDto)
-        testCompanyId = testCompany.companyId
-        testAddressId = testCompany.addressId
+        cleanUpIds.companyIds.push(testCompany.companyId)
+        cleanUpIds.addressIds.push(testCompany.addressId)
 
         const testCustomerDto: CustomerDto = {
             firstName: "Max-Test",
@@ -336,8 +302,8 @@ describe('Test Customer controller', () => {
             password: "testpassword1234"
         }
 
-        const testCustomer = await testCustomerController.register(testCustomerDto)
-        testCustomerId = testCustomer.customer.customerId
+        testCustomer = await testCustomerController.register(testCustomerDto)
+        cleanUpIds.customerIds.push(testCustomer.customer.customerId)
         
         
         try {
@@ -386,73 +352,16 @@ describe('Test Customer controller', () => {
         } catch(e) {
             expect(e.message).toEqual("Insufficient authorization arguments")
         }
-
-
-        // Delete customer session
-        await Connector.executeQuery({
-            query: "DELETE FROM customer_session WHERE customer_id = ?",
-            args: [
-                testCustomer.customer.customerId
-            ]
-        })
-
-        // Delete test company and customer
-        await Connector.executeQuery({
-            query: "DELETE FROM customer WHERE customer_id = ?",
-            args: [
-                testCustomer.customer.customerId
-            ]
-        })
-
-        // Delete the company
-        await Connector.executeQuery({
-            query: "DELETE FROM company WHERE company_id = ?",
-            args: [
-                testCompany.companyId
-            ]
-        })
-
-        // Delete the address
-        await Connector.executeQuery({
-            query: "DELETE FROM address WHERE address_id = ?",
-            args: [
-                testCompany.addressId
-            ]
-        })
-
     })
 
     afterEach(async () => {
-        // Delete customer session
-        await Connector.executeQuery({
-            query: "DELETE FROM customer_session WHERE customer_id = ?",
-            args: [
-                testCustomerId
-            ]
-        })
-
-        // Delete test company and customer
-        await Connector.executeQuery({
-            query: "DELETE FROM customer WHERE customer_id = ?",
-            args: [
-                testCustomerId
-            ]
-        })
-
-        // Delete the company
-        await Connector.executeQuery({
-            query: "DELETE FROM company WHERE company_id = ?",
-            args: [
-                testCompanyId
-            ]
-        })
-
-        // Delete the address
-        await Connector.executeQuery({
-            query: "DELETE FROM address WHERE address_id = ?",
-            args: [
-                testAddressId
-            ]
-        })
+        await cleanUp(cleanUpIds)
+        cleanUpIds = {
+            customerIds: [],
+            depotIds: [],
+            companyIds: [],
+            addressIds: [],
+            shareIds: []
+        }
     })
 })

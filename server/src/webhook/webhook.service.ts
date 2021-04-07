@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { OrderCompletedDto, OrderDeletedDto, OrderMatchedDto } from 'moonstonks-boersenapi'
 import { DeleteOrderDto } from 'moonstonks-boersenapi/dist/dtos/DeleteOrder.dto'
 import { PlaceOrderDto } from 'moonstonks-boersenapi/dist/dtos/PlaceOrder.dto'
@@ -101,6 +101,10 @@ export class WebhookService {
         // Get job from DB
         const result = (await Connector.executeQuery(QueryBuilder.getJobById(info)))[0]
 
+        if(!result) {
+            throw new NotFoundException("Job not found")
+        }
+        
         // Get share object
         const share = (await this.shareService.getShareData(result.share_id))
 

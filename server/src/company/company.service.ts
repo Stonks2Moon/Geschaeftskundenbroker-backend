@@ -122,12 +122,12 @@ export class CompanyService {
      * @param addressId ID of the address
      * @returns an address object
      */
-    public async getAddressById(addressId: string): Promise<Address> {
+    private async getAddressById(addressId: string): Promise<Address> {
         let result = (await Connector.executeQuery(QueryBuilder.getAddressById(addressId)))[0]
 
-        if (!result) {
-            throw new NotFoundException("Address not found")
-        }
+        // if (!result) {
+        //     throw new NotFoundException("Address not found")
+        // }
 
         const address: Address = {
             addressId: result.address_id,
