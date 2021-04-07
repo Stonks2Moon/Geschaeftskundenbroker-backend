@@ -14,8 +14,6 @@ import { Share } from 'src/share/share.model';
 import { ShareModule } from 'src/share/share.module';
 import { addDays } from 'src/util/cron/cron-jobs';
 import { Connector } from 'src/util/database/connector';
-import { QueryBuilder } from 'src/util/database/query-builder';
-import { Query } from 'src/util/database/query.model';
 import { CleanUpIds, cleanUp } from 'src/util/testing/cleanup';
 import { JobWrapper } from 'src/webhook/dto/job-wrapper.dto';
 import { WebhookController } from 'src/webhook/webhook.controller';
@@ -285,6 +283,8 @@ describe('Test Depot controller', () => {
             expect(e.message).toEqual(`Customer with id ${testCustomer.customer.customerId} is not allowed to access depot with id ${diffDepotId}`)
         }
 
+        
+
         // Create a second test company
         let testCompany2 = await testCompanyController.createCompany({
             companyName: "Test company from unit-test-3#2",
@@ -330,6 +330,12 @@ describe('Test Depot controller', () => {
         ]
 
         await testDepotService.saveJobs(jobs, testDepot2.depotId, orders, "place")
+        
+        let pendingOrders: JobWrapper[] = await testDepotController.showPendingOrders(testDepot2.depotId, testCustomer2.session)
+
+        expect(pendingOrders).toBeDefined()
+        expect(pendingOrders.length).toEqual(1)
+
         await testWebHookController.onPlace({jobId: jobId, id: orderId })
 
         try {

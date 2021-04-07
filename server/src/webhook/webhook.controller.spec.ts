@@ -24,6 +24,7 @@ import { DepotService } from "src/depot/depot.service";
 import * as CONST from "../util/const"
 import { Connector } from "src/util/database/connector";
 import { UpdateShares } from "src/util/stock-exchange/share-updates";
+import { cleanUp, CleanUpIds } from "src/util/testing/cleanup";
 
 const cryptoRandomString = require('crypto-random-string')
 
@@ -76,8 +77,17 @@ describe('Test Depot controller', () => {
         session: CustomerSession
     }
     let testDepot: Depot
-    let testShare: Share
-    let testExchangeOrderId: string
+    let randomShare: Share
+    // let testExchangeOrderId: string
+
+
+    let cleanUpIds: CleanUpIds = {
+        customerIds: [],
+        depotIds: [],
+        companyIds: [],
+        addressIds: [],
+        shareIds: []
+    }
 
     beforeAll(async () => {
         // Some initialization
@@ -93,52 +103,55 @@ describe('Test Depot controller', () => {
 
         depotService = module.get<DepotService>(DepotService)
 
-        // Register Fake company
-        testCompany = await companyController.createCompany(companyDto)
-        registerCustomer.companyCode = testCompany.companyCode
-
-        // Register fake user
-        testCustomer = await customerController.register(registerCustomer)
-        createDepot.session = testCustomer.session
-
-        // Create fake depot
-        testDepot = await depotController.createDepot(createDepot)
-
-        // Get a random share id
-        testShare = (await shareController.getAllShares())[0]
-
-
-        // Fill fake PlaceShareOrder
-        testPlaceShareOrder = {
-            orderId: cryptoRandomString({length: 10, type: 'alphanumeric'}),
-            depotId: testDepot.depotId,
-            shareId: testShare.shareId,
-            amount: 10_000,
-            detail: "market",
-            type: "buy",
-            validity: addDays(new Date(), 10)
-        }
-
-        // Write the share order to db without using Stock API
-        testJob = {
-            id: cryptoRandomString({length: 5, type: 'numeric'}),
-            placeOrder: {
-                amount: testPlaceShareOrder.amount,
-                shareId: testShare.shareId,
-                type: testPlaceShareOrder.type,
-                onComplete: "",
-                onDelete: "",
-                onMatch: "",
-                onPlace: ""
-            }
-        } 
-
-        testOnPlace.jobId = testJob.id
     })
 
-    // beforeEach(async () => {
-       
-    // })
+    beforeEach(async () => {
+       // Register Fake company
+       testCompany = await companyController.createCompany(companyDto)
+       cleanUpIds.companyIds.push(testCompany.companyId)
+       cleanUpIds.addressIds.push(testCompany.addressId)
+       registerCustomer.companyCode = testCompany.companyCode
+
+       // Register fake user
+       testCustomer = await customerController.register(registerCustomer)
+       cleanUpIds.customerIds.push(testCustomer.customer.customerId)
+       createDepot.session = testCustomer.session
+
+       // Create fake depot
+       testDepot = await depotController.createDepot(createDepot)
+       cleanUpIds.depotIds.push(testDepot.depotId)
+
+       // Get a random share id
+       randomShare = (await shareController.getAllShares())[0]
+
+
+       // Fill fake PlaceShareOrder
+       testPlaceShareOrder = {
+           orderId: cryptoRandomString({length: 10, type: 'alphanumeric'}),
+           depotId: testDepot.depotId,
+           shareId: randomShare.shareId,
+           amount: 10_000,
+           detail: "market",
+           type: "buy",
+           validity: addDays(new Date(), 10)
+       }
+
+       // Write the share order to db without using Stock API
+       testJob = {
+           id: cryptoRandomString({length: 5, type: 'numeric'}),
+           placeOrder: {
+               amount: testPlaceShareOrder.amount,
+               shareId: randomShare.shareId,
+               type: testPlaceShareOrder.type,
+               onComplete: "",
+               onDelete: "",
+               onMatch: "",
+               onPlace: ""
+           }
+       } 
+
+       testOnPlace.jobId = testJob.id
+    })
 
     
 
@@ -152,26 +165,47 @@ describe('Test Depot controller', () => {
             args: [testJob.id]
         }))[0]
 
-        testExchangeOrderId = result.exchange_order_id
-
         expect(result).toBeDefined()
         expect(result.exchange_order_id).toEqual(testOnPlace.id)
     })
 
     it('Should delete a job from the DB', async () => {
-        await webhookController.onDelete({orderId: testExchangeOrderId, timestamp: 0, remaining: 0})
+        await depotService.saveJobs([testJob], testDepot.depotId, [testPlaceShareOrder], CONST.JOB_TYPES.PLACE)
+        const localOrderId: string = cryptoRandomString({length: 10, type: 'alphanumeric'})
+        await webhookController.onPlace({ id: localOrderId, jobId: testJob.id})
+
+        // const orderId: string = (await Connector.executeQuery({
+        //     query: "SELECT * FROM job WHERE job_id = ?;",
+        //     args: [testJob.id]
+        // }))[0].exchange_order_id
+        // console.log("OrderId: ", orderId)
+
+        await webhookController.onDelete({orderId: localOrderId, timestamp: 0, remaining: 0})
 
         const result = (await Connector.executeQuery({
             query: "SELECT * FROM job WHERE exchange_order_id = ?;",
-            args: [testExchangeOrderId]
+            args: [localOrderId]
         }))[0]
 
         expect(result).toBeUndefined()
     })
 
+    it('Should throw an error when deleting a job', async () => {
+        await depotService.saveJobs([testJob], testDepot.depotId, [testPlaceShareOrder], CONST.JOB_TYPES.PLACE)
+        const localOrderId: string = cryptoRandomString({length: 10, type: 'alphanumeric'})
+        await webhookController.onPlace({ id: localOrderId, jobId: testJob.id})
+
+        try {
+            await webhookController.onDelete({orderId: localOrderId+1, timestamp: 0, remaining: 0})
+            expect(1).toEqual(0)
+        } catch(e) {
+            expect(e.message).toEqual("Job not found")
+        }
+    })
+
     it('It should transform a job into a ShareOrder', async () => {
         let data: OrderCompletedDto = {
-            orderId: testExchangeOrderId,
+            orderId: testOnPlace.id,
             timestamp: (new Date()).getMilliseconds()
         }
 
@@ -186,7 +220,7 @@ describe('Test Depot controller', () => {
 
         expect(depot.summary.totalValue).toBeGreaterThan(0)
         expect(depot.positions.length).toEqual(1)
-        expect(depot.positions[0].share.shareId).toEqual(testShare.shareId)
+        expect(depot.positions[0].share.shareId).toEqual(randomShare.shareId)
     })
 
     it('Should create a UpdateShares instance', () => {
@@ -203,72 +237,14 @@ describe('Test Depot controller', () => {
         })
     })
 
-
-    afterAll(async () => {
-        // Delete all Test Data
-
-        // Delete share_order
-        await Connector.executeQuery({
-            query: "DELETE FROM share_order WHERE depot_id = ?;",
-            args: [
-                testDepot.depotId
-            ]
-        })
-
-        // Delete depot_entry
-        await Connector.executeQuery({
-            query: "DELETE FROM depot_entry WHERE depot_id = ?;",
-            args: [
-                testDepot.depotId
-            ]
-        })
-
-        // Delete job
-        await Connector.executeQuery({
-            query: "DELETE FROM job WHERE job_id = ?;",
-            args: [
-                testJob.id
-            ]
-        })
-
-        // Delete depot
-        await Connector.executeQuery({
-            query: "DELETE FROM depot WHERE depot_id = ?;",
-            args: [
-                testDepot.depotId
-            ]
-        })
-
-        // Delete customer session
-        await Connector.executeQuery({
-            query: "DELETE FROM customer_session WHERE customer_id = ?;",
-            args: [
-                testCustomer.customer.customerId
-            ]
-        })
-
-        // Delete customer
-        await Connector.executeQuery({
-            query: "DELETE FROM customer WHERE customer_id = ?;",
-            args: [
-                testCustomer.customer.customerId
-            ]
-        })
-
-        // Delete company
-        await Connector.executeQuery({
-            query: "DELETE FROM company WHERE company_id = ?;",
-            args: [
-                testCompany.companyId
-            ]
-        })
-
-        // Delete address
-        await Connector.executeQuery({
-            query: "DELETE FROM address WHERE address_id = ?",
-            args: [
-                testCompany.address.addressId
-            ]
-        })
+    afterEach(async () => {
+        await cleanUp(cleanUpIds)
+        cleanUpIds = {
+            customerIds: [],
+            depotIds: [],
+            companyIds: [],
+            addressIds: [],
+            shareIds: []
+        }
     })
 })
