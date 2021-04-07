@@ -127,59 +127,6 @@ describe('Test Depot controller', () => {
 
         expect(depot).toBeDefined()
 
-
-        // // Delete test depot
-        // const deleteDepotQuery: Query = {
-        //     query: "DELETE FROM depot WHERE depot_id = ?",
-        //     args: [
-        //         depot.depotId
-        //     ]
-        // }
-
-        // await Connector.executeQuery(deleteDepotQuery)
-
-        // // Delete test user session
-        // const deleteUserSessionQuery: Query = {
-        //     query: "DELETE FROM customer_session WHERE session_id = ?",
-        //     args: [
-        //         testCustomer.session.sessionId
-        //     ]
-        // }
-
-        // await Connector.executeQuery(deleteUserSessionQuery)
-
-        // // Delete test user
-        // const deleteUserQuery: Query = {
-        //     query: "DELETE FROM customer WHERE customer_id = ?",
-        //     args: [
-        //         testCustomer.customer.customerId
-        //     ]
-        // }
-
-        // await Connector.executeQuery(deleteUserQuery)
-
-        // // Delete test company
-        // const deleteCompanyQuery: Query = {
-        //     query: "DELETE FROM company WHERE company_id = ?;",
-        //     args: [
-        //         testCompany.companyId
-        //     ]
-        // }
-
-        // await Connector.executeQuery(deleteCompanyQuery)
-
-        // // Delete test adress of company
-        // const deleteAdressQuery: Query = {
-        //     query: "DELETE FROM address WHERE post_code = ? AND city = ? AND street = ? AND house_number = ?;",
-        //     args: [
-        //         companyDto.postCode,
-        //         companyDto.city,
-        //         companyDto.street,
-        //         companyDto.houseNumber
-        //     ]
-        // }
-
-        // await Connector.executeQuery(deleteAdressQuery)
     })
 
     it('Should create some depots and list them', async () => {
@@ -207,30 +154,6 @@ describe('Test Depot controller', () => {
         expect(depots[0]).toBeDefined()
         expect(depots[0].company.companyId).toEqual(testCompany.companyId)
 
-        // const loginCredentials: CustomerSession = {
-        //     sessionId: testCustomer.session.sessionId,
-        //     customerId: testCustomer.customer.customerId
-        // }
-
-        // let depotList: Array<Depot> = await testDepotController.showAllDepots(loginCredentials)
-
-        // expect(depotList).toBeDefined()
-        // expect(depotList.length).toEqual(5)
-        // expect(depotList[0]).toBeDefined()
-        // expect(depotList[0].company.companyName).toEqual(testCompany.companyName)
-
-
-        // // Delete test depots
-        // for (let i = 0; i < depots.length; i++) {
-        //     const deleteDepotQuery: Query = {
-        //         query: "DELETE FROM depot WHERE depot_id = ?",
-        //         args: [
-        //             depots[i].depotId
-        //         ]
-        //     }
-
-        //     await Connector.executeQuery(deleteDepotQuery)
-        // }
     })
 
     it('Should list all depots for the current customer', async () => {
@@ -428,55 +351,4 @@ describe('Test Depot controller', () => {
         }
     })
 
-    // afterAll(async () => {
-    //     // Delete test user session
-    //     const deleteUserSessionQuery: Query = {
-    //         query: "DELETE FROM customer_session WHERE session_id = ?",
-    //         args: [
-    //             testCustomer.session.sessionId
-    //         ]
-    //     }
-
-    //     await Connector.executeQuery(deleteUserSessionQuery)
-
-    //     // Delete test user
-    //     const deleteUserQuery: Query = {
-    //         query: "DELETE FROM customer WHERE customer_id = ?",
-    //         args: [
-    //             testCustomer.customer.customerId
-    //         ]
-    //     }
-
-    //     await Connector.executeQuery(deleteUserQuery)
-
-    //     // Delete created test depots
-    //     const deleteDepotsQuery: Query = {
-    //         query: "DELETE FROM depot WHERE company_id = ?",
-    //         args: [
-    //             testCompany.companyId
-    //         ]
-    //     }
-
-    //     await Connector.executeQuery(deleteDepotsQuery)
-
-    //     // Delete test company
-    //     const deleteCompanyQuery: Query = {
-    //         query: "DELETE FROM company WHERE company_id = ?;",
-    //         args: [
-    //             testCompany.companyId
-    //         ]
-    //     }
-
-    //     await Connector.executeQuery(deleteCompanyQuery)
-
-    //     // Delete test adress of company
-    //     const deleteAdressQuery: Query = {
-    //         query: "DELETE FROM address WHERE address_id = ?;",
-    //         args: [
-    //             testCompany.address.addressId
-    //         ]
-    //     }
-
-    //     await Connector.executeQuery(deleteAdressQuery)
-    // })
 })

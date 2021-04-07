@@ -90,28 +90,6 @@ describe('Test Company controller', () => {
         expect(company.address).toBeDefined()
         expect(company.address.city).toEqual(companyDto.city)
 
-        // // Delete test company
-        // const deleteCompanyQuery: Query = {
-        //     query: "DELETE FROM company WHERE company_id = ?;",
-        //     args: [
-        //         company.companyId
-        //     ]
-        // }
-
-        // await Connector.executeQuery(deleteCompanyQuery)
-
-        // // Delete test adress of company
-        // const deleteAdressQuery: Query = {
-        //     query: "DELETE FROM address WHERE post_code = ? AND city = ? AND street = ? AND house_number = ?;",
-        //     args: [
-        //         companyDto.postCode,
-        //         companyDto.city,
-        //         companyDto.street,
-        //         companyDto.houseNumber
-        //     ]
-        // }
-
-        // await Connector.executeQuery(deleteAdressQuery)
     })
 
     it('Should create a company with a short name', async () => {
@@ -132,21 +110,6 @@ describe('Test Company controller', () => {
         expect(company.address).toBeDefined()
         expect(company.address.city).toEqual(companyDto.city)
 
-        // // Delete test company
-        // await Connector.executeQuery({
-        //     query: "DELETE FROM company WHERE company_id = ?;",
-        //     args: [
-        //         company.companyId
-        //     ]
-        // })
-
-        // // Delete the address
-        // await Connector.executeQuery({
-        //     query: "DELETE FROM address WHERE address_id = ?",
-        //     args: [
-        //         company.address.addressId
-        //     ]
-        // })
     })
 
     it('Should test company exception cases', async () => {
