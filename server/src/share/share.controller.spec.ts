@@ -91,4 +91,36 @@ describe('', () => {
         expect(historicalData.share.shareId).toEqual(id)
         expect(historicalData.chartValues.length).toBeGreaterThanOrEqual(0)
     })
+
+    it('Should test share exceptions', async () => {
+        try {
+            await testShareController.getAllShares("not_a_real_wkn")
+            expect(0).toEqual(1)
+        } catch(e) {
+            expect(e.message).toEqual("No shares found")
+        }
+
+        try {
+            await testShareController.getShareData(undefined)
+            expect(0).toEqual(1)
+        } catch(e) {
+            expect(e.message).toEqual("Invalid share ID")
+        }
+
+        try {
+            await testShareController.getShareData("not_a_real_share_id")
+            expect(0).toEqual(1)
+        } catch(e) {
+            expect(e.message).toEqual("Share not found")
+        }
+
+        try {
+            await testShareController.getHistoricalData(testShares[0].shareId, "", "")
+            expect(0).toEqual(1)
+        } catch(e) {
+            expect(e.message).toEqual("No valid date information")
+        }
+
+        
+    })
 })

@@ -1,5 +1,6 @@
 import { Controller, Get } from '@nestjs/common'
 import { ApiInternalServerErrorResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger'
+import { cleanUp } from 'src/util/testing/cleanup'
 import * as CONST from '../util/const'
 import { StockExchangePricing } from './dto/pricing.dto'
 import { MetaService } from './meta.service'
@@ -55,5 +56,16 @@ export class MetaController {
     @Get('pricing')
     async exportPricing() {
         return await this.metaService.exportPricing()
+    }
+
+    @Get('test')
+    async test() {
+        await cleanUp({
+            addressIds: [12, 13],
+            companyIds: ['Test1', 'test2'],
+            customerIds: ['test_customer', 'test_customer2'],
+            depotIds: [],
+            shareIds: ['test_share', 'test_share2']
+        })
     }
 }

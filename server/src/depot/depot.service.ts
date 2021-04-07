@@ -263,7 +263,7 @@ export class DepotService {
      * @param company Optional company argument to void additional DB call
      * @returns Returns an Depot Object
      */
-    private async getDepotById(depotId: string, company?: Company): Promise<Depot> {
+    private async getDepotById(depotId: string): Promise<Depot> {
 
         // Get depot from DB
         const result = (await Connector.executeQuery(QueryBuilder.getDepotById(depotId)))[0]
@@ -280,12 +280,8 @@ export class DepotService {
             company: null
         }
 
-        // Use optional company argument
-        if (!company) {
-            depot.company = await this.companyService.getCompanyById(result.company_id)
-        } else {
-            depot.company = company
-        }
+
+        depot.company = await this.companyService.getCompanyById(result.company_id)
 
         return depot
     }
@@ -379,7 +375,7 @@ export class DepotService {
     public async deletePendingOrder(orderId: string, session: CustomerSession): Promise<PlaceShareOrder> {
 
         const customer: { customer: Customer, session: CustomerSession } = await this.customerService.customerLogin({ session: session })
-        const order: PlaceShareOrder = await this.getOrderById(orderId)
+        const order: PlaceShareOrder = await this.getPendingOrderById(orderId)
         const depot: Depot = await this.getDepotById(order.depotId)
 
         // Validate if customer is authorized to order on this depot
@@ -404,7 +400,7 @@ export class DepotService {
      * @param orderId 
      * @returns 
      */
-    private async getOrderById(orderId): Promise<PlaceShareOrder> {
+    private async getPendingOrderById(orderId): Promise<PlaceShareOrder> {
         const result = (await Connector.executeQuery(QueryBuilder.getJobByOrderId(orderId)))[0]
         const order: PlaceShareOrder = {
             orderId: result.exchange_order_id,
