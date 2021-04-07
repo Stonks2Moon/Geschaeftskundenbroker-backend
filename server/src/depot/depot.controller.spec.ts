@@ -294,6 +294,7 @@ describe('Test Depot controller', () => {
             houseNumber: "3"
         })
         cleanUpIds.companyIds.push(testCompany2.companyId)
+        cleanUpIds.addressIds.push(testCompany2.addressId)
 
 
         // Create a second test customer
@@ -306,7 +307,7 @@ describe('Test Depot controller', () => {
         })
         cleanUpIds.customerIds.push(testCustomer2.customer.customerId)
 
-        //customer/depot
+        //Create a second test depot
         let testDepot2: Depot = await testDepotController.createDepot({
             session: {
                 sessionId: testCustomer2.session.sessionId,
