@@ -636,7 +636,7 @@ export class QueryBuilder {
      */
     public static createLpEntry(depotId: string, shareId: string, lqQuote: number): Query {
         return {
-            query: "INSERT INTO liquidity_provider (depot_id, share_id, lq_quote) VALUES (depot_id, share_id, lq_quote);",
+            query: "INSERT INTO liquidity_provider (depot_id, share_id, lq_quote) VALUES (?, ?, ?);",
             args: [
                 depotId,
                 shareId, 
@@ -652,12 +652,11 @@ export class QueryBuilder {
      * @param shareId id of the share
      * @returns a Query object
      */
-    public static removeLpEntry(depotId: string, shareId: string): Query {
+    public static removeLpEntry(lpId: number): Query {
         return {
-            query: "DELETE FROM liquidity_provider WHERE depot_id = ? AND share_id = ?;",
+            query: "DELETE FROM liquidity_provider WHERE lp_id = ?;",
             args: [
-                depotId,
-                shareId
+                lpId
             ]
         }
     }
@@ -673,6 +672,21 @@ export class QueryBuilder {
             query: "SELECT * FROM liquidity_provider WHERE depot_id = ?;",
             args: [
                 depotId
+            ]
+        }
+    }
+
+
+    /**
+     * Retrieves a single LP position by id
+     * @param lpId id of the LP position
+     * @returns a Query object
+     */
+    public static getLpById(lpId: number): Query {
+        return {
+            query: "SELECT * FROM liquidity_provider WHERE lp_id = ?;",
+            args: [
+                lpId
             ]
         }
     }

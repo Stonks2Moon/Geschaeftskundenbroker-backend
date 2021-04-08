@@ -5,6 +5,8 @@ import { Connector } from "../database/connector"
 import { QueryBuilder } from "../database/query-builder"
 import { UpdatePrice } from "./update-price.model"
 import { Share, ShareManager } from "moonstonks-boersenapi"
+import { connectableObservableDescriptor } from "rxjs/internal/observable/ConnectableObservable"
+const axios = require('axios')
 const crc32 = require("crc-32")
 
 @Injectable()
@@ -25,18 +27,35 @@ export class UpdateShares {
         //     //console.log(this.stockExchangeServerSocket.id)
         // })
 
-        // // Check if socket disconnected
+        // Check if socket disconnected
         // this.stockExchangeServerSocket.on("disconnect", () => {
-        //     //console.log(this.stockExchangeServerSocket.id)
+        //     this.stockExchangeServerSocket.connect()
         // })
 
         // Handle socket errors
-        this.stockExchangeServerSocket.on("error", error => console.error(error))
+        try {
+            this.stockExchangeServerSocket.on("error", e => console.error("Socket on \"error\": ", e))
 
-        // Check if new prices are available
-        this.stockExchangeServerSocket.on("price", async (updatePrice: UpdatePrice) => {
-            await UpdateShares.updateSharePrice(updatePrice)
-        })
+            this.stockExchangeServerSocket.on("connect_error", (e) => {
+                console.error("Socket on \"connect_error\": ", e)
+                setTimeout(() => {
+                    this.stockExchangeServerSocket.connect();
+                }, 1000);
+            });
+
+            // Check if new prices are available
+            this.stockExchangeServerSocket.on("price", async (updatePrice: UpdatePrice) => {
+                try {
+                    await UpdateShares.updateSharePrice(updatePrice)
+                } catch (e) {
+                    console.error("Caught Socket error on \"price\":")
+                    console.error(e)
+                }
+            })
+        } catch (e) {
+            console.error("Caught Socket error at global try/catch:")
+            console.error(e)
+        }
     }
 
     /**
@@ -50,8 +69,26 @@ export class UpdateShares {
 
         // If no share is found add a new one to the database
         if (!result) {
-            // Get all shares and filter for the spcific share by id to get the share name
-            const shares: Array<Share> = await ShareManager.getShares()
+            // Get all shares and filter for the specific share by id to get the share name
+            let shares: Array<Share> = []
+
+            // Call api and handle errors if stock exchange api is down
+            try {
+                const apiShares = (await axios.get('https://boerse.moonstonks.space/share')).data
+                if (typeof apiShares === "object") {
+                    shares = apiShares
+                } else if (typeof apiShares === "string") {
+                    shares = JSON.parse(apiShares)
+                } else {
+                    throw new Error("Unhandled return type for stock exchange /share")
+                }
+            } catch (e) {
+                console.error("Stock Exchange not available", e)
+                return
+            }
+
+            // Check if get shares was not successful
+            if (!shares || shares.length === 0) return
 
             const share: Share = shares.filter(s =>
                 s.id === updatePrice.shareId

@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger"
 import { Type } from "class-transformer"
-import { IsNotEmpty, IsString, Min, ValidateNested } from "class-validator"
+import { IsNotEmpty, IsString, Max, Min, ValidateNested } from "class-validator"
 import { CustomerSession } from "src/customer/customer-session.model"
 
 export class RegisterLpDto {
@@ -21,5 +21,6 @@ export class RegisterLpDto {
 
     @ApiProperty()
     @Min(0.001)
+    @Max(1)
     lqQuote: number
 }

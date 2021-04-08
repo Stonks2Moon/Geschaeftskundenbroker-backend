@@ -1,7 +1,18 @@
 import { ApiProperty } from "@nestjs/swagger"
-import { IsDateString, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator"
+import { IsDateString, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator"
 import { Share } from "src/share/share.model"
 
+enum orderTypes {
+    buy = "buy",
+    sell = "sell"
+}
+
+enum orderDetails {
+    market = "market",
+    limit = "limit",
+    stop = "stop",
+    stopLimit = "stopLimit"
+}
 abstract class ShareOrder {
     orderId: string
 
@@ -15,14 +26,14 @@ abstract class ShareOrder {
     @IsNumber()
     amount: number
 
-    @ApiProperty({ enum: ['buy', 'sell'] })
+    @ApiProperty({ enum: orderTypes })
     @IsNotEmpty()
-    //@IsEnum({ enum: ['buy', 'sell'] })
+    @IsEnum(orderTypes)
     type: 'buy' | 'sell'
 
-    @ApiProperty({ enum: ['market', 'limit', 'stop', 'stopLimit'] })
+    @ApiProperty({ enum: orderDetails })
     @IsNotEmpty()
-    //@IsEnum({ enum: ['market', 'limit', 'stop', 'stopLimit'] })
+    @IsEnum(orderDetails)
     detail: 'market' | 'limit' | 'stop' | 'stopLimit'
 
     @ApiProperty()
