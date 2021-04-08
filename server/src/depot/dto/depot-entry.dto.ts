@@ -21,6 +21,9 @@ export class DepotPosition extends DepotEntry {
 
     @ApiProperty()
     percentageChange: number
+
+    @ApiProperty()
+    profit: number
 }
 
 export class DepotSummary {
