@@ -607,4 +607,55 @@ export class QueryBuilder {
             ]
         }
     }
+
+
+    /**
+     * Creates an entry on the LP table
+     * @param depotId id of the depot
+     * @param shareId id of the share
+     * @param lqQuote quote of share assets
+     * @returns a Query object 
+     */
+    public static createLpEntry(depotId: string, shareId: string, lqQuote: number): Query {
+        return {
+            query: "INSERT INTO liquidity_provider (depot_id, share_id, lq_quote) VALUES (depot_id, share_id, lq_quote);",
+            args: [
+                depotId,
+                shareId, 
+                lqQuote
+            ]
+        }
+    }
+
+
+    /**
+     * Remove an entry from the LP table by depot and share id
+     * @param depotId id of the depot
+     * @param shareId id of the share
+     * @returns a Query object
+     */
+    public static removeLpEntry(depotId: string, shareId: string): Query {
+        return {
+            query: "DELETE FROM liquidity_provider WHERE depot_id = ? AND share_id = ?;",
+            args: [
+                depotId,
+                shareId
+            ]
+        }
+    }
+
+    
+    /**
+     * Retrieves all LP positions for a given depot
+     * @param depotId id of the depot
+     * @returns a Query object
+     */
+    public static getLpByDepot(depotId: string): Query {
+        return {
+            query: "SELECT * FROM liquidity_provider WHERE depot_id = ?;",
+            args: [
+                depotId
+            ]
+        }
+    }
 }

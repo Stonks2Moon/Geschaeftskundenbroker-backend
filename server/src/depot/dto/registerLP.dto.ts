@@ -1,14 +1,13 @@
 import { ApiProperty } from "@nestjs/swagger"
 import { Type } from "class-transformer"
 import { IsNotEmpty, IsString, Min, ValidateNested } from "class-validator"
-import { isMainThread } from "node:worker_threads"
 import { CustomerSession } from "src/customer/customer-session.model"
 
 export class RegisterLpDto {
     @ApiProperty()
     @IsNotEmpty()
     @IsString()
-    companyId: string
+    depotId: string
 
     @ApiProperty()
     @ValidateNested()
@@ -22,6 +21,5 @@ export class RegisterLpDto {
 
     @ApiProperty()
     @Min(0.001)
-    quote: number
-
+    lqQuote: number
 }

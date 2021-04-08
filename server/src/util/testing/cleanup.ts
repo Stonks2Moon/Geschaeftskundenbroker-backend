@@ -15,6 +15,7 @@ export async function cleanUp(ids: CleanUpIds): Promise<void> {
                 {name: "share_order", id: "depot_id"},
                 {name: "job", id: "depot_id"},
                 {name: "depot", id: "depot_id"},
+                {name: "liquidity_provider", id: "depot_id"}
             ]
         },
         {
@@ -31,7 +32,6 @@ export async function cleanUp(ids: CleanUpIds): Promise<void> {
             tables: [
                 {name: "bank_account", id: "company_id"},
                 {name: "company", id: "company_id"},
-                
             ]
         },
         {

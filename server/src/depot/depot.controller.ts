@@ -5,7 +5,9 @@ import { JobWrapper } from 'src/webhook/dto/job-wrapper.dto'
 import { Depot } from './depot.model'
 import { DepotService } from './depot.service'
 import { CreateDepotDto } from './dto/create-depot.dto'
+import { LpConfirmationDto } from './dto/lp-confirmation.dto'
 import { PlaceOrderDto } from './dto/place-order.dto'
+import { RegisterLpDto } from './dto/registerLP.dto'
 import { PlaceShareOrder } from './dto/share-order.dto'
 
 @ApiTags('depot')
@@ -183,7 +185,7 @@ export class DepotController {
     async showPendingOrders(
         @Param('depotId') depotId: string,
         @Body() customerSession: CustomerSession
-    ) {
+    ): Promise<Array<JobWrapper>> {
         return await this.depotService.showPendingOrders(depotId, customerSession)
     }
 
@@ -221,7 +223,35 @@ export class DepotController {
     async deletePendingOrder(
         @Param('orderId') orderId: string,
         @Body() customerSession: CustomerSession
-    ) {
+    ): Promise<PlaceShareOrder> {
         return await this.depotService.deletePendingOrder(orderId, customerSession);
+    }
+
+
+    /**
+     * Registers a depot of a company as a LP
+     * @param registerLp LP information and authorization
+     * @returns Confirmation info
+     */
+    @ApiBody({
+        description: "A valid RegisterLpDTO object",
+        type: RegisterLpDto
+    })
+    @ApiBadRequestResponse({
+        description: "Invalid input parameter"
+    })
+    @ApiUnauthorizedResponse({
+        description: "Invalid authorization"
+    })
+    @ApiOkResponse({
+        description: "Returns a confirmation of the successful registration is LP",
+        type: LpConfirmationDto
+    })
+    @Post('registerLiquidityProvider')
+    @HttpCode(200)
+    async registerAsLP(
+        @Body() registerLp: RegisterLpDto
+    ): Promise<LpConfirmationDto> {
+        return await this.depotService.registerLp(registerLp)
     }
 }

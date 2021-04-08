@@ -19,6 +19,8 @@ import { executeApiCall, getOrderFunction, marketManager, orderManager } from '.
 import { TradeAlgorithm } from 'src/util/stock-exchange/trade-algorithm'
 import * as CONST from "../util/const"
 import { JobWrapper } from 'src/webhook/dto/job-wrapper.dto'
+import { RegisterLpDto } from './dto/registerLP.dto'
+import { LpConfirmationDto } from './dto/lp-confirmation.dto'
 
 
 @Injectable()
@@ -392,6 +394,37 @@ export class DepotService {
         }
 
         return order
+    }
+    
+
+    public async registerLp(registerLp: RegisterLpDto): Promise<LpConfirmationDto> {
+        // Validate session
+        const customer: { customer: Customer, session: CustomerSession } = await this.customerService.customerLogin({ session: registerLp.customerSession })
+
+        // Check if customer is authorized to access depot
+        const depot: Depot = await this.getDepotById(registerLp.depotId)
+
+        // Validate if customer is authorized to order on this depot
+        if (depot.company.companyId != customer.customer.company.companyId) {
+            throw new UnauthorizedException(`Customer with id ${customer.customer.customerId} is not allowed to access depot with id ${depot.depotId}`)
+        }
+
+        // Check if share is valid
+        const share: Share = await this.shareService.getShareData(registerLp.shareId)
+
+        // Check if depot has share
+        const depotPosition: DepotPosition = depot.positions.filter(pos => pos.share.shareId === share.shareId)[0]
+
+        if(!depotPosition || depotPosition.amount < 1 || Math.floor(depotPosition.amount * registerLp.lqQuote) === 1) {
+            throw new NotAcceptableException("Depot doesn't have share or too few shares")
+        }
+
+        // Create DB entry
+        
+
+
+
+        return null
     }
 
 
