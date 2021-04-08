@@ -19,6 +19,10 @@ import { executeApiCall, getOrderFunction, marketManager, orderManager } from '.
 import { TradeAlgorithm } from 'src/util/stock-exchange/trade-algorithm'
 import * as CONST from "../util/const"
 import { JobWrapper } from 'src/webhook/dto/job-wrapper.dto'
+import { RegisterLpDto } from './dto/lp-register.dto'
+import { LpPosition } from './dto/lp-position.dto'
+import { LpCancelDto } from './dto/lp-cancel.dto'
+import { Query } from 'src/util/database/query.model'
 
 
 @Injectable()
@@ -60,17 +64,27 @@ export class DepotService {
     /**
      * Method to place an order, this also handles the algorithmic trading
      * @param placeOrder placeOrder object with all needed information to perform task
-     * @returns the placed order if successfull else throw an error
+     * @returns the placed order if successful else throw an error
      */
-    public async placeOrder(placeOrder: PlaceOrderDto): Promise<Array<PlaceShareOrder>> {
+    public async placeOrder(placeOrder: PlaceOrderDto, isCron = false): Promise<Array<PlaceShareOrder>> {
+        let isLp: boolean
+        if(isCron) {
+            isLp = true
+        } else {
+            // Get from db if user is lp,
+        }
+        
+        let customer: { customer: Customer, session: CustomerSession }
+        let depot: Depot
+        // Validate Session if input is from user
+        if(!isCron) {
+            customer = await this.customerService.customerLogin({ session: placeOrder.customerSession })
 
-        // Validate Session
-        const customer: { customer: Customer, session: CustomerSession } = await this.customerService.customerLogin({ session: placeOrder.customerSession })
-
-        // Validate if customer is authorized to order on this depot
-        const depot: Depot = await this.showDepotById(placeOrder.order.depotId, placeOrder.customerSession)
-        if (depot.company.companyId != customer.customer.company.companyId) {
-            throw new UnauthorizedException(`Customer with id ${customer.customer.customerId} is not allowed to access depot with id ${depot.depotId}`)
+            // Validate if customer is authorized to order on this depot
+            depot = await this.showDepotById(placeOrder.order.depotId, placeOrder.customerSession)
+            if (depot.company.companyId != customer.customer.company.companyId) {
+                throw new UnauthorizedException(`Customer with id ${customer.customer.customerId} is not allowed to access depot with id ${depot.depotId}`)
+            }
         }
 
         // Check if customer has enough shares to sell
@@ -396,6 +410,109 @@ export class DepotService {
 
 
     /**
+     * Registers a liquidity donor
+     * @param registerLp needed parameters to register a liquidity donor
+     * @returns a LpPosition object
+     */
+    public async registerLp(registerLp: RegisterLpDto): Promise<LpPosition> {
+        // Validate session
+        const customer: { customer: Customer, session: CustomerSession } = await this.customerService.customerLogin({ session: registerLp.customerSession })
+
+        // Check if customer is authorized to access depot
+        const depot: Depot = await this.showDepotById(registerLp.depotId, registerLp.customerSession)
+
+        // Validate if customer is authorized to order on this depot
+        if (depot.company.companyId != customer.customer.company.companyId) {
+            throw new UnauthorizedException(`Customer with id ${customer.customer.customerId} is not allowed to access depot with id ${depot.depotId}`)
+        }
+
+        // Check if share is valid
+        const share: Share = await this.shareService.getShareData(registerLp.shareId)
+
+        // Check if depot has share
+        const depotPosition: DepotPosition = depot.positions.filter(pos => pos.share.shareId === share.shareId)[0]
+
+        // Check if depot has enough shares for given quote
+        if (!depotPosition || depotPosition.amount < 1 || Math.floor(depotPosition.amount * registerLp.lqQuote) === 0) {
+            throw new NotAcceptableException("Depot doesn't have share or too few shares")
+        }
+
+        // Create DB entry
+        let { insertId } = await Connector.executeQuery(QueryBuilder.createLpEntry(depot.depotId, share.shareId, registerLp.lqQuote))
+
+        //Return object
+        const res: LpPosition = {
+            lpId: insertId,
+            share: share,
+            depot: depot,
+            lqQuote: registerLp.lqQuote
+        }
+
+        return res
+    }
+
+
+    /**
+     * Get all LP positions fora given Depot
+     * @param depotId id of the depot
+     * @param customerSession customer session for authorization
+     * @returns an array of LP position
+     */
+    public async getLpsForDepot(depotId: string, customerSession: CustomerSession): Promise<Array<LpPosition>> {
+        // Validate session
+        const customer: { customer: Customer, session: CustomerSession } = await this.customerService.customerLogin({ session: customerSession })
+
+        // Check if customer is authorized to access depot
+        const depot: Depot = await this.getDepotById(depotId)
+
+        // Validate if customer is authorized to order on this depot
+        if (depot.company.companyId != customer.customer.company.companyId) {
+            throw new UnauthorizedException(`Customer with id ${customer.customer.customerId} is not allowed to access depot with id ${depotId}`)
+        }
+
+        // Get all LP position for the depot
+        const result = await Connector.executeQuery(QueryBuilder.getLpByDepot(depotId))
+
+        let positions: LpPosition[] = []
+
+        // Create response array
+        for (const r of result) {
+            positions.push({
+                depot: depot,
+                lpId: r.lp_id,
+                lqQuote: r.lq_quote,
+                share: await this.shareService.getShareData(r.share_id)
+            })
+        }
+
+        return positions
+    }
+
+    /**
+     * Cancels a given LP position
+     * @param cancelLp object containing cancel info and authorization
+     * @returns the cancelled LP position
+     */
+    public async cancelLp(cancelLp: LpCancelDto): Promise<LpPosition> {
+        // Validate session
+        const customer: { customer: Customer, session: CustomerSession } = await this.customerService.customerLogin({ session: cancelLp.customerSession })
+
+        // Get LP position
+        const lpPosition: LpPosition = await this.getLpPositionById(cancelLp.lpId)
+
+        // Validate if customer is authorized to access the depot
+        if (customer.customer.company.companyId != lpPosition.depot.company.companyId) {
+            throw new UnauthorizedException(`Customer with id ${customer.customer.customerId} is not allowed to access depot with id ${lpPosition.depot.depotId}`)
+        }
+
+        // Remove LP Position 
+        await Connector.executeQuery(QueryBuilder.removeLpEntry(cancelLp.lpId))
+
+        return lpPosition
+    }
+
+
+    /**
      * Returns a single share order by id
      * @param orderId 
      * @returns 
@@ -455,5 +572,28 @@ export class DepotService {
         }
 
         return orders
+    }
+
+    /**
+     * Retireves a LP position by id
+     * @param lpId id of the LP position
+     * @returns a LpPosition object
+     */
+    private async getLpPositionById(lpId: number): Promise<LpPosition> {
+        const result = (await Connector.executeQuery(QueryBuilder.getLpById(lpId)))[0]
+
+        if (!result) {
+            throw new NotFoundException(`LP position with id ${lpId} not found`)
+        }
+
+        // Return object
+        const res: LpPosition = {
+            lpId: lpId,
+            lqQuote: result.lq_quote,
+            depot: await this.getDepotById(result.depot_id),
+            share: await this.shareService.getShareData(result.share_id)
+        }
+
+        return res
     }
 }

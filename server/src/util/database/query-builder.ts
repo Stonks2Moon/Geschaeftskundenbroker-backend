@@ -405,7 +405,25 @@ export class QueryBuilder {
      */
     public static getHistoricalData(shareId: string, fromDate: Date, toDate: Date): Query {
         return {
-            query: "SELECT * FROM share_price WHERE share_id = ? AND recorded_at >= ? AND recorded_at <= ?;",
+            query: "SELECT * FROM share_price WHERE share_id = ? AND recorded_at >= ? AND recorded_at <= ? GROUP BY recorded_at ORDER BY recorded_at ASC;",
+            args: [
+                shareId,
+                fromDate,
+                toDate
+            ]
+        }
+    }
+
+    /**
+     * Returns a query to get historical data for a share
+     * @param shareId ID of the share
+     * @param fromDate start date of timeframe
+     * @param toDate end date of timeframe
+     * @returns a Query object
+     */
+     public static getHistoricalDataPerSecond(shareId: string, fromDate: Date, toDate: Date): Query {
+        return {
+            query: "SELECT AVG(recorded_value) AS recorded_value, share_id, recorded_at FROM share_price WHERE share_id = ? AND recorded_at >= ? AND recorded_at <= ? GROUP BY recorded_at ORDER BY recorded_at ASC;",
             args: [
                 shareId,
                 fromDate,
@@ -604,6 +622,71 @@ export class QueryBuilder {
             query: "SELECT * FROM job WHERE depot_id = ?;",
             args: [
                 depotId
+            ]
+        }
+    }
+
+
+    /**
+     * Creates an entry on the LP table
+     * @param depotId id of the depot
+     * @param shareId id of the share
+     * @param lqQuote quote of share assets
+     * @returns a Query object 
+     */
+    public static createLpEntry(depotId: string, shareId: string, lqQuote: number): Query {
+        return {
+            query: "INSERT INTO liquidity_provider (depot_id, share_id, lq_quote) VALUES (?, ?, ?);",
+            args: [
+                depotId,
+                shareId, 
+                lqQuote
+            ]
+        }
+    }
+
+
+    /**
+     * Remove an entry from the LP table by depot and share id
+     * @param depotId id of the depot
+     * @param shareId id of the share
+     * @returns a Query object
+     */
+    public static removeLpEntry(lpId: number): Query {
+        return {
+            query: "DELETE FROM liquidity_provider WHERE lp_id = ?;",
+            args: [
+                lpId
+            ]
+        }
+    }
+
+    
+    /**
+     * Retrieves all LP positions for a given depot
+     * @param depotId id of the depot
+     * @returns a Query object
+     */
+    public static getLpByDepot(depotId: string): Query {
+        return {
+            query: "SELECT * FROM liquidity_provider WHERE depot_id = ?;",
+            args: [
+                depotId
+            ]
+        }
+    }
+
+
+    /**
+     * Retrieves a single LP position by id
+     * @param lpId id of the LP position
+     * @returns a Query object
+     */
+    public static getLpById(lpId: number): Query {
+        return {
+            query: "SELECT * FROM liquidity_provider WHERE lp_id = ?;",
+            args: [
+                lpId
             ]
         }
     }

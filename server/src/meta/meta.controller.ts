@@ -1,5 +1,7 @@
 import { Controller, Get } from '@nestjs/common'
 import { ApiInternalServerErrorResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger'
+import { type } from 'node:os'
+import { Share } from 'src/share/share.model'
 import { cleanUp } from 'src/util/testing/cleanup'
 import * as CONST from '../util/const'
 import { StockExchangePricing } from './dto/pricing.dto'
@@ -58,14 +60,25 @@ export class MetaController {
         return await this.metaService.exportPricing()
     }
 
-    @Get('test')
-    async test() {
-        await cleanUp({
-            addressIds: [12, 13],
-            companyIds: ['Test1', 'test2'],
-            customerIds: ['test_customer', 'test_customer2'],
-            depotIds: [],
-            shareIds: ['test_share', 'test_share2']
-        })
-    }
+    // @Get("test")
+    // async test() {
+    //     let shares: Array<Share> = []
+    //         const axios = require("axios")
+    //         try {
+    //             const apiShares = (await axios.get('https://google.com')).data
+    //             console.log(typeof apiShares)
+    //             if (typeof apiShares === "object") {
+    //                 shares = apiShares
+    //             } else if (typeof apiShares === "string") {
+    //                 shares = JSON.parse(apiShares)
+    //             } else {
+    //                 throw new Error("Unhandled return type for stock exchange /share")
+    //             }
+    //         } catch (e) {
+    //             console.error("Stock Exchange not available", e)
+    //             return
+    //         }
+
+    //         console.log(shares)
+    // }
 }

@@ -5,8 +5,12 @@ import { JobWrapper } from 'src/webhook/dto/job-wrapper.dto'
 import { Depot } from './depot.model'
 import { DepotService } from './depot.service'
 import { CreateDepotDto } from './dto/create-depot.dto'
+import { LpPosition } from './dto/lp-position.dto'
 import { PlaceOrderDto } from './dto/place-order.dto'
+import { RegisterLpDto } from './dto/lp-register.dto'
 import { PlaceShareOrder } from './dto/share-order.dto'
+import { LpCancelDto } from './dto/lp-cancel.dto'
+import { runInThisContext } from 'node:vm'
 
 @ApiTags('depot')
 @Controller('depot')
@@ -183,7 +187,7 @@ export class DepotController {
     async showPendingOrders(
         @Param('depotId') depotId: string,
         @Body() customerSession: CustomerSession
-    ) {
+    ): Promise<Array<JobWrapper>> {
         return await this.depotService.showPendingOrders(depotId, customerSession)
     }
 
@@ -221,7 +225,101 @@ export class DepotController {
     async deletePendingOrder(
         @Param('orderId') orderId: string,
         @Body() customerSession: CustomerSession
-    ) {
+    ): Promise<PlaceShareOrder> {
         return await this.depotService.deletePendingOrder(orderId, customerSession);
+    }
+
+    /**
+     * Registers a depot of a company as a LP
+     * @param registerLp LP information and authorization
+     * @returns Confirmation info
+     */
+    @ApiBody({
+        description: "A valid RegisterLpDTO object",
+        type: RegisterLpDto
+    })
+    @ApiBadRequestResponse({
+        description: "Invalid input parameter"
+    })
+    @ApiUnauthorizedResponse({
+        description: "Invalid authorization"
+    })
+    @ApiOkResponse({
+        description: "Returns a confirmation of the successful registration of LP",
+        type: LpPosition
+    })
+    @ApiNotAcceptableResponse({
+        description: "Depot doesn't have share or too few shares"
+    })
+    @Post('lp/register')
+    @HttpCode(200)
+    async registerAsLP(
+        @Body() registerLp: RegisterLpDto
+    ): Promise<LpPosition> {
+        return await this.depotService.registerLp(registerLp)
+    }
+
+
+    /**
+     * Cancels a LP position and deletes it
+     * @param cancelLpDto information and authorization of the LP position
+     * @returns the cancelled LP position
+     */
+    @ApiBody({
+        description: "A valid LpCancelDto object",
+        type: LpCancelDto
+    })
+    @ApiBadRequestResponse({
+        description: "Invalid input parameter"
+    })
+    @ApiUnauthorizedResponse({
+        description: "Invalid authorization"
+    })
+    @ApiNotFoundResponse({
+        description: "Depot position OR LP position not found"
+    })
+    @ApiOkResponse({
+        description: "Returns a confirmation of the successful deletion of LP",
+        type: LpPosition
+    })
+    @Post('lp/cancel')
+    @HttpCode(200)
+    async cancelLp(
+        @Body() cancelLpDto: LpCancelDto
+    ): Promise<LpPosition> {
+        return await this.depotService.cancelLp(cancelLpDto)
+    }
+
+    /**
+     * Returns the LP positions for a depot
+     * @param depotId id of depot
+     * @param customerSession valid customer session for login
+     * @returns an array of LpPosition objects
+     */
+    @ApiBody({
+        description: "A valid customer session",
+        type: CustomerSession
+    })
+    @ApiOkResponse({
+        description: "Returns a confirmation of the successful deletion of LP",
+        isArray: true,
+        type: LpPosition
+    })
+    @ApiUnauthorizedResponse({
+        description: "Invalid customer session"
+    })
+    @ApiNotFoundResponse({
+        description: "Depot not found"
+    })
+    @ApiBadRequestResponse({
+        description: "Invalid input parameter"
+    })
+    @Post('lp/show/:id')
+    @HttpCode(200)
+    async getLpsForDepot(
+        @Param('id') depotId: string,
+        @Body() customerSession: CustomerSession
+    ): Promise<LpPosition[]> {
+        return this.depotService.getLpsForDepot(depotId, customerSession)
     }
 }
