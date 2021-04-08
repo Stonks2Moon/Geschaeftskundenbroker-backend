@@ -136,27 +136,16 @@ export class ShareService {
         }
 
         // Get data from database
-        const result = await Connector.executeQuery(QueryBuilder.getHistoricalData(shareId, fromDate as Date, toDate as Date))
+        const result = await Connector.executeQuery(QueryBuilder.getHistoricalDataPerSecond(shareId, fromDate as Date, toDate as Date))
 
         // Create response data (values + timestamps for chart)
         let chartValues: Array<ChartValue> = []
-        let valuePerSecond: ChartValue = { recordedAt: result[0].recoded_at, recordedValue: result[0].recorded_at }
-        let counter: number = 0
-        let cumValue: number = 0
         result.forEach(elem => {
-            if (elem.recorded_at == valuePerSecond.recorded_at){
-                cumValue += elem.recordedValue
-                counter += 1
-            }else{
-                const value: ChartValue = {
-                    recordedAt: elem.recorded_at,
-                    recordedValue: (cumValue/counter)
-                }
-                chartValues.push(value)
-                counter = 0
-                cumValue = 0
+            const value: ChartValue = {
+                recordedAt: elem.recorded_at,
+                recordedValue: +(Number.parseFloat(elem.recorded_value).toFixed(2))
             }
-            
+            chartValues.push(value)
         })
 
         // Create response object

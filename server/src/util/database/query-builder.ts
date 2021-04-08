@@ -405,7 +405,25 @@ export class QueryBuilder {
      */
     public static getHistoricalData(shareId: string, fromDate: Date, toDate: Date): Query {
         return {
-            query: "SELECT * FROM share_price WHERE share_id = ? AND recorded_at >= ? AND recorded_at <= ?;",
+            query: "SELECT * FROM share_price WHERE share_id = ? AND recorded_at >= ? AND recorded_at <= ? GROUP BY recorded_at ORDER BY recorded_at ASC;",
+            args: [
+                shareId,
+                fromDate,
+                toDate
+            ]
+        }
+    }
+
+    /**
+     * Returns a query to get historical data for a share
+     * @param shareId ID of the share
+     * @param fromDate start date of timeframe
+     * @param toDate end date of timeframe
+     * @returns a Query object
+     */
+     public static getHistoricalDataPerSecond(shareId: string, fromDate: Date, toDate: Date): Query {
+        return {
+            query: "SELECT AVG(recorded_value) AS recorded_value, share_id, recorded_at FROM share_price WHERE share_id = ? AND recorded_at >= ? AND recorded_at <= ? GROUP BY recorded_at ORDER BY recorded_at ASC;",
             args: [
                 shareId,
                 fromDate,
