@@ -136,14 +136,14 @@ export class ShareService {
         }
 
         // Get data from database
-        const result = await Connector.executeQuery(QueryBuilder.getHistoricalData(shareId, fromDate as Date, toDate as Date))
+        const result = await Connector.executeQuery(QueryBuilder.getHistoricalDataPerSecond(shareId, fromDate as Date, toDate as Date))
 
         // Create response data (values + timestamps for chart)
         let chartValues: Array<ChartValue> = []
         result.forEach(elem => {
             const value: ChartValue = {
                 recordedAt: elem.recorded_at,
-                recordedValue: elem.recorded_value
+                recordedValue: +(Number.parseFloat(elem.recorded_value).toFixed(2))
             }
             chartValues.push(value)
         })
