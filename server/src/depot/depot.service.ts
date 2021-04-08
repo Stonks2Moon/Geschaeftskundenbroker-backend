@@ -205,8 +205,8 @@ export class DepotService {
 
         // Create depot summary object
         const depotSummary: DepotSummary = {
-            totalValue: totalCurrentValue,
-            percentageChange: percentageChange
+            totalValue: Math.round(totalCurrentValue * 100) / 100,
+            percentageChange: Math.round(percentageChange * 100) / 100 
         }
 
         return depotSummary
@@ -260,9 +260,9 @@ export class DepotService {
             // Append DepotPosition to positions array
             depotPositions.push({
                 amount: totalAmount,
-                costValue: totalCostValue,
-                currentValue: totalCurrentValue,
-                percentageChange: percentageChange,
+                costValue: Math.round(totalCostValue * 100) / 100,
+                currentValue: Math.round(totalCurrentValue * 100) / 100,
+                percentageChange: Math.round(percentageChange * 100) / 100,
                 depotId: depotId,
                 share: s
             })

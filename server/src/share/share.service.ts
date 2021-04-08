@@ -62,7 +62,7 @@ export class ShareService {
                 shareId: elem.share_id,
                 isin: elem.isin,
                 wkn: elem.wkn,
-                lastRecordedValue: elem.last_recorded_value,
+                lastRecordedValue: Math.round(elem.last_recorded_value * 100) / 100,
                 currencyCode: elem.currency_code,
                 currencyName: elem.currency_name
             }
@@ -100,7 +100,7 @@ export class ShareService {
             shareName: result.name,
             wkn: result.wkn,
             isin: result.isin,
-            lastRecordedValue: result.last_recorded_value,
+            lastRecordedValue: Math.round(result.last_recorded_value * 100) / 100,
             currencyCode: result.currency_code,
             currencyName: result.currency_name
         }
