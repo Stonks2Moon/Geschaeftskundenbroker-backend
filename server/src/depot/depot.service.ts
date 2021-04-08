@@ -263,6 +263,7 @@ export class DepotService {
                 costValue: Math.round(totalCostValue * 100) / 100,
                 currentValue: Math.round(totalCurrentValue * 100) / 100,
                 percentageChange: Math.round(percentageChange * 100) / 100,
+                profit: Math.round((totalCurrentValue - totalCostValue) * 100) / 100,
                 depotId: depotId,
                 share: s
             })
