@@ -140,12 +140,23 @@ export class ShareService {
 
         // Create response data (values + timestamps for chart)
         let chartValues: Array<ChartValue> = []
+        let valuePerSecond: ChartValue = { recordedAt: result[0].recoded_at, recordedValue: result[0].recorded_at }
+        let counter: number = 0
+        let cumValue: number = 0
         result.forEach(elem => {
-            const value: ChartValue = {
-                recordedAt: elem.recorded_at,
-                recordedValue: elem.recorded_value
+            if (elem.recorded_at == valuePerSecond.recorded_at){
+                cumValue += elem.recordedValue
+                counter += 1
+            }else{
+                const value: ChartValue = {
+                    recordedAt: elem.recorded_at,
+                    recordedValue: (cumValue/counter)
+                }
+                chartValues.push(value)
+                counter = 0
+                cumValue = 0
             }
-            chartValues.push(value)
+            
         })
 
         // Create response object
