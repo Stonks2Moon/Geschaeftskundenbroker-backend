@@ -7,6 +7,7 @@ import { ChartValue, HistoricalDataDto } from './dto/historical-data.dto'
 import { isDateString, isEmpty } from 'class-validator'
 import * as Moment from 'moment'
 import { extendMoment } from 'moment-range'
+import { Statistics } from './dto/statistics.dto'
 const moment = extendMoment(Moment)
 
 @Injectable()
@@ -89,6 +90,7 @@ export class ShareService {
         // Get share from database
         let result = (await Connector.executeQuery(QueryBuilder.getShareById(shareId)))[0]
 
+
         // If no share is found throw 404 error
         if (!result) {
             throw new NotFoundException("Share not found")
@@ -152,6 +154,37 @@ export class ShareService {
         const response: HistoricalDataDto = {
             share: responseShare,
             chartValues: chartValues
+        }
+
+        return response
+    }
+    
+    /**
+     * Returns statistical data for a share
+     * @param shareId ID of share
+     * @returns an object containing a the difference and percentage 
+     */
+     public async getStatistics(
+        shareId: string,
+    ): Promise<Statistics> {
+
+        // Get data about share (for response)
+        // If the share is invalid, the code below is not executed,
+        // because the getShare method throws an error directly
+        const responseShare = await this.getShareData(shareId)
+
+        // Get data from database
+        const result = (await Connector.executeQuery(QueryBuilder.getStatistics(shareId)))[0]
+
+        // If no shares are found throw 404 error
+        if (!result || result.length === 0) {
+            throw new NotFoundException("Share not")
+        }
+
+        // Create response object
+        const response: Statistics = {
+            difference: result.difference,
+            percent: result.prozent
         }
 
         return response
