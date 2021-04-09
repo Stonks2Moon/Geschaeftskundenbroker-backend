@@ -704,4 +704,16 @@ export class QueryBuilder {
             ]
         }
     }
+
+
+    /**
+     * Returns all active LP entries
+     * @returns a Query object
+     */
+    public static getAllLpEntries(): Query {
+        return {
+            query: "SELECT * FROM liquidity_provider;", 
+            args: []
+        }
+    }
 }

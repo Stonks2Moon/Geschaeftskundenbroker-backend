@@ -177,10 +177,10 @@ export class DepotController {
         isArray: true,
         type: ReturnShareOrder
     })
-    @Post('order/completed/:id')
+    @Post('order/completed/:depotId')
     @HttpCode(200)
     async getDepotHistory(
-        @Param('id') depotId: string,
+        @Param('depotId') depotId: string,
         @Body() customerSession: CustomerSession
     ): Promise<ReturnShareOrder[]> {
         return await this.depotService.getDepotHistory(depotId, customerSession)
@@ -346,10 +346,10 @@ export class DepotController {
     @ApiBadRequestResponse({
         description: "Invalid input parameter"
     })
-    @Post('lp/show/:id')
+    @Post('lp/show/:depotId')
     @HttpCode(200)
     async getLpsForDepot(
-        @Param('id') depotId: string,
+        @Param('depotId') depotId: string,
         @Body() customerSession: CustomerSession
     ): Promise<LpPosition[]> {
         return this.depotService.getLpsForDepot(depotId, customerSession)

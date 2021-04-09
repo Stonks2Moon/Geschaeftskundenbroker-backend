@@ -553,6 +553,20 @@ export class DepotService {
         return lpPosition
     }
 
+    public async runLps(): Promise<void> {
+        const lpEntries = await Connector.executeQuery(QueryBuilder.getAllLpEntries())
+        let shares: Array<Share> = []
+        
+        for (const entry of lpEntries) {
+            // Get shares
+            if(shares.filter(s => s.shareId === entry.share_id).length === 0) {
+                shares.push(await this.shareService.getShareData(entry.share_id))
+            }
+
+            
+        }
+    }
+
 
     /**
      * Returns a single share order by id
