@@ -8,7 +8,7 @@ import { CreateDepotDto } from './dto/create-depot.dto'
 import { LpPosition } from './dto/lp-position.dto'
 import { PlaceOrderDto } from './dto/place-order.dto'
 import { RegisterLpDto } from './dto/lp-register.dto'
-import { PlaceShareOrder } from './dto/share-order.dto'
+import { PlaceShareOrder, ReturnShareOrder } from './dto/share-order.dto'
 import { LpCancelDto } from './dto/lp-cancel.dto'
 import { runInThisContext } from 'node:vm'
 
@@ -155,6 +155,37 @@ export class DepotController {
         return await this.depotService.createDepot(createDepot)
     }
 
+
+    @ApiBody({
+        description: "Valid customer session for login",
+        type: CustomerSession
+    })
+    @ApiInternalServerErrorResponse({
+        description: "Something went wrong"
+    })
+    @ApiUnauthorizedResponse({
+        description: "Customer not authorized"
+    })
+    @ApiBadRequestResponse({
+        description: "Invalid input arguments"
+    })
+    @ApiNotFoundResponse({
+        description: "Depot now found OR Company not found OR Adress not found"
+    })
+    @ApiOkResponse({
+        description: "Returns the depot history",
+        isArray: true,
+        type: ReturnShareOrder
+    })
+    @Post('order/completed/:id')
+    @HttpCode(200)
+    async getDepotHistory(
+        @Param('id') depotId: string,
+        @Body() customerSession: CustomerSession
+    ): Promise<ReturnShareOrder[]> {
+        return await this.depotService.getDepotHistory(depotId, customerSession)
+    }
+
     /**
      * Used to show open orders
      * @param depotId id of depot
@@ -182,7 +213,7 @@ export class DepotController {
     @ApiNotFoundResponse({
         description: "Depot now found OR Company not found OR Adress not found"
     })
-    @Post('order/all/:depotId')
+    @Post('order/pending/:depotId')
     @HttpCode(200)
     async showPendingOrders(
         @Param('depotId') depotId: string,
@@ -228,7 +259,7 @@ export class DepotController {
     ): Promise<PlaceShareOrder> {
         return await this.depotService.deletePendingOrder(orderId, customerSession);
     }
-    
+
 
     /**
      * Registers a depot of a company as a LP

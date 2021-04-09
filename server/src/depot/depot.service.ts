@@ -3,7 +3,7 @@ import { CustomerSession } from 'src/customer/customer-session.model'
 import { Depot } from './depot.model'
 import { CreateDepotDto } from './dto/create-depot.dto'
 import { PlaceOrderDto } from './dto/place-order.dto'
-import { PlaceShareOrder } from './dto/share-order.dto'
+import { PlaceShareOrder, ReturnShareOrder } from './dto/share-order.dto'
 import { Job } from "moonstonks-boersenapi"
 import { CustomerService } from 'src/customer/customer.service'
 import { Customer } from 'src/customer/customer.model'
@@ -68,16 +68,16 @@ export class DepotService {
      */
     public async placeOrder(placeOrder: PlaceOrderDto, isCron = false): Promise<Array<PlaceShareOrder>> {
         let isLp: boolean
-        if(isCron) {
+        if (isCron) {
             isLp = true
         } else {
             // Get from db if user is lp,
         }
-        
+
         let customer: { customer: Customer, session: CustomerSession }
         let depot: Depot
         // Validate Session if input is from user
-        if(!isCron) {
+        if (!isCron) {
             customer = await this.customerService.customerLogin({ session: placeOrder.customerSession })
 
             // Validate if customer is authorized to order on this depot
@@ -206,7 +206,7 @@ export class DepotService {
         // Create depot summary object
         const depotSummary: DepotSummary = {
             totalValue: Math.round(totalCurrentValue * 100) / 100,
-            percentageChange: Math.round(percentageChange * 100) / 100 
+            percentageChange: Math.round(percentageChange * 100) / 100
         }
 
         return depotSummary
@@ -407,6 +407,47 @@ export class DepotService {
         }
 
         return order
+    }
+
+
+    public async getDepotHistory(depotId: string, customerSession: CustomerSession): Promise<ReturnShareOrder[]> {
+        const customer: { customer: Customer, session: CustomerSession } = await this.customerService.customerLogin({ session: customerSession })
+        const depot: Depot = await this.getDepotById(depotId)
+
+        // Validate if customer is authorized to order on this depot
+        if (depot.company.companyId != customer.customer.company.companyId) {
+            throw new UnauthorizedException(`Customer with id ${customer.customer.customerId} is not allowed to access depot with id ${depot.depotId}`)
+        }
+
+        // Get completed orders 
+        const result = (await Connector.executeQuery(QueryBuilder.getShareOrdersByDepotId(depotId)))
+
+        // Create ReturnShareOrder objects
+        let returnOrders: ReturnShareOrder[] = []
+        let shares: Share[] = []
+
+        // Loop over results and create response
+        for (const r of result) {
+            if (shares.filter(s => s.shareId === r.share_id).length === 0) {
+                shares.push(await this.shareService.getShareData(r.share_id))
+            }
+
+            returnOrders.push({
+                amount: r.amount,
+                depotId: depotId,
+                detail: r.detail,
+                orderId: r.order_id,
+                share: shares.filter(s => s.shareId === r.share_id)[0],
+                type: r.transaction_type,
+                validity: r.order_validity,
+                limit: r.limit,
+                market: r.market,
+                stop: r.stop,
+                stopLimit: r.order_stop_limit
+            })
+        }
+
+        return returnOrders
     }
 
 

@@ -1,18 +1,9 @@
 import { ApiProperty } from "@nestjs/swagger"
 import { IsDateString, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator"
 import { Share } from "src/share/share.model"
+import { orderDetails, orderTypes } from "src/util/stock-exchange/stock-wrapper"
 
-enum orderTypes {
-    buy = "buy",
-    sell = "sell"
-}
 
-enum orderDetails {
-    market = "market",
-    limit = "limit",
-    stop = "stop",
-    stopLimit = "stopLimit"
-}
 abstract class ShareOrder {
     orderId: string
 
