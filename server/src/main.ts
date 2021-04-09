@@ -1,8 +1,9 @@
 import { NestFactory } from '@nestjs/core'
 import { AppModule } from './app.module'
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
+import { DocumentBuilder, SwaggerCustomOptions, SwaggerModule } from '@nestjs/swagger'
 import { ValidationPipe } from '@nestjs/common'
 import { CronJobs } from './util/cron/cron-jobs.service'
+import { swaggerCss } from './_config/swagger-style'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
@@ -24,14 +25,19 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe())
 
   // Enable swagger docs for NestJS (documentation is available under /docs [on server under /api/docs])
-  const config = new DocumentBuilder()
+  const swaggerConfig = new DocumentBuilder()
     .setTitle('Geschäftskundenbroker API')
     .setDescription('Die offizielle API für den Geschäftskundenbroker')
     .setVersion('1.0')
     .build()
 
-  const document = SwaggerModule.createDocument(app, config)
-  SwaggerModule.setup('docs', app, document)
+  const swaggerOptions: SwaggerCustomOptions = {
+    customCss: swaggerCss,
+    customSiteTitle: 'Business Broker Backend API'
+  }
+
+  const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig)
+  SwaggerModule.setup('docs', app, swaggerDocument, swaggerOptions)
 
   // Start NestJS server on port 3000
   await app.listen(3000)
