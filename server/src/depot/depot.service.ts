@@ -15,7 +15,7 @@ import { Company } from 'src/company/company.model'
 import { Share } from 'src/share/share.model'
 import { DepotSummary, DepotEntry, DepotPosition } from './dto/depot-entry.dto'
 import { ShareService } from 'src/share/share.service'
-import { executeApiCall, getOrderFunction, marketManager, orderManager } from '../util/stock-exchange/stock-wrapper'
+import { executeApiCall, getOrderFunction, lqOrderManager, marketManager, orderDetails, orderManager, orderTypes } from '../util/stock-exchange/stock-wrapper'
 import { TradeAlgorithm } from 'src/util/stock-exchange/trade-algorithm'
 import * as CONST from "../util/const"
 import { JobWrapper } from 'src/webhook/dto/job-wrapper.dto'
@@ -23,6 +23,7 @@ import { RegisterLpDto } from './dto/lp-register.dto'
 import { LpPosition } from './dto/lp-position.dto'
 import { LpCancelDto } from './dto/lp-cancel.dto'
 import { Query } from 'src/util/database/query.model'
+import { addDays } from 'src/util/cron/cron-jobs'
 
 
 @Injectable()
@@ -126,10 +127,10 @@ export class DepotService {
         let results: Array<Job> = []
         for (const o of orderArray) {
             const orderFunction = getOrderFunction(o)
-            results.push(await executeApiCall<Job>(orderFunction.func.f, orderFunction.args, orderManager))
+            results.push(await executeApiCall<Job>(orderFunction.func.f, orderFunction.args, isLp ? lqOrderManager : orderManager))
         }
 
-        await this.saveJobs(results, placeOrder.order.depotId, orderArray, CONST.JOB_TYPES.PLACE)
+        await this.saveJobs(results, placeOrder.order.depotId, orderArray, CONST.JOB_TYPES.PLACE, isLp)
 
         return orderArray
     }
@@ -307,11 +308,23 @@ export class DepotService {
      * @param customerSession Valid CustomerSession as Authorization object
      * @returns Returns a Depot object
      */
-    public async showDepotById(depotId: string, customerSession: CustomerSession): Promise<Depot> {
-        // Validate Session
-        const customer: { customer: Customer, session: CustomerSession } = await this.customerService.customerLogin({ session: customerSession })
+    public async showDepotById(depotId: string, customerSession: CustomerSession, isCron = false): Promise<Depot> {
 
-        let depot: Depot = await this.getDepotById(depotId)
+        let depot: Depot
+        let customer: { customer: Customer, session: CustomerSession }
+
+        // Validate Session if user wants to access
+        if (!isCron) {
+            customer = await this.customerService.customerLogin({ session: customerSession })
+
+            // Validate if customer is authorized to order on this depot
+            depot = await this.getDepotById(depotId)
+            if (depot.company.companyId != customer.customer.company.companyId) {
+                throw new UnauthorizedException(`Customer with id ${customer.customer.customerId} is not allowed to access depot with id ${depot.depotId}`)
+            }
+        }
+
+        // depot = await this.getDepotById(depotId)
         depot.positions = await this.getDepotPositions(depotId)
         depot.summary = this.depotSummaryFromPositions(depot.positions)
 
@@ -352,13 +365,13 @@ export class DepotService {
      * @param depotId depotId of user
      * @param orders Array of orders (from algorithm)
      */
-    public async saveJobs(jobs: Job[], depotId: string, orders: PlaceShareOrder[], jobType: string): Promise<void> {
+    public async saveJobs(jobs: Job[], depotId: string, orders: PlaceShareOrder[], jobType: string, isLp = false): Promise<void> {
         if (jobs.length != orders.length) {
             throw new InternalServerErrorException("Jobs / Orders length mismatch")
         }
 
         for (let i = 0; i < jobs.length; i++) {
-            await Connector.executeQuery(QueryBuilder.writeJobToDb(jobs[i], depotId, orders[i], jobType))
+            await Connector.executeQuery(QueryBuilder.writeJobToDb(jobs[i], depotId, orders[i], jobType, isLp))
         }
     }
 
@@ -387,19 +400,23 @@ export class DepotService {
      * @param session customer session
      * @returns the deleted ShareOrder object
      */
-    public async deletePendingOrder(orderId: string, session: CustomerSession): Promise<PlaceShareOrder> {
+    public async deletePendingOrder(orderId: string, session: CustomerSession, isCron = false): Promise<PlaceShareOrder> {
 
-        const customer: { customer: Customer, session: CustomerSession } = await this.customerService.customerLogin({ session: session })
         const order: PlaceShareOrder = await this.getPendingOrderById(orderId)
         const depot: Depot = await this.getDepotById(order.depotId)
 
-        // Validate if customer is authorized to order on this depot
-        if (depot.company.companyId != customer.customer.company.companyId) {
-            throw new UnauthorizedException(`Customer with id ${customer.customer.customerId} is not allowed to access depot with id ${depot.depotId}`)
+        // Check if deletion is made by cron or by user
+        if (!isCron) {
+            const customer: { customer: Customer, session: CustomerSession } = await this.customerService.customerLogin({ session: session })
+
+            // Validate if customer is authorized to order on this depot
+            if (depot.company.companyId != customer.customer.company.companyId) {
+                throw new UnauthorizedException(`Customer with id ${customer.customer.customerId} is not allowed to access depot with id ${depot.depotId}`)
+            }
         }
 
         // Delete order 
-        const result: boolean = await executeApiCall<boolean>(orderManager.deleteOrder, [orderId], orderManager)
+        const result: boolean = await executeApiCall<boolean>(orderManager.deleteOrder, [orderId], isCron ? lqOrderManager : orderManager)
 
         // If error occurs throw error
         if (!result) {
@@ -553,17 +570,69 @@ export class DepotService {
         return lpPosition
     }
 
+    /**
+     * Deletes and creates new LQ orders for every LP position
+     */
     public async runLps(): Promise<void> {
         const lpEntries = await Connector.executeQuery(QueryBuilder.getAllLpEntries())
         let shares: Array<Share> = []
-        
+        let depots: Array<Depot> = []
+
         for (const entry of lpEntries) {
             // Get shares
-            if(shares.filter(s => s.shareId === entry.share_id).length === 0) {
+            if (shares.filter(s => s.shareId === entry.share_id).length === 0) {
                 shares.push(await this.shareService.getShareData(entry.share_id))
             }
 
-            
+            // Get depots
+            if (depots.filter(d => d.depotId === entry.depot_id).length === 0) {
+                depots.push(await this.showDepotById(entry.depot_id, null, true))
+            }
+
+            // Get old job
+            const oldJobs = await Connector.executeQuery(QueryBuilder.getLpJobs(entry.depot_id, entry.share_id))
+
+            // Delete old entries
+            for (const j of oldJobs) {
+                await this.deletePendingOrder(j.exchange_order_id, null, true)
+            }
+
+            const share: Share = shares.filter(s => s.shareId === entry.share_id)[0]
+            const depot: Depot = depots.filter(d => d.depotId === entry.depot_id)[0]
+
+            // Check if depot has share
+            const depotPosition: DepotPosition = depot.positions.filter(pos => pos.share.shareId === share.shareId)[0]
+
+            // Check if depot has enough shares for given quote
+            const amount: number =  Math.floor(depotPosition.amount * entry.lq_quote)
+            if (!depotPosition || depotPosition.amount < 1 || amount === 0) {
+                // Return instead of error currently
+                // TODO: Maybe better error handling
+                return
+            }
+
+            // Place order
+            for (const t of ['sell', 'buy']) {
+
+                // Create place order object
+                const placeOrder: PlaceOrderDto = {
+                    customerSession: null,
+                    tradeAlgorithm: CONST.ALGORITHMS.NO_ALG,
+                    order: {
+                        shareId: share.shareId,
+                        depotId: depot.depotId,
+                        amount: amount,
+                        type: orderTypes[t],
+                        detail: orderDetails.limit,
+                        validity: addDays(new Date(), 1),
+                        orderId: null,
+                        limit: share.lastRecordedValue + (share.lastRecordedValue * 0.3 * (t == orderTypes.buy ? 1 : -1)),
+                        market: "Frankfurter Börse"
+                    }
+                }
+                // Place order
+                await this.placeOrder(placeOrder, true)
+            }
         }
     }
 
@@ -623,7 +692,8 @@ export class DepotService {
                     onDelete: "",
                     onComplete: "",
                     onPlace: ""
-                }
+                },
+                isLpJob: (r.is_lp_job === 0 ? false : true)
             })
         }
 

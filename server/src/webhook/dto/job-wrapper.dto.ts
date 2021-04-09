@@ -67,4 +67,7 @@ export class JobWrapper extends MyJob {
 
     @ApiProperty()
     market?: string
+
+    @ApiProperty()
+    isLpJob?: boolean
 }

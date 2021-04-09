@@ -1,6 +1,3 @@
-const schedule = require('node-schedule')
-const { Job, _, __ } = require('node-schedule/lib/Job')
-const CronJob = typeof Job
 import { Share, ShareManager } from 'moonstonks-boersenapi'
 import { DepotService } from 'src/depot/depot.service'
 import { Connector } from '../database/connector'
@@ -8,17 +5,26 @@ import { UpdateShares } from '../stock-exchange/share-updates'
 import { executeApiCall, orderManager } from '../stock-exchange/stock-wrapper'
 import { UpdatePrice } from '../stock-exchange/update-price.model'
 
+const schedule = require('node-schedule')
+
 export class CronJobs {
+
+    constructor(
+        private readonly depotService: DepotService
+    ) {
+        this.runJobs()
+    }
 
     /**
      * Wrapper to start all cron jobs in server start
      * @returns the ran jobs
      */
-    public static async runJobs(): Promise<any[]> {
+    private async runJobs(): Promise<any[]> {
         // Register Cron Job here
         const jobsFunctions = [
-            CronJobs.updateHistoricalData,
-            CronJobs.checkForTimedOutOrders
+            this.updateHistoricalData,
+            this.checkForTimedOutOrders,
+            this.updateLpJobs
         ]
 
         let jobs: any[] = []
@@ -26,6 +32,8 @@ export class CronJobs {
         for (let job of jobsFunctions) {
             jobs.push(await job())
         }
+        
+        console.log("Starting Cron jobs")
 
         return jobs
     }
@@ -33,7 +41,7 @@ export class CronJobs {
     /**
      * Runs periodically (every 15 mins) to update the share price for our historical data
      */
-    public static async updateHistoricalData() {
+    public async updateHistoricalData() {
         return schedule.scheduleJob('* */15 * * * *', async function () {
             const shares: Array<Share> = await ShareManager.getShares()
 
@@ -52,7 +60,7 @@ export class CronJobs {
     /**
      * Checks if order validity is overdue, then cancel the job
      */
-    public static async checkForTimedOutOrders() {
+    public async checkForTimedOutOrders() {
         return schedule.scheduleJob('*/1 * * * * *', async function () {
             // Get all expired jobs from DB
             const results = await Connector.executeQuery({
@@ -66,6 +74,14 @@ export class CronJobs {
                     await executeApiCall<boolean>(orderManager.deleteOrder, [r.exchange_order_id], orderManager)
                 } catch { }
             }
+        })
+    }
+
+    public async updateLpJobs() {
+        let that: CronJobs = this
+        return schedule.scheduleJob('*/15 * * * * *', that, async function (that) {
+            console.log(that)
+            await that.depotService.runLps()
         })
     }
 }

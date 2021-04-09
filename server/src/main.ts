@@ -40,4 +40,4 @@ async function bootstrap() {
 // start Nest
 bootstrap()
 // Start Cronjobs
-CronJobs.runJobs();
+// CronJobs.runJobs();
