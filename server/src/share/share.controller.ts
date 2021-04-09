@@ -111,9 +111,9 @@ export class ShareController {
     @ApiInternalServerErrorResponse({
         description: "Something went wrong"
     })
-    @Get('statistics')
+    @Get('statistics/:shareId')
     async getStatistics(
-        @Query('shareId') shareId: string,
+        @Param('shareId') shareId: string,
     ): Promise<Statistics> {
         return this.shareService.getStatistics(shareId)
     }
