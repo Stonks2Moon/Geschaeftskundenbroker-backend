@@ -23,6 +23,18 @@ export const lqOrderManager = new OrderManager(
 
 export { MarketManager as marketManager }
 
+export enum orderTypes {
+    buy = "buy",
+    sell = "sell"
+}
+
+export enum orderDetails {
+    market = "market",
+    limit = "limit",
+    stop = "stop",
+    stopLimit = "stopLimit"
+}
+
 /**
  * Method to execute API calls to stock-exchange (to avoid using try/catch + await everytime it is used)
  * @param func function to be called

@@ -626,6 +626,20 @@ export class QueryBuilder {
         }
     }
 
+    /**
+     * Return a list of all completed share orders for a given depot
+     * @param depotId id of depot
+     * @returns a query object
+     */
+    public static getShareOrdersByDepotId(depotId: string): Query {
+        return {
+            query: "SELECT * FROM share_order WHERE depot_id = ? ORDER BY created_at DESC;",
+            args: [
+                depotId
+            ]
+        }
+    }
+
 
     /**
      * Creates an entry on the LP table
