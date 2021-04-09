@@ -1,6 +1,7 @@
 import { Controller, Get, Param, Query } from '@nestjs/common'
 import { ApiBadRequestResponse, ApiInternalServerErrorResponse, ApiNotFoundResponse, ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger'
 import { HistoricalDataDto } from './dto/historical-data.dto'
+import { Statistics } from './dto/statistics.dto'
 import { Share } from './share.model'
 import { ShareService } from './share.service'
 
@@ -93,6 +94,28 @@ export class ShareController {
         @Query('toDate') toDate: string,
     ): Promise<HistoricalDataDto> {
         return this.shareService.getHistoricalData(shareId, fromDate, toDate)
+    }
+
+    /**
+    * used to get statistical data of a share
+    * @param shareId id of the share
+    * @returns the statistical data for a share
+    */
+    @ApiOkResponse({
+        description: "Returns statistical data for a specified share",
+        type: Statistics
+    })
+    @ApiNotFoundResponse({
+        description: "Share not found"
+    })
+    @ApiInternalServerErrorResponse({
+        description: "Something went wrong"
+    })
+    @Get('statistics')
+    async getStatistics(
+        @Query('shareId') shareId: string,
+    ): Promise<Statistics> {
+        return this.shareService.getStatistics(shareId)
     }
 
     /**
