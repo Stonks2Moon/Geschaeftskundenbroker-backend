@@ -89,6 +89,8 @@ export class ShareService {
         // Get share from database
         let result = (await Connector.executeQuery(QueryBuilder.getShareById(shareId)))[0]
 
+        let test = (await Connector.executeQuery(QueryBuilder.getStatistics(shareId)))[0]
+
         // If no share is found throw 404 error
         if (!result) {
             throw new NotFoundException("Share not found")
