@@ -228,6 +228,7 @@ export class DepotController {
     ): Promise<PlaceShareOrder> {
         return await this.depotService.deletePendingOrder(orderId, customerSession);
     }
+    
 
     /**
      * Registers a depot of a company as a LP
