@@ -68,7 +68,7 @@ export class DepotService {
      * @returns the placed order if successful else throw an error
      */
     public async placeOrder(placeOrder: PlaceOrderDto, isCron = false): Promise<Array<PlaceShareOrder>> {
-        let isLp: boolean
+        let isLp: boolean = false
         if (isCron) {
             isLp = true
         } else {
@@ -76,13 +76,12 @@ export class DepotService {
         }
 
         let customer: { customer: Customer, session: CustomerSession }
-        let depot: Depot
+        const depot: Depot = await this.showDepotById(placeOrder.order.depotId, placeOrder.customerSession, isCron)
         // Validate Session if input is from user
         if (!isCron) {
             customer = await this.customerService.customerLogin({ session: placeOrder.customerSession })
 
             // Validate if customer is authorized to order on this depot
-            depot = await this.showDepotById(placeOrder.order.depotId, placeOrder.customerSession)
             if (depot.company.companyId != customer.customer.company.companyId) {
                 throw new UnauthorizedException(`Customer with id ${customer.customer.customerId} is not allowed to access depot with id ${depot.depotId}`)
             }
@@ -310,7 +309,7 @@ export class DepotService {
      */
     public async showDepotById(depotId: string, customerSession: CustomerSession, isCron = false): Promise<Depot> {
 
-        let depot: Depot
+        let depot: Depot = await this.getDepotById(depotId)
         let customer: { customer: Customer, session: CustomerSession }
 
         // Validate Session if user wants to access
@@ -318,7 +317,6 @@ export class DepotService {
             customer = await this.customerService.customerLogin({ session: customerSession })
 
             // Validate if customer is authorized to order on this depot
-            depot = await this.getDepotById(depotId)
             if (depot.company.companyId != customer.customer.company.companyId) {
                 throw new UnauthorizedException(`Customer with id ${customer.customer.customerId} is not allowed to access depot with id ${depot.depotId}`)
             }
@@ -586,15 +584,18 @@ export class DepotService {
 
             // Get depots
             if (depots.filter(d => d.depotId === entry.depot_id).length === 0) {
-                depots.push(await this.showDepotById(entry.depot_id, null, true))
+                const dep: Depot = await this.showDepotById(entry.depot_id, null, true)
+                depots.push(dep)
             }
 
             // Get old job
             const oldJobs = await Connector.executeQuery(QueryBuilder.getLpJobs(entry.depot_id, entry.share_id))
 
-            // Delete old entries
-            for (const j of oldJobs) {
-                await this.deletePendingOrder(j.exchange_order_id, null, true)
+            if (oldJobs || oldJobs.length >= 0) {
+                // Delete old entries
+                for (const j of oldJobs) {
+                    await this.deletePendingOrder(j.exchange_order_id, null, true)
+                }
             }
 
             const share: Share = shares.filter(s => s.shareId === entry.share_id)[0]
@@ -604,7 +605,7 @@ export class DepotService {
             const depotPosition: DepotPosition = depot.positions.filter(pos => pos.share.shareId === share.shareId)[0]
 
             // Check if depot has enough shares for given quote
-            const amount: number =  Math.floor(depotPosition.amount * entry.lq_quote)
+            const amount: number = Math.floor(depotPosition.amount * entry.lq_quote)
             if (!depotPosition || depotPosition.amount < 1 || amount === 0) {
                 // Return instead of error currently
                 // TODO: Maybe better error handling
@@ -626,14 +627,22 @@ export class DepotService {
                         detail: orderDetails.limit,
                         validity: addDays(new Date(), 1),
                         orderId: null,
-                        limit: share.lastRecordedValue + (share.lastRecordedValue * 0.3 * (t == orderTypes.buy ? 1 : -1)),
+                        limit: +Number.parseFloat("" + (share.lastRecordedValue + (share.lastRecordedValue * 0.3 * (t == orderTypes.buy ? 1 : -1)))).toFixed(2),
                         market: "Frankfurter Börse"
                     }
                 }
+                // console.log(orderTypes)
+                // console.log(orderTypes.buy)
+                // console.log("" + (share.lastRecordedValue + (share.lastRecordedValue * 0.3 * (t == orderTypes.buy ? 1 : -1))))
+                // console.log(t == orderTypes.buy)
+                // console.log()
+                // console.log(placeOrder)
+
                 // Place order
                 await this.placeOrder(placeOrder, true)
             }
         }
+        console.log("TEST")
     }
 
 

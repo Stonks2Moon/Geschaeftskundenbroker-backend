@@ -1,5 +1,6 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common'
 import { Share, ShareManager } from 'moonstonks-boersenapi'
+import { exit } from 'node:process'
 import { DepotService } from 'src/depot/depot.service'
 import { Connector } from '../database/connector'
 import { UpdateShares } from '../stock-exchange/share-updates'
@@ -85,9 +86,11 @@ export class CronJobs {
 
     public async updateLpJobs(context: CronJobs) {
         // let that: CronJobs = context
-        return schedule.scheduleJob('*/15 * * * * *', async function () {
+        return schedule.scheduleJob('*/30 * * * * *', async function () {
             // console.log(context)
-            await context.depotService.runLps()
+            // await context.depotService.runLps()
+            // throw new Error("FUUUUK")
+            
         })
     }
 }
