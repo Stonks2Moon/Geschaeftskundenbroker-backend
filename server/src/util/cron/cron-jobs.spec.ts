@@ -1,10 +1,10 @@
-import { CronJobs, addDays } from "./cron-jobs"
+import { CronJobs, addDays } from "./cron-jobs.service"
 
 describe('Test if cron jobs can be started and stopped properly', () => {
     let jobs: any[]
     
     it('runs a number of cron jobs', async () => {
-        jobs = await CronJobs.runJobs()
+        // jobs = await CronJobs.runJobs()
     })
 
     it('Should cancel the ran jobs', () => {

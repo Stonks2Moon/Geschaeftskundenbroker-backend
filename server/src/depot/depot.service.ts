@@ -23,7 +23,7 @@ import { RegisterLpDto } from './dto/lp-register.dto'
 import { LpPosition } from './dto/lp-position.dto'
 import { LpCancelDto } from './dto/lp-cancel.dto'
 import { Query } from 'src/util/database/query.model'
-import { addDays } from 'src/util/cron/cron-jobs'
+import { addDays } from 'src/util/cron/cron-jobs.service'
 
 
 @Injectable()

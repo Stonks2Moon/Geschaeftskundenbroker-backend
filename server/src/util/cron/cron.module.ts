@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { DepotModule } from 'src/depot/depot.module';
-import { CronJobs } from './cron-jobs';
+import { CronJobs } from './cron-jobs.service';
 
 @Module({
     imports: [DepotModule],

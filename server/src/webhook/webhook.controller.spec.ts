@@ -18,7 +18,7 @@ import { JobWrapper } from "./dto/job-wrapper.dto";
 import { WebhookController } from "./webhook.controller"
 import { WebhookModule } from "./webhook.module";
 import { Share } from "src/share/share.model";
-import { addDays } from "../util/cron/cron-jobs"
+import { addDays } from "../util/cron/cron-jobs.service"
 import { Job, OrderCompletedDto } from "moonstonks-boersenapi";
 import { DepotService } from "src/depot/depot.service";
 import * as CONST from "../util/const"

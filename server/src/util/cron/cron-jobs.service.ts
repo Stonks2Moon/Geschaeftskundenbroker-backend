@@ -1,3 +1,4 @@
+import { forwardRef, Inject, Injectable } from '@nestjs/common'
 import { Share, ShareManager } from 'moonstonks-boersenapi'
 import { DepotService } from 'src/depot/depot.service'
 import { Connector } from '../database/connector'
@@ -7,11 +8,16 @@ import { UpdatePrice } from '../stock-exchange/update-price.model'
 
 const schedule = require('node-schedule')
 
+@Injectable()
 export class CronJobs {
 
+    public test: string = "Hello World"
+
     constructor(
-        private readonly depotService: DepotService
+        @Inject(forwardRef(() => DepotService))
+        public readonly depotService: DepotService
     ) {
+        // console.log("This", this)
         this.runJobs()
     }
 
@@ -30,10 +36,10 @@ export class CronJobs {
         let jobs: any[] = []
 
         for (let job of jobsFunctions) {
-            jobs.push(await job())
+            jobs.push(await job(this))
         }
         
-        console.log("Starting Cron jobs")
+        // console.log("Starting Cron jobs")
 
         return jobs
     }
@@ -41,7 +47,7 @@ export class CronJobs {
     /**
      * Runs periodically (every 15 mins) to update the share price for our historical data
      */
-    public async updateHistoricalData() {
+    public async updateHistoricalData(context) {
         return schedule.scheduleJob('* */15 * * * *', async function () {
             const shares: Array<Share> = await ShareManager.getShares()
 
@@ -60,7 +66,7 @@ export class CronJobs {
     /**
      * Checks if order validity is overdue, then cancel the job
      */
-    public async checkForTimedOutOrders() {
+    public async checkForTimedOutOrders(context) {
         return schedule.scheduleJob('*/1 * * * * *', async function () {
             // Get all expired jobs from DB
             const results = await Connector.executeQuery({
@@ -77,11 +83,11 @@ export class CronJobs {
         })
     }
 
-    public async updateLpJobs() {
-        let that: CronJobs = this
-        return schedule.scheduleJob('*/15 * * * * *', that, async function (that) {
-            console.log(that)
-            await that.depotService.runLps()
+    public async updateLpJobs(context: CronJobs) {
+        // let that: CronJobs = context
+        return schedule.scheduleJob('*/15 * * * * *', async function () {
+            // console.log(context)
+            await context.depotService.runLps()
         })
     }
 }
