@@ -184,7 +184,7 @@ export class ShareService {
         // Create response object
         const response: Statistics = {
             difference: result.difference,
-            percent: result.prozent
+            percent: result.percent
         }
 
         return response
