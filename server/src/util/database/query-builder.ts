@@ -437,11 +437,9 @@ export class QueryBuilder {
      * @param shareId ID of the share
      * @returns a Query object
      */
-     public static getStatistics(shareId: string): Query {
-        let yesterday = new Date()
-        yesterday.setDate(yesterday.getDate() -1)
+     public static getStatistics(shareId: string, yesterday: Date): Query {
         return {
-            query: 'WITH yesterday(recorded_value) AS (SELECT recorded_value FROM share_price WHERE recorded_at <= ? AND share_id = ? ORDER BY recorded_at ASC LIMIT 1) SELECT last_recorded_value - yesterday.recorded_value as difference, ((last_recorded_value/yesterday.recorded_value)-1)*100 as prozent FROM share, yesterday WHERE share_id = ? ',
+            query: 'WITH yesterday(recorded_value) AS (SELECT recorded_value FROM share_price WHERE recorded_at <= ? AND share_id = ? ORDER BY recorded_at ASC LIMIT 1) SELECT last_recorded_value - yesterday.recorded_value as difference, ((last_recorded_value/yesterday.recorded_value)-1)*100 as percent FROM share, yesterday WHERE share_id = ? ',
             args: [
                 yesterday,
                 shareId,
