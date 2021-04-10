@@ -78,6 +78,7 @@ export class UpdateShares {
                 if (typeof apiShares === "object") {
                     shares = apiShares
                 } else if (typeof apiShares === "string") {
+                    console.log("Received string from API", apiShares)
                     shares = JSON.parse(apiShares)
                 } else {
                     throw new Error("Unhandled return type for stock exchange /share")
