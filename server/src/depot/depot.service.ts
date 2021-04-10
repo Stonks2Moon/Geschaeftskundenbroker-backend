@@ -631,18 +631,11 @@ export class DepotService {
                         market: "Frankfurter Börse"
                     }
                 }
-                // console.log(orderTypes)
-                // console.log(orderTypes.buy)
-                // console.log("" + (share.lastRecordedValue + (share.lastRecordedValue * 0.3 * (t == orderTypes.buy ? 1 : -1))))
-                // console.log(t == orderTypes.buy)
-                // console.log()
-                // console.log(placeOrder)
 
                 // Place order
                 await this.placeOrder(placeOrder, true)
             }
         }
-        console.log("TEST")
     }
 
 

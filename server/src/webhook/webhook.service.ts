@@ -54,6 +54,8 @@ export class WebhookService {
             // Transform job into executed share_order
             const order: PlaceShareOrder = await this.jobToOrder(job)
             await this.depotService.saveShareOrder(order)
+            // Delete job from db
+            await Connector.executeQuery(QueryBuilder.deleteJobByJobId(job.id))
         } else if (job.jobType === CONST.JOB_TYPES.DELETE) {
             console.log("Inside onComplete: DELETION")
             console.log(data)
@@ -106,10 +108,10 @@ export class WebhookService {
         // Get job from DB
         const result = (await Connector.executeQuery(QueryBuilder.getJobById(info)))[0]
 
-        if(!result) {
+        if (!result) {
             throw new NotFoundException("Job not found")
         }
-        
+
         // Get share object
         const share = (await this.shareService.getShareData(result.share_id))
 

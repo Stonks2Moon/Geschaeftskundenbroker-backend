@@ -56,26 +56,4 @@ export class MetaController {
     async exportPricing() {
         return await this.metaService.exportPricing()
     }
-
-    // @Get("test")
-    // async test() {
-    //     let shares: Array<Share> = []
-    //         const axios = require("axios")
-    //         try {
-    //             const apiShares = (await axios.get('https://google.com')).data
-    //             console.log(typeof apiShares)
-    //             if (typeof apiShares === "object") {
-    //                 shares = apiShares
-    //             } else if (typeof apiShares === "string") {
-    //                 shares = JSON.parse(apiShares)
-    //             } else {
-    //                 throw new Error("Unhandled return type for stock exchange /share")
-    //             }
-    //         } catch (e) {
-    //             console.error("Stock Exchange not available", e)
-    //             return
-    //         }
-
-    //         console.log(shares)
-    // }
 }

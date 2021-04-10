@@ -22,16 +22,6 @@ export class UpdateShares {
             console.error(e)
         }
 
-        // // Check if socket connected
-        // this.stockExchangeServerSocket.on("connect", () => {
-        //     //console.log(this.stockExchangeServerSocket.id)
-        // })
-
-        // Check if socket disconnected
-        // this.stockExchangeServerSocket.on("disconnect", () => {
-        //     this.stockExchangeServerSocket.connect()
-        // })
-
         // Handle socket errors
         try {
             this.stockExchangeServerSocket.on("error", e => console.error("Socket on \"error\": ", e))
@@ -85,11 +75,13 @@ export class UpdateShares {
                 }
             } catch (e) {
                 console.error("Stock Exchange not available", e)
-                return
+                //return
             }
 
             // Check if get shares was not successful
-            if (!shares || shares.length === 0) return
+            if (!shares || shares.length === 0) {
+                throw new Error("Shares length 0 or no shares in updatePrice")
+            }
 
             const share: Share = shares.filter(s =>
                 s.id === updatePrice.shareId
@@ -110,8 +102,6 @@ export class UpdateShares {
                 currencyName: ""
             }))
         }
-
-        // console.log("Here", updatePrice.timestamp, new Date(+updatePrice.timestamp))
 
         // Update Database entries
         await Connector.executeQuery(QueryBuilder.updateSharePrice(+updatePrice.price, updatePrice.shareId))

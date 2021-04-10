@@ -5,9 +5,7 @@ import { ValidationPipe } from '@nestjs/common'
 import { swaggerCss } from './_config/swagger-style'
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
-    logger: ['log', 'warn', 'debug', 'error', 'verbose']
-  })
+  const app = await NestFactory.create(AppModule)
   // Enable CORS for all hosts (regex is used instead of wildcard, because only wildcard does not work properly)
   app.enableCors({
     origin: [
