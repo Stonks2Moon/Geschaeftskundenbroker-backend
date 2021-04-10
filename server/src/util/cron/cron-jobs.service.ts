@@ -69,18 +69,18 @@ export class CronJobs {
      */
     public async checkForTimedOutOrders(context) {
         return schedule.scheduleJob('*/1 * * * * *', async function () {
-            // Get all expired jobs from DB
-            const results = await Connector.executeQuery({
-                query: "SELECT * FROM job WHERE order_validity < NOW()",
-                args: []
-            })
+            // // Get all expired jobs from DB
+            // const results = await Connector.executeQuery({
+            //     query: "SELECT * FROM job WHERE order_validity < NOW()",
+            //     args: []
+            // })
 
-            // Delete jobs on stock exchange; call on webhook deletes them from DB
-            for (const r of results) {
-                try {
-                    await executeApiCall<boolean>(orderManager.deleteOrder, [r.exchange_order_id], orderManager)
-                } catch { }
-            }
+            // // Delete jobs on stock exchange; call on webhook deletes them from DB
+            // for (const r of results) {
+            //     try {
+            //         await executeApiCall<boolean>(orderManager.deleteOrder, [r.exchange_order_id], orderManager)
+            //     } catch { }
+            // }
         })
     }
 
