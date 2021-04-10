@@ -24,6 +24,7 @@ export class WebhookService {
      * @param data data from stock-exchange
      */
     public async onPlace(data: any): Promise<void> {
+        console.log("Called on place: ", data)
         await Connector.executeQuery(QueryBuilder.updateJobWithOrderId(data.jobId, data.id))
     }
 
@@ -32,6 +33,7 @@ export class WebhookService {
      * @param data 
      */
     public async onMatch(data: OrderMatchedDto): Promise<void> {
+        console.log("Called on match: ", data)
         // TODO
     }
 
@@ -41,6 +43,8 @@ export class WebhookService {
      * @param data 
      */
     public async onComplete(data: OrderCompletedDto): Promise<void> {
+        console.log("on Complete", data)
+
         // Get Job from DB
         const job: JobWrapper = await this.getJobById({ orderId: data.orderId })
 
@@ -61,6 +65,7 @@ export class WebhookService {
      * @param data 
      */
     public async onDelete(data: OrderDeletedDto): Promise<void> {
+        console.log("on delete", data)
         const job: JobWrapper = await this.getJobById({ orderId: data.orderId })
         await Connector.executeQuery(QueryBuilder.deleteJobByJobId(job.id))
     }

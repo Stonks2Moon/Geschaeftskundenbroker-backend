@@ -2,11 +2,12 @@ import { NestFactory } from '@nestjs/core'
 import { AppModule } from './app.module'
 import { DocumentBuilder, SwaggerCustomOptions, SwaggerModule } from '@nestjs/swagger'
 import { ValidationPipe } from '@nestjs/common'
-import { CronJobs } from './util/cron/cron-jobs.service'
 import { swaggerCss } from './_config/swagger-style'
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule)
+  const app = await NestFactory.create(AppModule, {
+    logger: ['log', 'warn', 'debug', 'error', 'verbose']
+  })
   // Enable CORS for all hosts (regex is used instead of wildcard, because only wildcard does not work properly)
   app.enableCors({
     origin: [

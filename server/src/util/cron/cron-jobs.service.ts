@@ -93,6 +93,10 @@ export class CronJobs {
             
         })
     }
+
+    public async runTest() {
+        await this.depotService.runLps()
+    }
 }
 
 /**
