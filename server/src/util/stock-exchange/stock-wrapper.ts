@@ -5,21 +5,21 @@ import * as CONST from '../const'
 
 export const stockExchangeApi = new BörsenAPI(CONST.STOCK_EXCHANGE_API_TOKEN.BUSINESS)
 export const orderManager = new OrderManager(
-                                    stockExchangeApi, 
-                                    CONST.JOB_CALLBACKS.ON_PLACE, 
-                                    CONST.JOB_CALLBACKS.ON_MATCH, 
-                                    CONST.JOB_CALLBACKS.ON_COMPLETE, 
-                                    CONST.JOB_CALLBACKS.ON_DELETE
-                                )
+    stockExchangeApi,
+    CONST.JOB_CALLBACKS.ON_PLACE,
+    CONST.JOB_CALLBACKS.ON_MATCH,
+    CONST.JOB_CALLBACKS.ON_COMPLETE,
+    CONST.JOB_CALLBACKS.ON_DELETE
+)
 
 export const lqStockExchangeApi = new BörsenAPI(CONST.STOCK_EXCHANGE_API_TOKEN.LIQUID)
 export const lqOrderManager = new OrderManager(
-                                    lqStockExchangeApi, 
-                                    CONST.JOB_CALLBACKS.ON_PLACE, 
-                                    CONST.JOB_CALLBACKS.ON_MATCH, 
-                                    CONST.JOB_CALLBACKS.ON_COMPLETE, 
-                                    CONST.JOB_CALLBACKS.ON_DELETE
-                                )
+    lqStockExchangeApi,
+    CONST.JOB_CALLBACKS.ON_PLACE,
+    CONST.JOB_CALLBACKS.ON_MATCH,
+    CONST.JOB_CALLBACKS.ON_COMPLETE,
+    CONST.JOB_CALLBACKS.ON_DELETE
+)
 
 export { MarketManager as marketManager }
 
@@ -44,10 +44,9 @@ export enum orderDetails {
  */
 export async function executeApiCall<T>(func: Function, args: any[], manager: any): Promise<T> {
     try {
-        console.log(args)
         return await func.apply(manager, args)
     } catch (e) {
-        // console.error(e)
+        console.error(e)
         throw new InternalServerErrorException(e, "Stock Exchange API failed")
     }
 }

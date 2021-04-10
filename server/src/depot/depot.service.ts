@@ -22,9 +22,10 @@ import { JobWrapper } from 'src/webhook/dto/job-wrapper.dto'
 import { RegisterLpDto } from './dto/lp-register.dto'
 import { LpPosition } from './dto/lp-position.dto'
 import { LpCancelDto } from './dto/lp-cancel.dto'
-import { Query } from 'src/util/database/query.model'
 import { addDays } from 'src/util/cron/cron-jobs.service'
-
+import * as Moment from 'moment'
+import { extendMoment } from 'moment-range'
+const moment = extendMoment(Moment)
 
 @Injectable()
 export class DepotService {
@@ -73,6 +74,11 @@ export class DepotService {
             isLp = true
         } else {
             // Get from db if user is lp,
+        }
+
+        // Check validity date
+        if (moment(placeOrder.order.validity).diff(addDays(new Date(), 1)) < 0) {
+            throw new BadRequestException("No valid date information")
         }
 
         let customer: { customer: Customer, session: CustomerSession }
@@ -607,14 +613,11 @@ export class DepotService {
             // Check if depot has enough shares for given quote
             const amount: number = Math.floor(depotPosition.amount * entry.lq_quote)
             if (!depotPosition || depotPosition.amount < 1 || amount === 0) {
-                // Return instead of error currently
-                // TODO: Maybe better error handling
-                return
+                throw new Error(`No depot position in depot ${depot.depotId}`)
             }
 
             // Place order
             for (const t of ['sell', 'buy']) {
-
                 // Create place order object
                 const placeOrder: PlaceOrderDto = {
                     customerSession: null,
@@ -625,9 +628,9 @@ export class DepotService {
                         amount: amount,
                         type: orderTypes[t],
                         detail: orderDetails.limit,
-                        validity: addDays(new Date(), 1),
+                        validity: addDays(new Date(), 2),
                         orderId: null,
-                        limit: +Number.parseFloat("" + (share.lastRecordedValue + (share.lastRecordedValue * 0.3 * (t == orderTypes.buy ? 1 : -1)))).toFixed(2),
+                        limit: +Number.parseFloat("" + (share.lastRecordedValue + (share.lastRecordedValue * CONST.LP_LIMIT_MULTIPLIER * (t == orderTypes.buy ? -1 : 1)))).toFixed(2),//t == 'sell' ? 500: 13,//+Number.parseFloat("" + (share.lastRecordedValue + (share.lastRecordedValue * 0.3 * (t == orderTypes.buy ? 1 : -1)))).toFixed(2),
                         market: "Frankfurter Börse"
                     }
                 }

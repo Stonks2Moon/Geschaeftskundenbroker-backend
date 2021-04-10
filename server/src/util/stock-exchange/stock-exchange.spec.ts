@@ -77,8 +77,6 @@ describe('Test various functions of the stock exchange logic', () => {
         const from: string = addDays(new Date(), -5).toISOString()
         const to: string = addDays(new Date(), 5).toISOString()
 
-        // console.log(from, to)
-        // console.log(moment(to.toString()).diff(from.toString()))
         const hist: HistoricalDataDto = await shareController.getHistoricalData(fakeShare.shareId, from, to)
 
         // Get it manually
@@ -95,7 +93,7 @@ describe('Test various functions of the stock exchange logic', () => {
     })
 
     it('Should test the private functions of share updates', () => {
-        // console.log(shareUpdateRewire.__get__('generateISIN')('Hello'))
+        
     })
 
     it('Should test the ability to start and stop sockets', () => {

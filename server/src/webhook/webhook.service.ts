@@ -24,7 +24,7 @@ export class WebhookService {
      * @param data data from stock-exchange
      */
     public async onPlace(data: any): Promise<void> {
-        console.log("Called on place: ", data)
+        // console.log("Called onPlace: ", data)
         await Connector.executeQuery(QueryBuilder.updateJobWithOrderId(data.jobId, data.id))
     }
 
@@ -33,7 +33,7 @@ export class WebhookService {
      * @param data 
      */
     public async onMatch(data: OrderMatchedDto): Promise<void> {
-        console.log("Called on match: ", data)
+        // console.log("Called onMatch: ", data)
         // TODO
     }
 
@@ -43,22 +43,20 @@ export class WebhookService {
      * @param data 
      */
     public async onComplete(data: OrderCompletedDto): Promise<void> {
-        console.log("on Complete", data)
+        // console.log("Called onComplete", data)
 
         // Get Job from DB
         const job: JobWrapper = await this.getJobById({ orderId: data.orderId })
 
         // Depending on job type:
         if (job.jobType === CONST.JOB_TYPES.PLACE) {
-
             // Transform job into executed share_order
             const order: PlaceShareOrder = await this.jobToOrder(job)
             await this.depotService.saveShareOrder(order)
             // Delete job from db
             await Connector.executeQuery(QueryBuilder.deleteJobByJobId(job.id))
-        } else if (job.jobType === CONST.JOB_TYPES.DELETE) {
-            console.log("Inside onComplete: DELETION")
-            console.log(data)
+        } else {
+            console.error(`Unhandled Job type ${job.jobType}`)
         }
     }
 
@@ -67,7 +65,7 @@ export class WebhookService {
      * @param data 
      */
     public async onDelete(data: OrderDeletedDto): Promise<void> {
-        console.log("on delete", data)
+        // console.log("Called onDelete", data)
         const job: JobWrapper = await this.getJobById({ orderId: data.orderId })
         await Connector.executeQuery(QueryBuilder.deleteJobByJobId(job.id))
     }
@@ -109,6 +107,7 @@ export class WebhookService {
         const result = (await Connector.executeQuery(QueryBuilder.getJobById(info)))[0]
 
         if (!result) {
+            console.log(`Job with id ${info.jobId} not found`)
             throw new NotFoundException("Job not found")
         }
 

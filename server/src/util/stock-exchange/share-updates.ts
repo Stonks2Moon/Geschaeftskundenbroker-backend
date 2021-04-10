@@ -64,18 +64,9 @@ export class UpdateShares {
 
             // Call api and handle errors if stock exchange api is down
             try {
-                const apiShares = (await axios.get('https://boerse.moonstonks.space/share')).data
-                if (typeof apiShares === "object") {
-                    shares = apiShares
-                } else if (typeof apiShares === "string") {
-                    console.log("Received string from API", apiShares)
-                    shares = JSON.parse(apiShares)
-                } else {
-                    throw new Error("Unhandled return type for stock exchange /share")
-                }
+                shares = await ShareManager.getShares()
             } catch (e) {
                 console.error("Stock Exchange not available", e)
-                //return
             }
 
             // Check if get shares was not successful

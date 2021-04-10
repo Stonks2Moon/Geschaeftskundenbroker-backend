@@ -173,13 +173,6 @@ describe('Test Depot controller', () => {
         await depotService.saveJobs([testJob], testDepot.depotId, [testPlaceShareOrder], CONST.JOB_TYPES.PLACE)
         const localOrderId: string = cryptoRandomString({length: 10, type: 'alphanumeric'})
         await webhookController.onPlace({ id: localOrderId, jobId: testJob.id})
-
-        // const orderId: string = (await Connector.executeQuery({
-        //     query: "SELECT * FROM job WHERE job_id = ?;",
-        //     args: [testJob.id]
-        // }))[0].exchange_order_id
-        // console.log("OrderId: ", orderId)
-
         await webhookController.onDelete({orderId: localOrderId, timestamp: 0, remaining: 0})
 
         const result = (await Connector.executeQuery({
