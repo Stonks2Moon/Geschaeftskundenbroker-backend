@@ -174,11 +174,13 @@ export class ShareService {
         const responseShare = await this.getShareData(shareId)
 
         // Get data from database
-        const result = (await Connector.executeQuery(QueryBuilder.getStatistics(shareId)))[0]
+        let yesterday = new Date()
+        yesterday.setDate(yesterday.getDate() -1)
+        const result = (await Connector.executeQuery(QueryBuilder.getStatistics(shareId, yesterday)))[0]
 
         // If no shares are found throw 404 error
         if (!result || result.length === 0) {
-            throw new NotFoundException("Share not")
+            throw new NotFoundException(`Share with id ${shareId} not found`)
         }
 
         // Create response object
