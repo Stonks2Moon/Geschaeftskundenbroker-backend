@@ -67,7 +67,7 @@ export class DepotService {
      * @param placeOrder placeOrder object with all needed information to perform task
      * @returns the placed order if successful else throw an error
      */
-    public async placeOrder(placeOrder: PlaceOrderDto, isCron = true): Promise<Array<PlaceShareOrder>> {
+    public async placeOrder(placeOrder: PlaceOrderDto, isCron = false): Promise<Array<PlaceShareOrder>> {
         let isLp: boolean = false
         if (isCron) {
             isLp = true
