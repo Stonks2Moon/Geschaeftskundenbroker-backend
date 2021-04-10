@@ -12,7 +12,7 @@ import { CustomerDto } from 'src/customer/dto/customer.dto';
 import { ShareController } from 'src/share/share.controller';
 import { Share } from 'src/share/share.model';
 import { ShareModule } from 'src/share/share.module';
-import { addDays } from 'src/util/cron/cron-jobs';
+import { addDays } from 'src/util/cron/cron-jobs.service';
 import { Connector } from 'src/util/database/connector';
 import { CleanUpIds, cleanUp } from 'src/util/testing/cleanup';
 import { JobWrapper } from 'src/webhook/dto/job-wrapper.dto';

@@ -1,31 +1,46 @@
-const schedule = require('node-schedule')
-const { Job, _, __ } = require('node-schedule/lib/Job')
-const CronJob = typeof Job
+import { forwardRef, Inject, Injectable } from '@nestjs/common'
 import { Share, ShareManager } from 'moonstonks-boersenapi'
+import { exit } from 'node:process'
 import { DepotService } from 'src/depot/depot.service'
 import { Connector } from '../database/connector'
 import { UpdateShares } from '../stock-exchange/share-updates'
 import { executeApiCall, orderManager } from '../stock-exchange/stock-wrapper'
 import { UpdatePrice } from '../stock-exchange/update-price.model'
 
+const schedule = require('node-schedule')
+
+@Injectable()
 export class CronJobs {
+
+    public test: string = "Hello World"
+
+    constructor(
+        @Inject(forwardRef(() => DepotService))
+        public readonly depotService: DepotService
+    ) {
+        // console.log("This", this)
+        this.runJobs()
+    }
 
     /**
      * Wrapper to start all cron jobs in server start
      * @returns the ran jobs
      */
-    public static async runJobs(): Promise<any[]> {
+    private async runJobs(): Promise<any[]> {
         // Register Cron Job here
         const jobsFunctions = [
-            CronJobs.updateHistoricalData,
-            CronJobs.checkForTimedOutOrders
+            this.updateHistoricalData,
+            this.checkForTimedOutOrders,
+            this.updateLpJobs
         ]
 
         let jobs: any[] = []
 
         for (let job of jobsFunctions) {
-            jobs.push(await job())
+            jobs.push(await job(this))
         }
+        
+        // console.log("Starting Cron jobs")
 
         return jobs
     }
@@ -33,7 +48,7 @@ export class CronJobs {
     /**
      * Runs periodically (every 15 mins) to update the share price for our historical data
      */
-    public static async updateHistoricalData() {
+    public async updateHistoricalData(context) {
         return schedule.scheduleJob('* */15 * * * *', async function () {
             const shares: Array<Share> = await ShareManager.getShares()
 
@@ -52,7 +67,7 @@ export class CronJobs {
     /**
      * Checks if order validity is overdue, then cancel the job
      */
-    public static async checkForTimedOutOrders() {
+    public async checkForTimedOutOrders(context) {
         return schedule.scheduleJob('*/1 * * * * *', async function () {
             // Get all expired jobs from DB
             const results = await Connector.executeQuery({
@@ -67,6 +82,20 @@ export class CronJobs {
                 } catch { }
             }
         })
+    }
+
+    public async updateLpJobs(context: CronJobs) {
+        // let that: CronJobs = context
+        return schedule.scheduleJob('*/30 * * * * *', async function () {
+            // console.log(context)
+            // await context.depotService.runLps()
+            // throw new Error("FUUUUK")
+            
+        })
+    }
+
+    public async runTest() {
+        await this.depotService.runLps()
     }
 }
 

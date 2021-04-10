@@ -98,10 +98,10 @@ export class CustomerController {
     @ApiBadRequestResponse({
         description: "Insufficient authorization arguments"
     })
-    @Post(':id')
+    @Post(':customerId')
     @HttpCode(200)
     async getCustomer(
-        @Param('id') id: string,
+        @Param('customerId') id: string,
         @Body() session: CustomerSession
     ): Promise<Customer> {
         return await this.customerService.getCustomer(id, session)

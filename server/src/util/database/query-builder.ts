@@ -433,6 +433,24 @@ export class QueryBuilder {
     }
 
     /**
+     * Returns a query to get statistical data for a share
+     * @param shareId ID of the share
+     * @returns a Query object
+     */
+     public static getStatistics(shareId: string): Query {
+        let yesterday = new Date()
+        yesterday.setDate(yesterday.getDate() -1)
+        return {
+            query: 'WITH yesterday(recorded_value) AS (SELECT recorded_value FROM share_price WHERE recorded_at <= ? AND share_id = ? ORDER BY recorded_at ASC LIMIT 1) SELECT last_recorded_value - yesterday.recorded_value as difference, ((last_recorded_value/yesterday.recorded_value)-1)*100 as prozent FROM share, yesterday WHERE share_id = ? ',
+            args: [
+                yesterday,
+                shareId,
+                shareId,
+            ]
+        }
+    }
+
+    /**
      * Used to update the price of a share
      * @param price new price
      * @param shareId id of share
@@ -492,9 +510,9 @@ export class QueryBuilder {
      * @param order Order with all information needed
      * @returns a Query object 
      */
-    public static writeJobToDb(job: Job, depotId: string, order: PlaceShareOrder, jobType: string): Query {
+    public static writeJobToDb(job: Job, depotId: string, order: PlaceShareOrder, jobType: string, isLp: boolean): Query {
         return {
-            query: "INSERT INTO job (job_id, depot_id, share_id, amount, transaction_type, order_limit, order_stop, order_validity, detail, market, job_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
+            query: "INSERT INTO job (job_id, depot_id, share_id, amount, transaction_type, order_limit, order_stop, order_validity, detail, market, job_type, is_lp_job) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
             args: [
                 +job.id,
                 depotId,
@@ -506,7 +524,8 @@ export class QueryBuilder {
                 order.validity,
                 order.detail,
                 order.market ?? "",
-                jobType
+                jobType,
+                isLp
             ]
         }
     }
@@ -701,6 +720,34 @@ export class QueryBuilder {
             query: "SELECT * FROM liquidity_provider WHERE lp_id = ?;",
             args: [
                 lpId
+            ]
+        }
+    }
+
+
+    /**
+     * Returns all active LP entries
+     * @returns a Query object
+     */
+    public static getAllLpEntries(): Query {
+        return {
+            query: "SELECT * FROM liquidity_provider;", 
+            args: []
+        }
+    }
+
+    /**
+     * Returns a query to get all lp jobs by depotId and shareId
+     * @param depotId id of depot
+     * @param shareId id of share
+     * @returns a query object
+     */
+    public static getLpJobs(depotId: string, shareId: string) : Query {
+        return {
+            query: "SELECT * FROM job WHERE depot_id = ? AND share_id = ? AND is_lp_job = TRUE",
+            args: [
+                depotId,
+                shareId
             ]
         }
     }

@@ -6,9 +6,10 @@ import { DepotModule } from './depot/depot.module'
 import { UpdateShares} from './util/stock-exchange/share-updates'
 import { MetaModule } from './meta/meta.module'
 import { WebhookModule } from './webhook/webhook.module'
+import { CronModule } from './util/cron/cron.module';
 
 @Module({
-  imports: [CompanyModule, CustomerModule, ShareModule, DepotModule, WebhookModule, MetaModule],
+  imports: [CompanyModule, CustomerModule, ShareModule, DepotModule, WebhookModule, MetaModule, CronModule],
   providers: [UpdateShares],
 })
 export class AppModule { }

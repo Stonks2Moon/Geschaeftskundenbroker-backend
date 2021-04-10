@@ -44,6 +44,7 @@ export enum orderDetails {
  */
 export async function executeApiCall<T>(func: Function, args: any[], manager: any): Promise<T> {
     try {
+        console.log(args)
         return await func.apply(manager, args)
     } catch (e) {
         // console.error(e)
