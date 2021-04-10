@@ -1,8 +1,5 @@
 import { Controller, Get } from '@nestjs/common'
 import { ApiInternalServerErrorResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger'
-import { type } from 'node:os'
-import { Share } from 'src/share/share.model'
-import { cleanUp } from 'src/util/testing/cleanup'
 import * as CONST from '../util/const'
 import { StockExchangePricing } from './dto/pricing.dto'
 import { MetaService } from './meta.service'
