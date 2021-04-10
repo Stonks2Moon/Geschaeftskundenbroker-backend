@@ -60,7 +60,6 @@ export async function cleanUp(ids: CleanUpIds): Promise<void> {
             const query: Query = constructDeleteStatement(t.name, t.id, s.ids)
             try {
                 await Connector.executeQuery(query)
-                // console.log(query)
             } catch (e) {
                 console.log("Failed Query on CleanUp: ")
                 console.log(query)
