@@ -29,8 +29,8 @@ export class CronJobs {
         // Register Cron Job here
         const jobsFunctions = [
             this.updateHistoricalData,
-            //this.checkForTimedOutOrders,
-            //this.updateLpJobs
+            this.checkForTimedOutOrders,
+            this.updateLpJobs
         ]
 
         let jobs: any[] = []
@@ -38,8 +38,8 @@ export class CronJobs {
         for (let job of jobsFunctions) {
             jobs.push(await job(this))
         }
-        
-        // console.log("Starting Cron jobs")
+
+        console.log("Starting Cron jobs")
 
         return jobs
     }
@@ -47,9 +47,15 @@ export class CronJobs {
     /**
      * Runs periodically (every 15 mins) to update the share price for our historical data
      */
-    public async updateHistoricalData(context) {
-        return schedule.scheduleJob('* */15 * * * *', async function () {
-            const shares: Array<Share> = await ShareManager.getShares()
+    public async updateHistoricalData(_) {
+        return schedule.scheduleJob('0 */15 * * * *', async function () {
+            let shares: Array<Share> = []
+
+            try {
+                shares = await ShareManager.getShares()
+            } catch (e) {
+                console.error("From Cron: Problems with share manager: ", e)
+            }
 
             for (let i = 0; i < shares.length; i++) {
                 const o: UpdatePrice = {
@@ -58,7 +64,11 @@ export class CronJobs {
                     timestamp: (new Date()).getTime()
                 }
 
-                UpdateShares.updateSharePrice(o)
+                try {
+                    UpdateShares.updateSharePrice(o)
+                } catch (e) {
+                    console.error("From Cron: Could not update share prices", e)
+                }
             }
         })
     }
@@ -66,34 +76,38 @@ export class CronJobs {
     /**
      * Checks if order validity is overdue, then cancel the job
      */
-    public async checkForTimedOutOrders(context) {
-        return schedule.scheduleJob('*/1 * * * * *', async function () {
-            // // Get all expired jobs from DB
-            // const results = await Connector.executeQuery({
-            //     query: "SELECT * FROM job WHERE order_validity < NOW()",
-            //     args: []
-            // })
+    public async checkForTimedOutOrders(_) {
+        return schedule.scheduleJob('0 0 */4 * * *', async function () {
+            // Get all expired jobs from DB
+            const results = await Connector.executeQuery({
+                query: "SELECT * FROM job WHERE order_validity < NOW()",
+                args: []
+            })
 
-            // // Delete jobs on stock exchange; call on webhook deletes them from DB
-            // for (const r of results) {
-            //     try {
-            //         await executeApiCall<boolean>(orderManager.deleteOrder, [r.exchange_order_id], orderManager)
-            //     } catch { }
-            // }
+            // Delete jobs on stock exchange; call on webhook deletes them from DB
+            for (const r of results) {
+                try {
+                    await executeApiCall<boolean>(orderManager.deleteOrder, [r.exchange_order_id], orderManager)
+                } catch (e) {
+                    console.error("From Cron: Could not delete order", e)
+                }
+            }
         })
     }
 
+    /**
+     * Updates the Quotes of a LP
+     * @param context The context to run the service from
+     * @returns a CronJob object
+     */
     public async updateLpJobs(context: CronJobs) {
-        // let that: CronJobs = context
-        return schedule.scheduleJob('*/30 * * * * *', async function () {
-            // await context.depotService.runLps()
-            // throw new Error("FUUUUK")
-            
+        return schedule.scheduleJob('0 0 */2 * * *', async function () {
+            try {
+                await context.depotService.runLps()
+            } catch (e) {
+                console.error("From Cron: Could not run or update LPs", e)
+            }
         })
-    }
-
-    public async runTest() {
-        // await this.depotService.runLps()
     }
 }
 
