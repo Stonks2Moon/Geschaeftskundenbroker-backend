@@ -12,7 +12,7 @@ const schedule = require('node-schedule')
 @Injectable()
 export class CronJobs {
 
-    public test: string = "Hello World"
+    public jobs: any[]
 
     constructor(
         @Inject(forwardRef(() => DepotService))
@@ -40,6 +40,8 @@ export class CronJobs {
         }
 
         console.log("Starting Cron jobs")
+
+        this.jobs = jobs
 
         return jobs
     }
