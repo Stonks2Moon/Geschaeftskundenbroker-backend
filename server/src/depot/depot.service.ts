@@ -121,7 +121,7 @@ export class DepotService {
         switch (placeOrder.tradeAlgorithm) {
             case 1:
                 if (placeOrder.order.amount * share.lastRecordedValue < CONST.ALG_SPLIT_THRESHOLD) {
-                    throw new BadRequestException("Doesn't fulfill requirement")
+                    throw new BadRequestException(`Doesn't fulfill requirement. Value: ${placeOrder.order.amount * share.lastRecordedValue}, Min: ${CONST.ALG_SPLIT_THRESHOLD}`)
                 }
                 orderArray = await TradeAlgorithm.splitBuyOrderInSmallerOrders(placeOrder.order)
                 break
