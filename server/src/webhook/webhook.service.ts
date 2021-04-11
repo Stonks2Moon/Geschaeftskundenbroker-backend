@@ -24,7 +24,7 @@ export class WebhookService {
      * @param data data from stock-exchange
      */
     public async onPlace(data: any): Promise<void> {
-        // console.log("Called onPlace: ", data)
+        // console.log("Called onPlace: ", data.id)
         await Connector.executeQuery(QueryBuilder.updateJobWithOrderId(data.jobId, data.id))
     }
 
@@ -33,10 +33,10 @@ export class WebhookService {
      * @param data 
      */
     public async onMatch(data: OrderMatchedDto): Promise<void> {
-        // console.log("Called onMatch: ", data)
-        
+        // console.log("Called onMatch: ", data.orderId)
+
         // Increase cost_value field on matched job
-        if(isNaN(data.amount) || isNaN(data.price)) {
+        if (isNaN(data.amount) || isNaN(data.price)) {
             console.error(`data.amount: ${data.amount}, data.price: ${data.amount}`)
             throw new BadRequestException(`data.amount: ${data.amount}, data.price: ${data.amount}`)
         }
@@ -51,7 +51,7 @@ export class WebhookService {
      * @param data 
      */
     public async onComplete(data: OrderCompletedDto): Promise<void> {
-        // console.log("Called onComplete", data)
+        // console.log("Called onComplete", data.orderId)
 
         // Get Job from DB
         const job: JobWrapper = await this.getJobById({ orderId: data.orderId })
@@ -61,6 +61,7 @@ export class WebhookService {
             // Transform job into executed share_order
             const order: ReturnShareOrder = await this.jobToOrder(job)
             await this.depotService.saveShareOrder(order)
+
             // Delete job from db
             await Connector.executeQuery(QueryBuilder.deleteJobByJobId(job.id))
         } else {
