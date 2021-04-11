@@ -175,7 +175,7 @@ export class ShareService {
 
         // Get data from database
         let yesterday = new Date()
-        yesterday.setDate(yesterday.getDate() -1)
+        yesterday.setDate(yesterday.getDate() - 1)
         const result = (await Connector.executeQuery(QueryBuilder.getStatistics(shareId, yesterday)))[0]
 
         // If no shares are found throw 404 error

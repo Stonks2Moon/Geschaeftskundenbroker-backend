@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
 import { OrderCompletedDto, OrderDeletedDto, OrderMatchedDto } from 'moonstonks-boersenapi'
 import { DeleteOrderDto } from 'moonstonks-boersenapi/dist/dtos/DeleteOrder.dto'
 import { PlaceOrderDto } from 'moonstonks-boersenapi/dist/dtos/PlaceOrder.dto'
@@ -7,7 +7,7 @@ import { Connector } from 'src/util/database/connector'
 import { QueryBuilder } from 'src/util/database/query-builder'
 import { JobWrapper } from './dto/job-wrapper.dto'
 import * as CONST from "../util/const"
-import { PlaceShareOrder } from 'src/depot/dto/share-order.dto'
+import { PlaceShareOrder, ReturnShareOrder } from 'src/depot/dto/share-order.dto'
 import { DepotService } from 'src/depot/depot.service'
 
 
@@ -24,7 +24,7 @@ export class WebhookService {
      * @param data data from stock-exchange
      */
     public async onPlace(data: any): Promise<void> {
-        // console.log("Called onPlace: ", data)
+        // console.log("Called onPlace: ", data.id)
         await Connector.executeQuery(QueryBuilder.updateJobWithOrderId(data.jobId, data.id))
     }
 
@@ -33,8 +33,16 @@ export class WebhookService {
      * @param data 
      */
     public async onMatch(data: OrderMatchedDto): Promise<void> {
-        // console.log("Called onMatch: ", data)
-        // TODO
+        // console.log("Called onMatch: ", data.orderId)
+
+        // Increase cost_value field on matched job
+        if (isNaN(data.amount) || isNaN(data.price)) {
+            console.error(`data.amount: ${data.amount}, data.price: ${data.amount}`)
+            throw new BadRequestException(`data.amount: ${data.amount}, data.price: ${data.amount}`)
+        }
+
+        const increase = data.amount * data.price
+        await Connector.executeQuery(QueryBuilder.increaseJobCostValue(data.orderId, increase))
     }
 
 
@@ -43,7 +51,7 @@ export class WebhookService {
      * @param data 
      */
     public async onComplete(data: OrderCompletedDto): Promise<void> {
-        // console.log("Called onComplete", data)
+        // console.log("Called onComplete", data.orderId)
 
         // Get Job from DB
         const job: JobWrapper = await this.getJobById({ orderId: data.orderId })
@@ -51,8 +59,9 @@ export class WebhookService {
         // Depending on job type:
         if (job.jobType === CONST.JOB_TYPES.PLACE) {
             // Transform job into executed share_order
-            const order: PlaceShareOrder = await this.jobToOrder(job)
+            const order: ReturnShareOrder = await this.jobToOrder(job)
             await this.depotService.saveShareOrder(order)
+
             // Delete job from db
             await Connector.executeQuery(QueryBuilder.deleteJobByJobId(job.id))
         } else {
@@ -75,18 +84,19 @@ export class WebhookService {
      * @param job JobWrapper object 
      * @returns PlaceShareOrder object
      */
-    private async jobToOrder(job: JobWrapper): Promise<PlaceShareOrder> {
-        const order: PlaceShareOrder = {
+    private async jobToOrder(job: JobWrapper): Promise<ReturnShareOrder> {
+        const order: ReturnShareOrder = {
             amount: job.placeOrder.amount,
             depotId: job.depotId,
             detail: job.detail,
             orderId: job.id,
-            shareId: job.share.shareId,
+            share: await this.shareService.getShareData(job.share.shareId),
             type: job.placeOrder.type,
             validity: job.orderValidity,
             limit: job.placeOrder.limit,
             market: job.market,
-            stop: job.placeOrder.stop
+            stop: job.placeOrder.stop,
+            costValue: job.costValue
         }
 
         return order
@@ -107,7 +117,7 @@ export class WebhookService {
         const result = (await Connector.executeQuery(QueryBuilder.getJobById(info)))[0]
 
         if (!result) {
-            console.log(`Job with id ${info.jobId} not found`)
+            console.error(`Job with id ${info.jobId} not found`)
             throw new NotFoundException("Job not found")
         }
 
@@ -151,6 +161,7 @@ export class WebhookService {
             placeOrder: result.job_type === CONST.JOB_TYPES.PLACE ? order : undefined,
 
             market: result.market,
+            costValue: result.cost_value
 
         }
 

@@ -3,7 +3,7 @@ import { Company } from 'src/company/company.model'
 import { Share } from 'src/share/share.model'
 import { Query } from './query.model'
 import { Job } from "moonstonks-boersenapi"
-import { PlaceShareOrder } from 'src/depot/dto/share-order.dto'
+import { PlaceShareOrder, ReturnShareOrder } from 'src/depot/dto/share-order.dto'
 import { DepotEntry } from 'src/depot/dto/depot-entry.dto'
 
 export class QueryBuilder {
@@ -596,20 +596,21 @@ export class QueryBuilder {
      * @param order order object to be created on the db
      * @returns a Query object
      */
-    public static createShareOrder(order: PlaceShareOrder): Query {
+    public static createShareOrder(order: ReturnShareOrder): Query {
         return {
-            query: "INSERT INTO share_order (order_id, depot_id, share_id, amount, transaction_type, order_stop, order_limit, order_validity, detail, market) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            query: "INSERT INTO share_order (order_id, depot_id, share_id, amount, transaction_type, order_stop, order_limit, order_validity, detail, market, cost_value) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             args: [
                 order.orderId,
                 order.depotId,
-                order.shareId,
+                order.share.shareId,
                 order.amount,
                 order.type,
                 order.stop,
                 order.limit,
                 order.validity,
                 order.detail,
-                order.market
+                order.market,
+                order.costValue
             ]
         }
     }
@@ -746,6 +747,17 @@ export class QueryBuilder {
             args: [
                 depotId,
                 shareId
+            ]
+        }
+    }
+
+
+    public static increaseJobCostValue(exchangeOrderId: string, increase: number): Query {
+        return {
+            query: "UPDATE job SET cost_value = cost_value + ? WHERE exchange_order_id = ?;",
+            args: [
+                increase,
+                exchangeOrderId
             ]
         }
     }

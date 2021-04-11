@@ -156,7 +156,7 @@ describe('Test Depot controller', () => {
     
 
     it('It should set the exchange order id of a job', async () => {
-        await depotService.saveJobs([testJob], testDepot.depotId, [testPlaceShareOrder], CONST.JOB_TYPES.PLACE)
+        await depotService.saveJob(testJob, testDepot.depotId, testPlaceShareOrder, CONST.JOB_TYPES.PLACE)
 
         await webhookController.onPlace(testOnPlace)
 
@@ -170,7 +170,7 @@ describe('Test Depot controller', () => {
     })
 
     it('Should delete a job from the DB', async () => {
-        await depotService.saveJobs([testJob], testDepot.depotId, [testPlaceShareOrder], CONST.JOB_TYPES.PLACE)
+        await depotService.saveJob(testJob, testDepot.depotId, testPlaceShareOrder, CONST.JOB_TYPES.PLACE)
         const localOrderId: string = cryptoRandomString({length: 10, type: 'alphanumeric'})
         await webhookController.onPlace({ id: localOrderId, jobId: testJob.id})
         await webhookController.onDelete({orderId: localOrderId, timestamp: 0, remaining: 0})
@@ -184,7 +184,7 @@ describe('Test Depot controller', () => {
     })
 
     it('Should throw an error when deleting a job', async () => {
-        await depotService.saveJobs([testJob], testDepot.depotId, [testPlaceShareOrder], CONST.JOB_TYPES.PLACE)
+        await depotService.saveJob(testJob, testDepot.depotId, testPlaceShareOrder, CONST.JOB_TYPES.PLACE)
         const localOrderId: string = cryptoRandomString({length: 10, type: 'alphanumeric'})
         await webhookController.onPlace({ id: localOrderId, jobId: testJob.id})
 
@@ -202,7 +202,7 @@ describe('Test Depot controller', () => {
             timestamp: (new Date()).getMilliseconds()
         }
 
-        await depotService.saveJobs([testJob], testDepot.depotId, [testPlaceShareOrder], CONST.JOB_TYPES.PLACE)
+        await depotService.saveJob(testJob, testDepot.depotId, testPlaceShareOrder, CONST.JOB_TYPES.PLACE)
 
         await webhookController.onPlace(testOnPlace)
 

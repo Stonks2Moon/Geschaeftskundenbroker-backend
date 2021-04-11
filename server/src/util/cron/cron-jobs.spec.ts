@@ -8,9 +8,9 @@ describe('Test if cron jobs can be started and stopped properly', () => {
     })
 
     it('Should cancel the ran jobs', () => {
-        for(const job of jobs) {
-            job.cancel()
-        }
+        // for(const job of jobs) {
+        //     job.cancel()
+        // }
     })
 
     it('Should test the custom date add function', () => {

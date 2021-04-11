@@ -25,6 +25,7 @@ import { LpCancelDto } from './dto/lp-cancel.dto'
 import { addDays } from 'src/util/cron/cron-jobs.service'
 import * as Moment from 'moment'
 import { extendMoment } from 'moment-range'
+import { SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS } from 'node:constants'
 const moment = extendMoment(Moment)
 
 @Injectable()
@@ -120,7 +121,7 @@ export class DepotService {
         switch (placeOrder.tradeAlgorithm) {
             case 1:
                 if (placeOrder.order.amount * share.lastRecordedValue < CONST.ALG_SPLIT_THRESHOLD) {
-                    throw new BadRequestException("Doesn't fulfill requirement")
+                    throw new BadRequestException(`Doesn't fulfill requirement. Value: ${placeOrder.order.amount * share.lastRecordedValue}, Min: ${CONST.ALG_SPLIT_THRESHOLD}`)
                 }
                 orderArray = await TradeAlgorithm.splitBuyOrderInSmallerOrders(placeOrder.order)
                 break
@@ -129,13 +130,12 @@ export class DepotService {
                 orderArray.push(placeOrder.order)
         }
 
-        let results: Array<Job> = []
         for (const o of orderArray) {
             const orderFunction = getOrderFunction(o)
-            results.push(await executeApiCall<Job>(orderFunction.func.f, orderFunction.args, isLp ? lqOrderManager : orderManager))
-        }
+            let currJob: Job = await executeApiCall<Job>(orderFunction.func.f, orderFunction.args, isLp ? lqOrderManager : orderManager)
 
-        await this.saveJobs(results, placeOrder.order.depotId, orderArray, CONST.JOB_TYPES.PLACE, isLp)
+            await this.saveJob(currJob, placeOrder.order.depotId, o, CONST.JOB_TYPES.PLACE, isLp)
+        }
 
         return orderArray
     }
@@ -340,18 +340,14 @@ export class DepotService {
      * @param order share order object
      * @returns the created share order object
      */
-    public async saveShareOrder(order: PlaceShareOrder): Promise<PlaceShareOrder> {
-
-        // Get share by it's id
-        const share = (await this.shareService.getShareData(order.shareId))
-        const multiplier: number = order.type === CONST.ORDER.TYPE.SELL ? -1 : 1
+    public async saveShareOrder(order: ReturnShareOrder): Promise<ReturnShareOrder> {
 
         // Create a depot entry
         const depotEntry: DepotEntry = {
             depotId: order.depotId,
-            share: share,
-            amount: order.amount * multiplier,
-            costValue: share.lastRecordedValue * order.amount * multiplier,
+            share: order.share,
+            amount: order.amount,
+            costValue: order.costValue,
         }
 
         // Write data to db
@@ -369,14 +365,14 @@ export class DepotService {
      * @param depotId depotId of user
      * @param orders Array of orders (from algorithm)
      */
-    public async saveJobs(jobs: Job[], depotId: string, orders: PlaceShareOrder[], jobType: string, isLp = false): Promise<void> {
-        if (jobs.length != orders.length) {
-            throw new InternalServerErrorException("Jobs / Orders length mismatch")
-        }
+    public async saveJob(job: Job, depotId: string, order: PlaceShareOrder, jobType: string, isLp = false): Promise<void> {
+        // if (jobs.length != orders.length) {
+        //     throw new InternalServerErrorException("Jobs / Orders length mismatch")
+        // }
 
-        for (let i = 0; i < jobs.length; i++) {
-            await Connector.executeQuery(QueryBuilder.writeJobToDb(jobs[i], depotId, orders[i], jobType, isLp))
-        }
+        // for (let i = 0; i < jobs.length; i++) {
+        await Connector.executeQuery(QueryBuilder.writeJobToDb(job, depotId, order, jobType, isLp))
+        // }
     }
 
 

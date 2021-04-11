@@ -64,5 +64,8 @@ export class ReturnShareOrder extends ShareOrder {
     orderId: string
 
     @ApiProperty({ required: false })
-    share: Share
+    share?: Share 
+    
+    @ApiProperty({ required: false })
+    costValue?: number
 }
