@@ -714,7 +714,8 @@ export class DepotService {
                     onComplete: "",
                     onPlace: ""
                 },
-                isLpJob: (r.is_lp_job === 0 ? false : true)
+                isLpJob: (r.is_lp_job === 0 ? false : true),
+                costValue: r.cost_value
             })
         }
 
