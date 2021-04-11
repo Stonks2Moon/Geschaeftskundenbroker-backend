@@ -95,7 +95,8 @@ export class WebhookService {
             limit: job.placeOrder.limit,
             market: job.market,
             stop: job.placeOrder.stop,
-            costValue: job.costValue
+            costValue: job.costValue,
+            isLp: job.isLp
         }
 
         return order
@@ -160,8 +161,8 @@ export class WebhookService {
             placeOrder: result.job_type === CONST.JOB_TYPES.PLACE ? order : undefined,
 
             market: result.market,
-            costValue: result.cost_value
-
+            costValue: result.cost_value,
+            isLp: result.is_lp_job == 1 ? true : false
         }
 
         return job

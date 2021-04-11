@@ -69,14 +69,7 @@ export class DepotService {
      * @param placeOrder placeOrder object with all needed information to perform task
      * @returns the placed order if successful else throw an error
      */
-    public async placeOrder(placeOrder: PlaceOrderDto, isCron = false): Promise<Array<PlaceShareOrder>> {
-        let isLp: boolean = false
-        if (isCron) {
-            isLp = true
-        } else {
-            // Get from db if user is lp,
-        }
-
+    public async placeOrder(placeOrder: PlaceOrderDto, isCron = false): Promise<Array<PlaceShareOrder>> {    
         // Check validity date
         if (moment(placeOrder.order.validity).diff(addDays(new Date(), 1)) < 0) {
             throw new BadRequestException("No valid date information")
@@ -84,6 +77,18 @@ export class DepotService {
 
         let customer: { customer: Customer, session: CustomerSession }
         const depot: Depot = await this.showDepotById(placeOrder.order.depotId, placeOrder.customerSession, isCron)
+
+        let isLp: boolean = false
+        if (isCron) {
+            isLp = true
+        } else {
+            // Get from db if user is lp,
+            const lpResult = await Connector.executeQuery(QueryBuilder.getLpDepotsByCompanyId(depot.company.companyId))
+            if(lpResult && lpResult.length > 0) {
+                isLp = true
+            }
+        }
+
         // Validate Session if input is from user
         if (!isCron) {
             customer = await this.customerService.customerLogin({ session: placeOrder.customerSession })
@@ -460,7 +465,9 @@ export class DepotService {
                 limit: r.limit,
                 market: r.market,
                 stop: r.stop,
-                stopLimit: r.order_stop_limit
+                stopLimit: r.order_stop_limit,
+                costValue: r.cost_value,
+                isLp: r.is_lp == 1 ? true : false
             })
         }
 
@@ -487,6 +494,13 @@ export class DepotService {
 
         // Check if share is valid
         const share: Share = await this.shareService.getShareData(registerLp.shareId)
+
+        // Check if depot is already LP with that share
+        const lpResult = await Connector.executeQuery(QueryBuilder.getLpByShareIdAndDepotId(share.shareId, depot.depotId))
+
+        if(lpResult.length > 0) {
+            throw new NotAcceptableException(`Depot with id ${depot.depotId} is already LP for share with id ${share.shareId}`)
+        }
 
         // Check if depot has share
         const depotPosition: DepotPosition = depot.positions.filter(pos => pos.share.shareId === share.shareId)[0]
