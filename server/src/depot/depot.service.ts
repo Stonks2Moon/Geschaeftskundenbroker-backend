@@ -130,13 +130,12 @@ export class DepotService {
                 orderArray.push(placeOrder.order)
         }
 
-        let results: Array<Job> = []
         for (const o of orderArray) {
             const orderFunction = getOrderFunction(o)
-            results.push(await executeApiCall<Job>(orderFunction.func.f, orderFunction.args, isLp ? lqOrderManager : orderManager))
-        }
+            let currJob: Job = await executeApiCall<Job>(orderFunction.func.f, orderFunction.args, isLp ? lqOrderManager : orderManager)
 
-        await this.saveJobs(results, placeOrder.order.depotId, orderArray, CONST.JOB_TYPES.PLACE, isLp)
+            await this.saveJob(currJob, placeOrder.order.depotId, o, CONST.JOB_TYPES.PLACE, isLp)
+        }
 
         return orderArray
     }
@@ -366,14 +365,14 @@ export class DepotService {
      * @param depotId depotId of user
      * @param orders Array of orders (from algorithm)
      */
-    public async saveJobs(jobs: Job[], depotId: string, orders: PlaceShareOrder[], jobType: string, isLp = false): Promise<void> {
-        if (jobs.length != orders.length) {
-            throw new InternalServerErrorException("Jobs / Orders length mismatch")
-        }
+    public async saveJob(job: Job, depotId: string, order: PlaceShareOrder, jobType: string, isLp = false): Promise<void> {
+        // if (jobs.length != orders.length) {
+        //     throw new InternalServerErrorException("Jobs / Orders length mismatch")
+        // }
 
-        for (let i = 0; i < jobs.length; i++) {
-            await Connector.executeQuery(QueryBuilder.writeJobToDb(jobs[i], depotId, orders[i], jobType, isLp))
-        }
+        // for (let i = 0; i < jobs.length; i++) {
+        await Connector.executeQuery(QueryBuilder.writeJobToDb(job, depotId, order, jobType, isLp))
+        // }
     }
 
 

@@ -265,10 +265,10 @@ describe('Test Depot controller', () => {
             { amount: 0, depotId: "", detail: 'limit', orderId: "", shareId: "", type: 'buy', validity: null}
         ]
         try{
-            await testDepotService.saveJobs(jobs, "", orders, "")
-            expect(0).toEqual(1)
+            // await testDepotService.saveJob(jobs, "", orders, "")
+            // expect(0).toEqual(1)
         } catch (e) {
-            expect(e.message).toEqual("Jobs / Orders length mismatch")
+            // expect(e.message).toEqual("Jobs / Orders length mismatch")
         }
 
         // Illegal depot access attempt
@@ -329,7 +329,7 @@ describe('Test Depot controller', () => {
             { amount: 0, depotId: testDepot2.depotId, detail: 'limit', orderId: orderId, shareId: randomShare.shareId, type: 'buy', validity: addDays(new Date(), 10), limit: 0, market: "", stop: 0, stopLimit: 0}
         ]
 
-        await testDepotService.saveJobs(jobs, testDepot2.depotId, orders, "place")
+        await testDepotService.saveJob(jobs[0], testDepot2.depotId, orders[0], "place")
         
         let pendingOrders: JobWrapper[] = await testDepotController.showPendingOrders(testDepot2.depotId, testCustomer2.session)
 
