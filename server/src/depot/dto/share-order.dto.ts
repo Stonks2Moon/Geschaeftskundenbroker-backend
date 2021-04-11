@@ -68,4 +68,7 @@ export class ReturnShareOrder extends ShareOrder {
     
     @ApiProperty({ required: false })
     costValue?: number
+
+    @ApiProperty({ required: false })
+    isLp?: boolean
 }

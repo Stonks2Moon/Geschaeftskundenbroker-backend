@@ -598,7 +598,7 @@ export class QueryBuilder {
      */
     public static createShareOrder(order: ReturnShareOrder): Query {
         return {
-            query: "INSERT INTO share_order (order_id, depot_id, share_id, amount, transaction_type, order_stop, order_limit, order_validity, detail, market, cost_value) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            query: "INSERT INTO share_order (order_id, depot_id, share_id, amount, transaction_type, order_stop, order_limit, order_validity, detail, market, cost_value, is_lp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             args: [
                 order.orderId,
                 order.depotId,
@@ -610,7 +610,8 @@ export class QueryBuilder {
                 order.validity,
                 order.detail,
                 order.market,
-                order.costValue
+                order.costValue,
+                order.isLp
             ]
         }
     }
@@ -751,13 +752,49 @@ export class QueryBuilder {
         }
     }
 
-
+    /**
+     * Increase the cost value of an existing job
+     * @param exchangeOrderId exchange order id of the job
+     * @param increase amount to increase the cost value by
+     * @returns a Query object 
+     */
     public static increaseJobCostValue(exchangeOrderId: string, increase: number): Query {
         return {
             query: "UPDATE job SET cost_value = cost_value + ? WHERE exchange_order_id = ?;",
             args: [
                 increase,
                 exchangeOrderId
+            ]
+        }
+    }
+
+    /**
+     * Fetches a LP entry be depot and share id
+     * @param shareId id of share
+     * @param depotId id of depot
+     * @returns a query object
+     */
+    public static getLpByShareIdAndDepotId(shareId: string, depotId: string): Query {
+        return {
+            query: "SELECT * FROM liquidity_provider WHERE share_id = ? AND depot_id = ? ",
+            args: [
+                shareId,
+                depotId
+            ]
+        }
+    }
+
+
+    /**
+     * Returns the lq ids for a given company
+     * @param companyId id of company
+     * @returns a query object
+     */
+    public static getLpDepotsByCompanyId(companyId: string): Query {
+        return {
+            query: "SELECT liquidity_provider.lp_id FROM liquidity_provider JOIN depot ON liquidity_provider.depot_id = depot.depot_id JOIN company ON depot.company_id = company.company_id WHERE company.company_id = ?;",
+            args: [
+                companyId
             ]
         }
     }

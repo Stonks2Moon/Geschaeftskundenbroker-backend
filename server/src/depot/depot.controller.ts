@@ -281,7 +281,7 @@ export class DepotController {
         type: LpPosition
     })
     @ApiNotAcceptableResponse({
-        description: "Depot doesn't have share or too few shares"
+        description: "Depot doesn't have share or too few shares, or depot is already registered LP for that share"
     })
     @Post('lp/register')
     @HttpCode(200)

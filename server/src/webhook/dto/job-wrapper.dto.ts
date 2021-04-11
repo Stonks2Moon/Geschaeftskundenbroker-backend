@@ -73,4 +73,7 @@ export class JobWrapper extends MyJob {
 
     @ApiProperty()
     costValue?: number
+
+    @ApiProperty()
+    isLp?: boolean
 }
