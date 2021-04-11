@@ -421,8 +421,14 @@ export class DepotService {
         }
 
         // Delete order 
-        const result: boolean = await executeApiCall<boolean>(orderManager.deleteOrder, [orderId], isCron ? lqOrderManager : orderManager)
-
+        let result = false
+        try {
+            result = await executeApiCall<boolean>(orderManager.deleteOrder, [orderId], isCron ? lqOrderManager : orderManager)
+        } catch(e) {
+            console.error(`Could not delete order with id ${orderId} from stock exchange => deleting manually`)
+            await Connector.executeQuery(QueryBuilder.deleteJobByOrderId(orderId))
+        }
+ 
         // If error occurs throw error
         if (!result) {
             throw new NotAcceptableException(`Could not delete order ${orderId}`)
