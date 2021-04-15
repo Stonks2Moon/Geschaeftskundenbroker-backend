@@ -351,8 +351,8 @@ export class DepotService {
         const depotEntry: DepotEntry = {
             depotId: order.depotId,
             share: order.share,
-            amount: order.amount,
-            costValue: order.costValue,
+            amount: order.amount * (order.type == orderTypes.sell ? -1 : 1),
+            costValue: order.costValue * (order.type == orderTypes.sell ? -1 : 1)
         }
 
         // Write data to db
