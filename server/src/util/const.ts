@@ -7,7 +7,7 @@ export const HASH_SALT_ROUNDS = 10
 export const DEFAULT_SEARCH_LIMIT = 20
 
 /*------------- API -------------*/
-export const STOCK_EXCHANGE_PRICING_API_URL = "https://boerse.moonstonks.space/pricing/Business"
+export const STOCK_EXCHANGE_PRICING_API_URL = "https://boerse.moonstonks.space/pricing/business"
 export const STOCK_EXCHANGE_API_URL = "ws://boerse.moonstonks.space:16001"
 export const WEBHOOK_BASE_URL = "https://business.moonstonks.space/api/webhook"
 export const STOCK_EXCHANGE_CALLBACK_TOKEN = require('../_config/config').stockExchange.callbackToken
